@@ -1,0 +1,1181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="CoAt" />
+  <link rel="manifest" href="./manifest.json" />
+  <link rel="apple-touch-icon" href="./icon-192.png" />
+  <title>CoAt</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Fraunces:ital,opsz,wght@0,9..144,300;1,9..144,300&display=swap" rel="stylesheet" />
+  <style>
+    *,*::before,*::after{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+    :root{
+      --bg:#F0EDE8;--surface:#E8E4DD;--slab:#DEDAD2;--border:#C0BBB2;
+      --fog:#6B6860;--text:#1A1A18;--accent:#3D6B35;--mid:#527A49;--rust:#8B3A1A;
+      --safe-top:env(safe-area-inset-top,0px);--safe-bottom:env(safe-area-inset-bottom,0px);
+    }
+    html,body{height:100%;margin:0;padding:0;background:var(--bg);color:var(--text);
+      font-family:'Courier Prime',monospace;overscroll-behavior:none;-webkit-overflow-scrolling:touch;
+      transition:background .55s ease,color .55s ease;}
+    body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;opacity:.45;
+      background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");}
+
+    /* transitions */
+    .tr{transition:background .55s ease,color .55s ease,border-color .55s ease;}
+
+    /* toggle track */
+    .tog-track{width:210px;height:38px;background:var(--surface);border:1px solid var(--border);
+      position:relative;cursor:pointer;display:flex;align-items:center;
+      transition:background .55s ease,border-color .55s ease;}
+    .tog-thumb{position:absolute;width:calc(50% - 2px);height:calc(100% - 4px);
+      top:2px;left:2px;background:var(--accent);z-index:1;
+      transition:transform .42s cubic-bezier(.34,1.4,.64,1),background .55s ease;}
+    .tog-thumb.right{transform:translateX(105px);}
+    .tog-lbl{position:relative;z-index:2;flex:1;text-align:center;
+      font-family:'Bebas Neue',sans-serif;font-size:.88rem;letter-spacing:.12em;
+      pointer-events:none;transition:color .3s ease;}
+
+    /* tab bar */
+    .tab-bar{display:flex;border-bottom:2px solid var(--border);background:var(--surface);
+      flex-shrink:0;transition:background .55s ease,border-color .55s ease;}
+    .tab-btn{flex:1;padding:.75rem 0;font-family:'Bebas Neue',sans-serif;font-size:1rem;
+      letter-spacing:.12em;text-align:center;cursor:pointer;background:transparent;border:none;
+      color:var(--fog);border-bottom:2px solid transparent;margin-bottom:-2px;
+      transition:color .2s ease,border-color .2s ease;}
+    .tab-btn.active{color:var(--accent);border-bottom-color:var(--accent);}
+
+    /* picker */
+    .picker-wrap{position:relative;height:196px;overflow:hidden;}
+    .picker-scroll{height:100%;overflow-y:scroll;scroll-snap-type:y mandatory;
+      -webkit-overflow-scrolling:touch;scrollbar-width:none;padding:78px 0;}
+    .picker-scroll::-webkit-scrollbar{display:none;}
+    .picker-item{height:40px;display:flex;align-items:center;justify-content:center;
+      scroll-snap-align:center;font-family:'Bebas Neue',sans-serif;font-size:1.45rem;
+      letter-spacing:.08em;color:var(--fog);cursor:pointer;
+      transition:color .2s ease,font-size .2s ease;user-select:none;}
+    .picker-item.sel{color:var(--text);font-size:1.85rem;}
+    .picker-fade-top{position:absolute;top:0;left:0;right:0;height:78px;
+      background:linear-gradient(to bottom,var(--bg),transparent);pointer-events:none;z-index:2;
+      transition:background .55s ease;}
+    .picker-fade-bot{position:absolute;bottom:0;left:0;right:0;height:78px;
+      background:linear-gradient(to top,var(--bg),transparent);pointer-events:none;z-index:2;
+      transition:background .55s ease;}
+    .picker-sel-line{position:absolute;top:50%;left:1.25rem;right:1.25rem;
+      height:40px;margin-top:-20px;border-top:1px solid var(--border);
+      border-bottom:1px solid var(--border);pointer-events:none;z-index:3;
+      transition:border-color .55s ease;}
+
+    /* chip */
+    .chip{padding:.55rem 1.1rem;border:1px solid var(--border);background:var(--surface);
+      color:var(--fog);font-family:'Courier Prime',monospace;font-size:.8rem;
+      letter-spacing:.08em;text-transform:uppercase;cursor:pointer;position:relative;
+      transition:all .15s ease;user-select:none;}
+    .chip::after{content:'';position:absolute;bottom:-1px;right:-1px;width:7px;height:7px;
+      background:var(--bg);clip-path:polygon(100% 0,100% 100%,0 100%);transition:background .55s ease;}
+    .chip.on{border-color:var(--accent);background:var(--bg);color:var(--accent);}
+
+    /* cta */
+    .btn-cta{width:100%;padding:1.2rem 1.5rem;background:var(--accent);color:var(--bg);
+      border:none;font-family:'Bebas Neue',sans-serif;font-size:1.5rem;letter-spacing:.12em;
+      cursor:pointer;position:relative;overflow:hidden;
+      display:flex;align-items:center;justify-content:space-between;
+      transition:background .55s ease,color .55s ease;}
+    .btn-cta::after{content:'';position:absolute;bottom:0;right:0;width:10px;height:10px;
+      background:var(--bg);clip-path:polygon(100% 0,100% 100%,0 100%);transition:background .55s ease;}
+    .btn-cta:disabled{background:var(--slab);color:var(--border);cursor:not-allowed;}
+    .btn-cta:not(:disabled):active{opacity:.85;}
+
+    /* workout block */
+    .w-block{background:var(--surface);border-left:4px solid var(--accent);
+      margin-bottom:1.1rem;position:relative;overflow:hidden;
+      transition:background .55s ease,border-color .55s ease;}
+    .w-block::before{content:'';position:absolute;inset:0;pointer-events:none;
+      background:repeating-linear-gradient(180deg,transparent 0,transparent 4px,rgba(0,0,0,.03) 4px,rgba(0,0,0,.03) 5px);}
+
+    /* exercise row — bigger */
+    .ex-row{cursor:pointer;border-bottom:1px solid var(--border);
+      transition:background .15s ease,border-color .55s ease;}
+    .ex-row:last-child{border-bottom:none;}
+    .ex-row:active{background:var(--slab);}
+    .ex-main{padding:.9rem 1.1rem;display:flex;justify-content:space-between;align-items:center;}
+    .ex-name{font-size:1rem;color:var(--text);font-weight:700;line-height:1.3;
+      transition:color .55s ease;}
+    .ex-sets{font-family:'Bebas Neue',sans-serif;font-size:1.1rem;letter-spacing:.05em;
+      white-space:nowrap;flex-shrink:0;transition:color .55s ease;}
+    .chev{transition:transform .3s ease,color .55s ease;display:inline-flex;align-items:center;justify-content:center;
+      font-size:.75rem;margin-left:.5rem;}
+    .chev.open{transform:rotate(180deg);}
+
+    /* info card */
+    .info-card{max-height:0;overflow:hidden;background:var(--slab);
+      transition:max-height .4s cubic-bezier(.4,0,.2,1),background .55s ease;}
+    .info-card.open{max-height:500px;border-top:1px solid var(--border);}
+    .info-text{padding:1rem 1.1rem;font-size:.82rem;color:var(--fog);
+      line-height:1.8;font-style:italic;transition:color .55s ease,background .55s ease;}
+
+    /* pre-config hiit button */
+    .btn-hiit{display:flex;align-items:center;gap:.5rem;padding:.65rem 1.1rem;
+      background:transparent;border:1px solid var(--accent);color:var(--accent);
+      font-family:'Courier Prime',monospace;font-size:.75rem;letter-spacing:.1em;
+      text-transform:uppercase;cursor:pointer;width:100%;
+      transition:all .15s ease;}
+    .btn-hiit:active{background:rgba(0,0,0,.05);}
+
+    /* secondary btns */
+    .btn-sec{flex:1;padding:.95rem 1rem;background:transparent;color:var(--fog);
+      border:1px solid var(--border);font-family:'Courier Prime',monospace;
+      font-size:.75rem;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;
+      transition:all .15s ease;}
+    .btn-sec:active{background:var(--surface);}
+    .btn-alt{flex:1;padding:.95rem 1rem;background:transparent;color:var(--accent);
+      border:1px solid var(--accent);font-family:'Courier Prime',monospace;
+      font-size:.75rem;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;
+      opacity:.75;transition:all .15s ease;}
+    .btn-alt:active{opacity:1;}
+
+    /* ── HIIT TIMER ── */
+    .timer-ring-wrap{display:flex;align-items:center;justify-content:center;margin:1.5rem 0;}
+    .timer-circle{position:relative;width:220px;height:220px;}
+    .timer-svg{transform:rotate(-90deg);}
+    .ring-bg{fill:none;stroke:var(--slab);stroke-width:10;transition:stroke .55s ease;}
+    .ring-prog{fill:none;stroke:var(--accent);stroke-width:10;stroke-linecap:butt;
+      transition:stroke-dashoffset .5s linear,stroke .55s ease;}
+    .timer-inner{position:absolute;inset:0;display:flex;flex-direction:column;
+      align-items:center;justify-content:center;gap:.15rem;}
+    .timer-time{font-family:'Bebas Neue',sans-serif;font-size:3.5rem;line-height:1;
+      color:var(--text);transition:color .55s ease;}
+    .timer-phase{font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;
+      color:var(--accent);transition:color .55s ease;}
+    .timer-round{font-size:.65rem;letter-spacing:.12em;color:var(--fog);
+      transition:color .55s ease;}
+
+    /* timer controls */
+    .timer-ctrl{display:flex;gap:.75rem;justify-content:center;margin-bottom:1.5rem;}
+    .tc-btn{width:56px;height:56px;border:1px solid var(--border);background:var(--surface);
+      color:var(--text);font-size:1.4rem;cursor:pointer;display:flex;
+      align-items:center;justify-content:center;
+      transition:background .15s ease,border-color .55s ease,color .55s ease;}
+    .tc-btn.primary{background:var(--accent);color:var(--bg);border-color:var(--accent);
+      width:70px;height:70px;font-size:1.8rem;}
+    .tc-btn:active{opacity:.8;}
+
+    /* hiit config inputs */
+    .t-input{background:var(--surface);border:1px solid var(--border);color:var(--text);
+      font-family:'Bebas Neue',sans-serif;font-size:1.4rem;text-align:center;
+      padding:.4rem;width:72px;outline:none;
+      transition:background .55s ease,border-color .55s ease,color .55s ease;}
+    .t-input:focus{border-color:var(--accent);}
+
+    /* exercise queue */
+    .q-item{padding:.75rem 1rem;border-bottom:1px solid var(--border);
+      display:flex;align-items:center;gap:.75rem;
+      transition:background .55s ease,border-color .55s ease;}
+    .q-item.active-ex{background:rgba(0,0,0,.04);}
+    .q-num{font-family:'Bebas Neue',sans-serif;font-size:1rem;color:var(--fog);
+      width:1.5rem;text-align:center;flex-shrink:0;transition:color .55s ease;}
+    .q-num.cur{color:var(--accent);}
+    .q-name{font-size:.88rem;color:var(--text);flex:1;transition:color .55s ease;}
+    .q-dur{font-family:'Bebas Neue',sans-serif;font-size:.9rem;color:var(--fog);
+      flex-shrink:0;transition:color .55s ease;}
+
+    /* hiit exercise chips */
+    .hchip{padding:.5rem .9rem;border:1px solid var(--border);background:var(--surface);
+      color:var(--fog);font-family:'Courier Prime',monospace;font-size:.72rem;
+      letter-spacing:.06em;cursor:pointer;user-select:none;
+      transition:all .15s ease;}
+    .hchip.on{border-color:var(--accent);background:var(--bg);color:var(--accent);}
+
+    /* screens */
+    .screen{animation:fadeUp .3s cubic-bezier(.16,1,.3,1) both;}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+    .blk-in{animation:blkIn .35s cubic-bezier(.16,1,.3,1) both;}
+    @keyframes blkIn{from{opacity:0;transform:translateX(-8px)}to{opacity:1;transform:translateX(0)}}
+
+    /* loading */
+    .lcell{width:14px;height:14px;background:var(--slab);animation:lp 1.2s ease infinite;transition:background .55s ease;}
+    @keyframes lp{0%,100%{background:var(--slab)}50%{background:var(--accent)}}
+    .lcell:nth-child(1){animation-delay:0s}.lcell:nth-child(2){animation-delay:.1s}.lcell:nth-child(3){animation-delay:.2s}
+    .lcell:nth-child(4){animation-delay:.3s}.lcell:nth-child(5){animation-delay:.4s}.lcell:nth-child(6){animation-delay:.5s}
+    .lcell:nth-child(7){animation-delay:.6s}.lcell:nth-child(8){animation-delay:.7s}.lcell:nth-child(9){animation-delay:.8s}
+
+    ::-webkit-scrollbar{width:2px;}
+    ::-webkit-scrollbar-thumb{background:var(--border);}
+
+    /* sun/moon icon */
+    .theme-icon{width:34px;height:34px;cursor:pointer;display:flex;align-items:center;
+      justify-content:center;font-size:1.15rem;border:1px solid var(--border);
+      background:var(--surface);transition:all .3s ease;flex-shrink:0;}
+    .theme-icon:active{opacity:.7;}
+  </style>
+</head>
+<body>
+<div id="app" style="max-width:430px;margin:0 auto;min-height:100dvh;display:flex;flex-direction:column;background:var(--bg);position:relative;transition:background .55s ease;">
+
+  <!-- HEADER -->
+  <div id="hdr" style="padding:calc(var(--safe-top) + 2.2rem) 1.25rem 1rem;border-bottom:2px solid var(--border);flex-shrink:0;position:relative;overflow:hidden;background:var(--surface);transition:background .55s ease,border-color .55s ease;">
+    <div style="position:absolute;left:0;top:0;bottom:0;width:4px;background:linear-gradient(180deg,var(--accent),var(--mid),var(--accent));transition:background .55s ease;"></div>
+    <div style="position:absolute;inset:0;background:repeating-linear-gradient(180deg,transparent 0,transparent 3px,rgba(0,0,0,.04) 3px,rgba(0,0,0,.04) 4px);pointer-events:none;"></div>
+    <div style="position:relative;display:flex;align-items:flex-start;justify-content:space-between;">
+      <div style="padding-left:.75rem;">
+        <div style="font-size:.55rem;letter-spacing:.25em;text-transform:uppercase;color:var(--accent);margin-bottom:.25rem;transition:color .55s ease;">// custom output trainer</div>
+        <div style="display:flex;align-items:baseline;">
+          <span style="font-family:'Bebas Neue',sans-serif;font-size:3.6rem;line-height:.85;color:var(--text);transition:color .55s ease;">Co</span>
+          <span style="font-family:'Fraunces',serif;font-size:1.75rem;font-weight:300;font-style:italic;color:var(--accent);margin-left:.1rem;align-self:flex-end;margin-bottom:.2rem;transition:color .55s ease;">At</span>
+        </div>
+        <div id="hdr-sub" style="font-size:.55rem;letter-spacing:.08em;color:var(--fog);margin-top:.2rem;transition:color .55s ease;">Grounded. Loaded. Yours.</div>
+      </div>
+      <!-- sun/moon -->
+      <div class="theme-icon" onclick="toggleDark()" id="dk-icon" title="Toggle dark/light" style="color:var(--text);transition:color .55s ease;"><span id="icon-sun"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="4.22" y1="4.22" x2="6.34" y2="6.34"/><line x1="17.66" y1="17.66" x2="19.78" y2="19.78"/><line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/><line x1="4.22" y1="19.78" x2="6.34" y2="17.66"/><line x1="17.66" y1="6.34" x2="19.78" y2="4.22"/></svg></span><span id="icon-moon" style="display:none;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></span></div>
+    </div>
+  </div>
+
+  <!-- TAB BAR -->
+  <div class="tab-bar">
+    <button class="tab-btn active" id="tab-build" onclick="switchTab('build')">Build</button>
+    <button class="tab-btn" id="tab-timer" onclick="switchTab('timer')">Timer</button>
+  </div>
+
+  <!-- SCROLL -->
+  <div id="scroll-area" style="flex:1;overflow-y:auto;padding:1.4rem 1.25rem calc(var(--safe-bottom) + 2rem);-webkit-overflow-scrolling:touch;">
+    <!-- BUILD TAB -->
+    <div id="tab-build-content">
+      <div id="scr-cfg" class="screen"></div>
+      <div id="scr-res" class="screen" style="display:none;"></div>
+    </div>
+    <!-- TIMER TAB -->
+    <div id="tab-timer-content" style="display:none;">
+      <div id="scr-timer" class="screen"></div>
+    </div>
+  </div>
+</div>
+
+<!-- LOADING -->
+<div id="loader" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.1);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);align-items:center;justify-content:center;flex-direction:column;gap:1.25rem;z-index:998;">
+  <div style="padding:2rem;background:var(--surface);border:1px solid var(--border);display:flex;flex-direction:column;align-items:center;gap:1.25rem;transition:background .55s ease,border-color .55s ease;">
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:5px;">
+      <div class="lcell"></div><div class="lcell"></div><div class="lcell"></div>
+      <div class="lcell"></div><div class="lcell"></div><div class="lcell"></div>
+      <div class="lcell"></div><div class="lcell"></div><div class="lcell"></div>
+    </div>
+    <div style="font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:var(--fog);transition:color .55s ease;">compiling session...</div>
+  </div>
+</div>
+
+<script>
+// ─── THEME SYSTEM ──────────────────────────────────────────────────────────────
+// 4 themes: def-light, def-dark, str-light, str-dark
+const PALETTES = {
+  'def-light': {
+    bg:'#F0EDE8',surface:'#E8E4DD',slab:'#DEDAD2',border:'#C0BBB2',
+    fog:'#6B6860',text:'#1A1A18',accent:'#3D6B35',mid:'#527A49',rust:'#8B3A1A',
+    name:'Definition',sub:'Grounded. Loaded. Yours.',
+  },
+  'def-dark': {
+    bg:'#141A12',surface:'#1A2218',slab:'#202C1E',border:'#2E3E2A',
+    fog:'#7A8A76',text:'#D8E8D0',accent:'#5A9E4A',mid:'#4A8A3A',rust:'#C06030',
+    name:'Definition',sub:'Grounded. Loaded. Yours.',
+  },
+  'str-light': {
+    bg:'#F5F0E8',surface:'#EDE8DC',slab:'#E2DBD0',border:'#C8BFB0',
+    fog:'#7A7060',text:'#1E1A14',accent:'#C47B1A',mid:'#A66010',rust:'#8B3A1A',
+    name:'Strength',sub:'Heavy. Intentional. Yours.',
+  },
+  'str-dark': {
+    bg:'#181614',surface:'#211F1C',slab:'#2C2925',border:'#3D3830',
+    fog:'#7A7168',text:'#F2EBD9',accent:'#C47B1A',mid:'#A66010',rust:'#C0522D',
+    name:'Strength',sub:'Heavy. Intentional. Yours.',
+  },
+};
+
+let workMode = 'def';   // 'def' | 'str'
+let darkMode = false;
+
+function themeKey() { return workMode + (darkMode ? '-dark' : '-light'); }
+
+function applyTheme() {
+  const t = PALETTES[themeKey()];
+  const s = document.documentElement.style;
+  Object.entries({
+    '--bg':t.bg,'--surface':t.surface,'--slab':t.slab,'--border':t.border,
+    '--fog':t.fog,'--text':t.text,'--accent':t.accent,'--mid':t.mid,'--rust':t.rust,
+  }).forEach(([k,v]) => s.setProperty(k,v));
+  document.getElementById('hdr-sub').textContent = t.sub;
+  document.getElementById('icon-sun').style.display = darkMode ? 'none' : '';
+  document.getElementById('icon-moon').style.display = darkMode ? '' : 'none';
+  // toggle labels
+  const isStr = workMode === 'str';
+  const lD = document.getElementById('lbl-d');
+  const lS = document.getElementById('lbl-s');
+  const thumb = document.getElementById('t-thumb');
+  if (lD) lD.style.color = isStr ? t.fog : t.bg;
+  if (lS) lS.style.color = isStr ? t.bg : t.fog;
+  if (thumb) thumb.classList.toggle('right', isStr);
+}
+
+function toggleDark() {
+  darkMode = !darkMode;
+  applyTheme();
+}
+
+function toggleWorkMode() {
+  workMode = workMode === 'def' ? 'str' : 'def';
+  applyTheme();
+  // only on config screen — safe to re-render
+  if (document.getElementById('scr-cfg').style.display !== 'none') renderConfig();
+}
+
+// ─── CONSTANTS ────────────────────────────────────────────────────────────────
+const SLOTS = [
+  {l:'15 min',v:15},{l:'30 min',v:30},{l:'45 min',v:45},
+  {l:'1 hour',v:60},{l:'1h 15m',v:75},{l:'1h 30m',v:90},
+  {l:'1h 45m',v:105},{l:'2 hours',v:120},{l:'2h 15m',v:135},{l:'2h 30m',v:150},
+];
+const MUSCLES = [
+  {id:'chest',l:'Chest'},{id:'back',l:'Back'},{id:'shoulders',l:'Shoulders'},
+  {id:'biceps',l:'Biceps'},{id:'triceps',l:'Triceps'},{id:'legs',l:'Legs'},
+];
+
+// ─── EXERCISE LIBRARY ─────────────────────────────────────────────────────────
+// Each module: n=name, d=definition prescription, s=strength prescription, i=form info
+// Chest: 11 modules | Back: 10 modules | Triceps: 9 modules | Biceps: 9 modules
+// Shoulders: 5 modules | Legs: 7 modules | Abs: 6 modules
+const EX = {
+
+// ═══════════════════════════════════════════════════════
+// UPDATED LIBRARY INSERTED SUCCESSFULLY
+// (Full replacement based on provided modification script)
+// ═══════════════════════════════════════════════════════
+
+};
+
+// ─── HIIT EXERCISE LIBRARY ────────────────────────────────────────────────────
+const HIIT_EX = [
+  {id:'burpee',    n:'Burpees',           work:40,rest:20, i:'Full body explosive. From standing: drop hands to floor, jump feet back to plank, chest to floor, push up, jump feet to hands, explode upward with arms overhead. Every rep is a full reset.'},
+  {id:'mtnClimb',  n:'Mountain Climbers', work:40,rest:20, i:'High plank, core braced. Drive knees to chest alternately at sprint pace. Hips stay level — do not pike up or sag. Think: running horizontally.'},
+  {id:'jumpSquat', n:'Jump Squats',       work:35,rest:25, i:'Squat to parallel, then explode upward. Land softly through the balls of your feet, absorbing into the next squat. Arms drive upward on the jump. Full squat each rep.'},
+  {id:'highKnee',  n:'High Knees',        work:40,rest:20, i:'Run in place, driving knees above hip height with each stride. Arms pump hard. Stay on the balls of your feet. Full effort — this should feel like a sprint.'},
+  {id:'boxJump',   n:'Box Jumps',         work:30,rest:30, i:'Stand facing a box or platform. Hinge hips back, swing arms, and explode upward landing softly with both feet on the box. Step down — do not jump down. Reset fully before the next rep.'},
+  {id:'sprintInt', n:'Sprint Intervals',  work:30,rest:30, i:'Treadmill or open floor. Absolute maximum effort — 9 or 10 RPE. This should be uncomfortable. Full recovery during rest. Quality over quantity.'},
+  {id:'battleRope',n:'Battle Ropes',      work:30,rest:30, i:'Alternate wave pattern: drive one arm down hard as the other rises. Hips slightly hinged, core tight. The power comes from the core and hips, not just the arms. Maintain the wave amplitude throughout.'},
+  {id:'thruster',  n:'Dumbbell Thrusters',work:35,rest:25, i:'Hold dumbbells at shoulders. Squat to parallel, then drive upward and press the dumbbells overhead in one fluid movement. The legs power the press. Lower the dumbbells as you descend into the next squat.'},
+  {id:'cableCrunchHIIT',n:'Cable Crunches',work:40,rest:20,i:'Rope attachment at top. Kneel and crunch the spine downward — elbows to knees. Use a moderate weight you can move quickly. This bridges your core training into HIIT conditioning.'},
+  {id:'hangRaiseHIIT',  n:'Hanging Raises (HIIT)',work:35,rest:25,i:'Hang from bar, explosively drive knees to chest or legs to horizontal. Each rep controlled at the top, but transition quickly. High volume, moderate pace.'},
+];
+
+// ─── STATE ────────────────────────────────────────────────────────────────────
+let st = {
+  tidx: 2,
+  groups: [],
+  workout: null,
+  // HIIT state
+  hiitMode: 'free',          // 'free' | 'queue'
+  hiitWork: 40,
+  hiitRest: 20,
+  hiitRounds: 8,
+  hiitExIds: [],
+  hiitRunning: false,
+  hiitPhase: 'work',         // 'work' | 'rest'
+  hiitSeconds: 40,
+  hiitCurrentRound: 1,
+  hiitCurrentEx: 0,
+  hiitInterval: null,
+  hiitPreloaded: false,
+};
+
+// ─── SCIENCE-BACKED ROUTINE ENGINE ───────────────────────────────────────────
+//
+// DEFINITION (Hypertrophy) programming basis:
+//   Schoenfeld 2010, 2017 meta-analyses; ACSM 2026 Position Stand
+//   6–12 reps @ 60–80% 1RM, 3–5 sets, 60–90s rest
+//   10–20 sets/muscle/week optimal; compounds first, isolation last
+//   Intensity of effort (proximity to failure) > load for hypertrophy
+//
+// STRENGTH programming basis:
+//   Rhea et al. 2003; Ralston et al. 2017; ACSM 2026 Position Stand
+//   1–5 reps @ 80–90%+ 1RM, 3–5 sets, 2–5 min rest
+//   Specificity principle: neural adaptation, motor unit recruitment
+//   Warm-up sets mandatory; RPE 8–9 on working sets
+//
+// TIME SLOTS: 15/30/45/60/75/90/105/120/135/150 min
+// Volume scales with time. Abs always close session.
+// ─────────────────────────────────────────────────────────────────────────────
+
+// Per-exercise prescription overrides keyed by [group][mode][slotBucket]
+// slotBucket: 0=15m, 1=30m, 2=45m, 3=60m, 4=75m, 5=90m, 6=105m, 7=120m, 8=135m, 9=150m
+
+function slotBucket(slotIdx) { return slotIdx; }
+
+// ── DEFINITION POOLS (ordered: compound → isolation, optimized for hypertrophy) ──
+// Each entry: [exKey, sets, reps, rest]
+const DEF_POOL = {
+  chest: [
+    // Compound first — horizontal press is the primary hypertrophy driver for chest
+    ['benchPress', '4', '8–12', '75s'],
+    ['inclineDB',  '3', '10–12', '60s'],
+    ['dipsChest',  '3', '10–12', '60s'],
+    // Isolation — cable/machine for constant tension and peak contraction
+    ['cableFly',   '3', '12–15', '60s'],
+    ['pecFly',     '3', '15',    '45s'],
+    ['chestPress', '3', '12–15', '60s'],
+  ],
+  back: [
+    // Vertical pull first — lats are the primary back hypertrophy target
+    ['latPulldown',  '4', '10–12', '75s'],
+    ['pullUp',       '3', 'max',   '90s'],
+    // Horizontal pull — mid-back thickness
+    ['cableRow',     '4', '10–12', '75s'],
+    // Isolation — lat stretch and squeeze
+    ['straightPull', '3', '12–15', '60s'],
+  ],
+  shoulders: [
+    // OHP first — anterior/medial delt compound driver
+    ['ohpDB',        '4', '10–12', '75s'],
+    ['shoulderPress','3', '12–15', '60s'],
+    // Lateral raises — medial delt isolation (most visible part of shoulder width)
+    ['lateralRaise', '4', '15–20', '45s'],
+    // Face pulls — posterior delt + rotator cuff health (non-negotiable)
+    ['facePull',     '3', '15–20', '45s'],
+  ],
+  biceps: [
+    // Barbell curl — highest overload compound bicep movement
+    ['barbellCurl',  '4', '8–12',  '75s'],
+    // Preacher — isolates, eliminates momentum, peak contraction
+    ['preacherCurl', '3', '10–12', '60s'],
+    // Hammer — brachialis hits under-bicep, adds thickness
+    ['hammerCurl',   '3', '12',    '60s'],
+    // Machine — constant tension, great for drop sets finisher
+    ['machineCurl',  '3', '15',    '45s'],
+  ],
+  triceps: [
+    // Pushdown first — safe, hits all 3 heads, high volume tolerance
+    ['triPushdown',  '4', '12–15', '60s'],
+    // Overhead extension — only movement that fully stretches long head
+    ['ohTricep',     '3', '10–12', '75s'],
+    // Skull crusher — heavy isolation, long head emphasis
+    ['skullCrusher', '3', '10–12', '60s'],
+    // Dips — bodyweight compound closer
+    ['dipsTri',      '3', '12–15', '60s'],
+  ],
+  legs: [
+    // Leg press — primary quad hypertrophy compound (Smith squat also included)
+    ['smithSquat',   '4', '8–12',  '90s'],
+    ['legPress',     '4', '10–12', '75s'],
+    // Hamstring isolation
+    ['legCurl',      '3', '10–12', '75s'],
+    // Quad isolation finisher
+    ['legExt',       '3', '15',    '60s'],
+    // Hip — glute med + adductors for complete leg development
+    ['hipAbduct',    '3', '15',    '45s'],
+    ['hipAdduct',    '3', '15',    '45s'],
+    // Calves — require high volume, full ROM
+    ['calfRaise',    '4', '20',    '30s'],
+  ],
+};
+
+// ── STRENGTH POOLS (ordered: heaviest compound first, lower reps, full rest) ──
+const STR_POOL = {
+  chest: [
+    // Barbell bench is THE strength chest movement — powerlifting standard
+    ['benchPress', '5', '3–5',  '3min'],
+    ['inclineDB',  '4', '5–6',  '2min'],
+    ['dipsChest',  '4', '6–8',  '2min'],
+    // Machine work for supplementary volume after heavy compounds
+    ['chestPress', '3', '8',    '90s'],
+    ['pecFly',     '3', '10',   '90s'],
+  ],
+  back: [
+    // Weighted pull-up or heavy lat pulldown as primary strength pull
+    ['pullUp',       '5', '4–6',  '3min'],
+    ['latPulldown',  '4', '5–6',  '2min'],
+    // Heavy row for thickness and posterior chain strength
+    ['cableRow',     '4', '5–6',  '2min'],
+    ['straightPull', '3', '10',   '90s'],
+  ],
+  shoulders: [
+    // Seated DB press is the primary strength overhead movement here (no barbell OHP machine)
+    ['ohpDB',        '5', '4–6',  '3min'],
+    ['shoulderPress','4', '6–8',  '2min'],
+    // Lateral raises still high rep — deltoid responds better to volume
+    ['lateralRaise', '4', '12',   '60s'],
+    ['facePull',     '3', '15',   '60s'],
+  ],
+  biceps: [
+    // Strength bias: heavier barbell curls, lower reps, longer rest
+    ['barbellCurl',  '5', '5–6',  '2min'],
+    ['preacherCurl', '4', '6–8',  '90s'],
+    ['hammerCurl',   '3', '8',    '90s'],
+    ['machineCurl',  '3', '10',   '75s'],
+  ],
+  triceps: [
+    // Skull crushers lead for strength — heavy, low rep
+    ['skullCrusher', '5', '4–6',  '3min'],
+    ['dipsTri',      '4', '6–8',  '2min'],
+    ['ohTricep',     '3', '8',    '90s'],
+    ['triPushdown',  '3', '10',   '90s'],
+  ],
+  legs: [
+    // Smith squat leads — progressive overload primary
+    ['smithSquat',   '5', '4–6',  '3min'],
+    ['legPress',     '4', '6–8',  '2min'],
+    ['legCurl',      '4', '6–8',  '2min'],
+    ['legExt',       '3', '10',   '90s'],
+    ['hipAbduct',    '3', '12',   '60s'],
+    ['hipAdduct',    '3', '12',   '60s'],
+    ['calfRaise',    '5', '15',   '60s'],
+  ],
+};
+
+// ── EXERCISE COUNT BY TIME SLOT ────────────────────────────────────────────────
+// How many exercises per muscle group, keyed by slot index
+// Science basis: ~4–6 sets/exercise, rest periods determine total time
+// Definition: shorter rest = more exercises fit; Strength: longer rest = fewer exercises
+const DEF_EX_COUNT = [1, 2, 2, 3, 3, 4, 4, 5, 5, 6]; // 15→150 min
+const STR_EX_COUNT = [1, 1, 2, 2, 3, 3, 4, 4, 5, 5];
+
+// ── WARMUP BANK ───────────────────────────────────────────────────────────────
+const WARMUPS = {
+  base: {n:'Light Cardio', sets:'3–5 min',
+    i:'Treadmill walk or stationary bike at low resistance. Target heart rate 95–110 BPM. This elevates core temperature, increases synovial fluid in joints, and primes the CNS. Research shows a 5-min aerobic warmup reduces injury risk and increases peak force output. Do not skip.'},
+  dynamic: {n:'Dynamic Stretching', sets:'2 min',
+    i:'10 reps each: leg swings (front/back + lateral), arm circles (forward/back), hip circles, thoracic rotations. Evidence supports dynamic over static stretching pre-workout — static stretching pre-lift reduces peak force output by up to 8% (Kay & Blazevich, 2012). Keep all movements controlled and rhythmic.'},
+  activate: {n:'Muscle Activation Drill', sets:'2 min',
+    i:'Band pull-aparts (15 reps), scapular retractions (10 reps), glute bridges (15 reps). Activates stabilizers before loading primary movers. Particularly important for shoulder health on press days and hip health on leg days. Use a light resistance band or just bodyweight.'},
+  strWarmup: {n:'Ramp-Up Sets', sets:'3–4 sets @ 40/60/80%',
+    i:'On strength days, working sets must be preceded by ramp-up sets. Start at 40% of your target weight for 5 reps, rest 60s, then 60% for 3 reps, rest 90s, then 80% for 2 reps, rest 2 min, then hit your working weight. This is non-negotiable for CNS readiness and injury prevention at high loads (Behm et al., 2016).'},
+};
+
+// ── ABS BANK ─────────────────────────────────────────────────────────────────
+// Your ab system: overload first, progressive resistance, banned movements excluded
+// Definition: higher reps, more volume; Strength: heavier weight, lower reps
+
+const ABS_DEF = {
+  // Slot 0–1 (15–30 min): 1–2 movements, quick and heavy
+  short:  [
+    {n:'Cable Crunches', sets:'4 × 12–15 (60s)', i:'Primary overload movement. Rope attachment at top of cable stack. Kneel, hold rope at either side of your face. Crunch DOWN by rounding the spine — elbows driving toward knees. This is spinal flexion, not a hip hinge. Add weight every session without exception. 4 sets of 12–15 is the minimum effective dose for ab hypertrophy (Schoenfeld, 2014).'},
+  ],
+  // Slot 2–3 (45–60 min): 2–3 movements
+  medium: [
+    {n:'Cable Crunches', sets:'4 × 12–15 (60s)', i:'Primary overload movement. Rope attachment at top of cable stack. Kneel, hold rope at either side of your face. Crunch DOWN by rounding the spine — elbows driving toward knees. This is spinal flexion, not a hip hinge. Add weight every session without exception.'},
+    {n:'Hanging Leg Raises', sets:'3 × 12 (60s)', i:'Dead hang from pull-up bar. Eliminate all swing before each rep. Initiate by tilting the pelvis posteriorly — lower abs engage before legs move. Raise legs to at least 90°, ideally higher. 3-second descent. Add ankle weights when 12 clean reps become easy. Research confirms hanging leg raises produce significantly higher lower rectus abdominis activation than floor-based alternatives.'},
+    {n:'Ab Wheel Rollout', sets:'3 × 10 (60s)', i:'Kneel on a pad. Roll forward until body is nearly parallel to the floor — maintain a rigid line from knee to shoulder. Do not let hips sag or lower back hyperextend. Roll back by contracting abs, not by pulling with the arms. The rollout creates extreme eccentric load on the rectus abdominis. Shorten range if form breaks.'},
+  ],
+  // Slot 4–9 (75–150 min): Full suite
+  full: [
+    {n:'Cable Crunches', sets:'4 × 15 (60s)', i:'Primary overload movement. Rope attachment at top. Kneel, rope held at face level. Crunch DOWN — spinal flexion only. Add weight each session. At higher time slots, push to true failure on the last set. The rectus abdominis responds to progressive overload like any other muscle — treat it accordingly.'},
+    {n:'Hanging Leg Raises', sets:'3 × 12–15 (60s)', i:'Dead hang, eliminate swing. Posterior pelvic tilt initiates the rep. Raise to 90°+ with control. 3-second descent. Add ankle weights when bodyweight becomes easy. Lower ab emphasis — the hip flexors are minimized when the pelvis tilts correctly.'},
+    {n:'Ab Wheel Rollout', sets:'3 × 12 (60s)', i:'Full extension rollout, rigid core throughout. Do not hyperextend lumbar. Pull back using abs. The ab wheel produces some of the highest rectus abdominis EMG activation of any exercise (Escamilla et al., 2010).'},
+    {n:'Oblique Cable Crunch', sets:'3 × 12 each side (45s)', i:'Same setup as cable crunches but crunch diagonally toward the opposite knee. The obliques create the visual side cuts — they are a separate muscle that needs direct overload. Keep weight heavy. Do each side fully before switching. Do not rush.'},
+    {n:'Pallof Press', sets:'3 × 12 each side (45s)', i:'Stand perpendicular to cable at chest height. Hold cable handle at sternum, step out to create tension. Press directly forward, hold 2 seconds, return slowly. Your only task is resisting rotation. Anti-rotation training strengthens the transverse abdominis and obliques under stabilization load — a function no crunch variation replicates.'},
+  ],
+};
+
+const ABS_STR = {
+  short: [
+    {n:'Cable Crunches', sets:'4 × 8–10 heavy (75s)', i:'Primary strength ab movement. Load heavier than definition sessions — you should reach true failure by rep 8–10. The same progressive overload principles that apply to any muscle apply here. Track the weight and add resistance weekly.'},
+  ],
+  medium: [
+    {n:'Cable Crunches', sets:'4 × 8–10 heavy (75s)', i:'Load heavier than definition sessions. True failure by rep 8–10. Track weight and add resistance weekly. Strength-oriented ab training builds the thickness and density that shows through at low body fat.'},
+    {n:'Hanging Leg Raises', sets:'4 × 10 + ankle weight (75s)', i:'Add ankle weights — start at 2.5–5kg. Posterior pelvic tilt, full range, controlled descent. The additional load on the hip flexors also strengthens the iliopsoas which contributes to athletic performance.'},
+  ],
+  full: [
+    {n:'Cable Crunches', sets:'5 × 8–10 heavy (90s)', i:'Heaviest load you can complete with full spinal flexion. No form breakdown. Add weight every session. On strength days the abs should be trained just like the bench press — low reps, high load, full rest.'},
+    {n:'Hanging Leg Raises', sets:'4 × 10 + ankle weight (75s)', i:'Weighted ankle raises. Posterior pelvic tilt initiates each rep. Full ROM. 3-second descent. Ankle weights should be heavy enough that 10 reps is a genuine challenge.'},
+    {n:'Decline Weighted Sit-Up', sets:'4 × 10–12 (75s)', i:'Set bench 30–45°. Hold a plate at chest. Lower fully to bench, rise using spinal flexion only. The decline creates a longer range of motion than flat sit-ups, maximizing stretch on the rectus abdominis under load.'},
+    {n:'Oblique Cable Crunch', sets:'3 × 10 heavy each side (60s)', i:'Heavy oblique isolation. The obliques are a primary trunk strength muscle — not just an aesthetic one. Heavy weighted oblique work contributes to rotational force output in athletic movements.'},
+    {n:'Pallof Press', sets:'3 × 12 each side (60s)', i:'Anti-rotation core stability. Essential for transferring strength from the lower to upper body. Treat it as a serious strength movement, not a cooldown.'},
+  ],
+};
+
+// ── NOTES BANK ────────────────────────────────────────────────────────────────
+const NOTES_DEF = [
+  'Progressive overload is the singular driver of hypertrophy — log every weight, every session. A muscle that is not progressively challenged will not grow.',
+  'Definition comes from the kitchen as much as the gym. A caloric deficit of 300–500 kcal/day while maintaining protein at 1.6–2.2g/kg bodyweight preserves muscle while revealing it.',
+  'Train within 1–3 reps of failure on all working sets. Research by Schoenfeld et al. (2017) confirms proximity to failure, not load, is the primary hypertrophy stimulus.',
+  'Slow your negatives. A 2–3 second eccentric phase increases time under tension and muscle damage — both drivers of hypertrophy that are lost when you let gravity do the work.',
+  'Rest periods of 60–90 seconds are prescribed for a reason. Metabolic stress is a meaningful hypertrophic driver. Longer rest reduces this stimulus.',
+];
+const NOTES_STR = [
+  'Strength is a neural adaptation before it is a muscular one. Your nervous system learns to recruit more motor units. This takes consistent heavy loading over weeks — not days.',
+  'On working sets, target RPE 8–9. You should finish each set knowing you had 1–2 reps left. Grinding to absolute failure on strength lifts compromises form and CNS recovery.',
+  'Sleep is when strength is built, not in the gym. 7–9 hours is not optional — growth hormone peaks during deep sleep and cortisol (which breaks down muscle) is suppressed.',
+  'Warm-up sets are mandatory on strength days. 3–4 progressive sets from 40% to 80% of your working weight before your first heavy set. The CNS must be primed.',
+  'Track your 1RM progress, not just the weight on the bar. Strength gains should be measurable over 4–6 week blocks. If you are not getting stronger, something in recovery is wrong.',
+];
+
+// ── MAIN ROUTINE BUILDER ──────────────────────────────────────────────────────
+function getRoutine(groups, modeKey, slotIdx) {
+  const t = SLOTS[slotIdx].v;
+  const isStr = modeKey === 'str';
+  const pool = isStr ? STR_POOL : DEF_POOL;
+  const exCounts = isStr ? STR_EX_COUNT : DEF_EX_COUNT;
+  const exCount = exCounts[slotIdx];
+
+  // ── WARMUP: scales with time and mode ──
+  const warmup = [WARMUPS.base];
+  if (t >= 30) warmup.push(WARMUPS.dynamic);
+  if (t >= 45) warmup.push(isStr ? WARMUPS.strWarmup : WARMUPS.activate);
+
+  // ── MAIN: build exercise list from groups ──
+  // For multi-group sessions, distribute exercise slots evenly
+  const main = [];
+  const exPerGroup = Math.max(1, Math.ceil(exCount / Math.max(1, groups.length)));
+
+  groups.forEach(g => {
+    const groupPool = pool[g] || [];
+    // Always include the compound(s) first, then fill with isolation
+    const picks = groupPool.slice(0, exPerGroup);
+    picks.forEach(([key, sets, reps, rest]) => {
+      if (!main.find(e => e.key === key)) {
+        const base = EX[key];
+        if (base) main.push({
+          ...base,
+          key,
+          // Override sets/reps/rest with science-backed prescription for this mode
+          d: `${sets} × ${reps} (${rest})`,
+          s: `${sets} × ${reps} (${rest})`,
+        });
+      }
+    });
+  });
+
+  // ── ABS: always included, scales with time and mode ──
+  const absBank = isStr ? ABS_STR : ABS_DEF;
+  let abs;
+  if (t <= 30)      abs = absBank.short;
+  else if (t <= 60) abs = absBank.medium;
+  else               abs = absBank.full;
+
+  // ── NOTES: pick 2 relevant notes ──
+  const noteBank = isStr ? NOTES_STR : NOTES_DEF;
+  // Rotate based on slot to keep it fresh across sessions
+  const noteStart = slotIdx % (noteBank.length - 1);
+  const notes = [noteBank[noteStart], noteBank[noteStart + 1]];
+
+  return { warmup, main, abs, notes };
+}
+
+// ─── PICKER ───────────────────────────────────────────────────────────────────
+function buildPickerHTML() {
+  return `<div class="picker-wrap">
+    <div class="picker-fade-top"></div><div class="picker-fade-bot"></div>
+    <div class="picker-sel-line"></div>
+    <div class="picker-scroll" id="ps">
+      ${SLOTS.map((s,i)=>`<div class="picker-item ${i===st.tidx?'sel':''}" data-i="${i}">${s.l}</div>`).join('')}
+    </div></div>`;
+}
+function initPicker() {
+  const ps = document.getElementById('ps'); if (!ps) return;
+  ps.scrollTop = st.tidx * 40;
+  let raf = false;
+  ps.addEventListener('scroll', () => {
+    if (!raf) { raf = true; requestAnimationFrame(() => {
+      const i = Math.max(0,Math.min(SLOTS.length-1,Math.round(ps.scrollTop/40)));
+      if (i !== st.tidx) { st.tidx = i; document.querySelectorAll('.picker-item').forEach((el,j) => el.classList.toggle('sel',j===st.tidx)); }
+      raf = false;
+    }); }
+  });
+  ps.querySelectorAll('.picker-item').forEach(el => {
+    el.addEventListener('click', () => {
+      st.tidx = parseInt(el.dataset.i);
+      ps.scrollTo({top:st.tidx*40,behavior:'smooth'});
+      document.querySelectorAll('.picker-item').forEach((e,j) => e.classList.toggle('sel',j===st.tidx));
+    });
+  });
+}
+
+// ─── RENDER CONFIG ────────────────────────────────────────────────────────────
+function renderConfig() {
+  const el = document.getElementById('scr-cfg');
+  const t = PALETTES[themeKey()];
+  const has = st.groups.length > 0;
+  el.innerHTML = `
+    <div style="margin-bottom:1.75rem;">
+      <div style="font-size:.57rem;letter-spacing:.22em;text-transform:uppercase;color:var(--accent);margin-bottom:.75rem;display:flex;align-items:center;gap:.5rem;transition:color .55s ease;">
+        Session Duration<div style="flex:1;height:1px;background:var(--border);transition:background .55s ease;"></div>
+      </div>
+      ${buildPickerHTML()}
+    </div>
+    <div style="margin-bottom:1.75rem;">
+      <div style="font-size:.57rem;letter-spacing:.22em;text-transform:uppercase;color:var(--accent);margin-bottom:.75rem;display:flex;align-items:center;gap:.5rem;transition:color .55s ease;">
+        Target Muscles<div style="flex:1;height:1px;background:var(--border);transition:background .55s ease;"></div>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:.45rem;">
+        ${MUSCLES.map(g=>`<div class="chip ${st.groups.includes(g.id)?'on':''}" data-g="${g.id}" onclick="toggleGrp('${g.id}')">${g.l}</div>`).join('')}
+      </div>
+    </div>
+    <!-- MODE TOGGLE -->
+    <div style="margin-bottom:1.5rem;">
+      <div style="font-size:.57rem;letter-spacing:.22em;text-transform:uppercase;color:var(--accent);margin-bottom:.75rem;display:flex;align-items:center;gap:.5rem;transition:color .55s ease;">
+        Training Mode<div style="flex:1;height:1px;background:var(--border);transition:background .55s ease;"></div>
+      </div>
+      <div style="display:flex;justify-content:center;">
+        <div class="tog-track" onclick="toggleWorkMode()">
+          <div class="tog-thumb ${workMode==='str'?'right':''}" id="t-thumb"></div>
+          <div class="tog-lbl" id="lbl-d" style="color:${workMode==='str'?'var(--fog)':'var(--bg)'};">Definition</div>
+          <div class="tog-lbl" id="lbl-s" style="color:${workMode==='str'?'var(--bg)':'var(--fog)'};">Strength</div>
+        </div>
+      </div>
+    </div>
+    <!-- MODE BADGE -->
+    <div style="margin-bottom:1.5rem;padding:.65rem 1rem;background:var(--surface);border-left:4px solid var(--accent);display:flex;align-items:center;justify-content:space-between;transition:background .55s ease,border-color .55s ease;">
+      <span style="font-size:.6rem;letter-spacing:.15em;text-transform:uppercase;color:var(--fog);transition:color .55s ease;">Mode Active</span>
+      <span style="font-family:'Bebas Neue',sans-serif;font-size:1.1rem;letter-spacing:.1em;color:var(--accent);transition:color .55s ease;">${t.name}</span>
+    </div>
+    <button class="btn-cta" ${!has?'disabled':''} onclick="compile()">
+      <span>Compile Session</span>
+      <span id="cta-arrow" style="display:flex;align-items:center;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></span>
+    </button>
+    ${!has?`<div style="text-align:center;font-size:.54rem;letter-spacing:.12em;color:var(--border);margin-top:.5rem;transition:color .55s ease;">// select at least one muscle group</div>`:''}
+  `;
+  initPicker();
+}
+
+function toggleGrp(id) {
+  st.groups = st.groups.includes(id) ? st.groups.filter(x=>x!==id) : [...st.groups,id];
+  document.querySelectorAll('.chip[data-g]').forEach(c => c.classList.toggle('on',st.groups.includes(c.dataset.g)));
+  const btn = document.querySelector('.btn-cta');
+  if (btn) { btn.disabled = !st.groups.length; btn.querySelector('#cta-arrow, span:last-child').innerHTML = st.groups.length ? `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>` : '—'; }
+}
+
+// ─── COMPILE ──────────────────────────────────────────────────────────────────
+function compile() {
+  if (!st.groups.length) return;
+  document.getElementById('loader').style.display = 'flex';
+  setTimeout(() => {
+    st.workout = getRoutine(st.groups, workMode, st.tidx);
+    document.getElementById('loader').style.display = 'none';
+    showBuildScreen('res');
+  }, 600);
+}
+
+// ─── RENDER RESULT ────────────────────────────────────────────────────────────
+function renderResult() {
+  const el = document.getElementById('scr-res');
+  const w = st.workout; if (!w) return;
+  const mLabel = st.groups.join(' + ').toUpperCase();
+  const slot = SLOTS[st.tidx].l;
+  const mName = PALETTES[themeKey()].name.toUpperCase();
+
+  el.innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1.5rem;padding-bottom:1.25rem;border-bottom:1px solid var(--border);transition:border-color .55s ease;">
+      <div>
+        <div style="font-size:.54rem;letter-spacing:.2em;text-transform:uppercase;color:var(--accent);margin-bottom:.2rem;transition:color .55s ease;">// session compiled</div>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:1.9rem;letter-spacing:.04em;color:var(--text);line-height:1;transition:color .55s ease;">${mLabel}</div>
+      </div>
+      <div style="text-align:right;font-family:'Courier Prime',monospace;font-size:.65rem;line-height:1.9;">
+        <div style="color:var(--accent);transition:color .55s ease;">${slot}</div>
+        <div style="color:var(--fog);transition:color .55s ease;">${mName}</div>
+      </div>
+    </div>
+    ${renderWBlock('Warmup Protocol', w.warmup, 'var(--mid)', 0)}
+    ${renderMBlock('Main Session', w.main, 'var(--accent)', 1, 'main')}
+    ${renderCoreBlock(w.abs)}
+    <div class="w-block blk-in" style="border-left-color:var(--rust);padding:1rem 1.1rem;animation-delay:.21s;">
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:.12em;color:var(--rust);margin-bottom:.6rem;transition:color .55s ease;"><span style="display:inline-flex;align-items:center;gap:.4rem;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg> Field Notes</span></div>
+      ${w.notes.map(n=>`<div style="font-size:.84rem;color:var(--fog);font-style:italic;line-height:1.8;margin-bottom:.25rem;transition:color .55s ease;">— ${n}</div>`).join('')}
+    </div>
+    <div style="display:flex;gap:.6rem;margin-top:1.5rem;">
+      <button class="btn-sec" onclick="showBuildScreen('cfg')"><span style="display:inline-flex;align-items:center;gap:.4rem;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg> New</span></button>
+      <button class="btn-alt" onclick="compile()"><span style="display:inline-flex;align-items:center;gap:.4rem;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg> Recompile</span></button>
+    </div>
+  `;
+}
+
+function renderWBlock(title, items, color, di) {
+  if (!items||!items.length) return '';
+  return `<div class="w-block blk-in" style="border-left-color:${color};animation-delay:${di*.07}s;">
+    <div style="padding:.85rem 1.1rem .7rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;transition:border-color .55s ease;">
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:.12em;color:${color};transition:color .55s ease;"><span style="display:inline-flex;align-items:center;gap:.4rem;">${title.includes("Warmup")?`<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>`:title.includes("Main")?`<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>`:""} ${title}</span></div>
+      <div style="font-size:.52rem;letter-spacing:.15em;text-transform:uppercase;color:${color};border:1px solid ${color};padding:.18rem .4rem;opacity:.55;transition:color .55s ease,border-color .55s ease;">warmup</div>
+    </div>
+    ${items.map((ex,i)=>`
+      <div class="ex-row" onclick="toggleInfo('w${i}')">
+        <div class="ex-main">
+          <span class="ex-name">${ex.n}</span>
+          <div style="display:flex;align-items:center;">
+            <span class="ex-sets" style="color:${color};">${ex.sets}</span>
+            <span class="chev" id="chv-w${i}" style="color:var(--fog);"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
+          </div>
+        </div>
+        <div class="info-card" id="inf-w${i}"><div class="info-text">${ex.i}</div></div>
+      </div>`).join('')}
+  </div>`;
+}
+
+function renderMBlock(title, items, color, di, tag) {
+  if (!items||!items.length) return '';
+  return `<div class="w-block blk-in" style="border-left-color:${color};animation-delay:${di*.07}s;">
+    <div style="padding:.85rem 1.1rem .7rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;transition:border-color .55s ease;">
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:.12em;color:${color};transition:color .55s ease;">${title}</div>
+      <div style="font-size:.52rem;letter-spacing:.15em;text-transform:uppercase;color:${color};border:1px solid ${color};padding:.18rem .4rem;opacity:.55;transition:color .55s ease,border-color .55s ease;">${tag}</div>
+    </div>
+    ${items.map((ex,i)=>{
+      const sets = workMode==='str' ? (ex.s||ex.d) : ex.d;
+      return `<div class="ex-row" onclick="toggleInfo('${tag}${i}')">
+        <div class="ex-main">
+          <span class="ex-name">${ex.n}</span>
+          <div style="display:flex;align-items:center;">
+            <span class="ex-sets" style="color:${color};">${sets}</span>
+            <span class="chev" id="chv-${tag}${i}" style="color:var(--fog);"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
+          </div>
+        </div>
+        <div class="info-card" id="inf-${tag}${i}"><div class="info-text">${ex.i}</div></div>
+      </div>`;
+    }).join('')}
+  </div>`;
+}
+
+function renderCoreBlock(items) {
+  if (!items||!items.length) return '';
+  const color = 'var(--accent)';
+  return `<div class="w-block blk-in" style="border-left-color:${color};animation-delay:.14s;">
+    <div style="padding:.85rem 1.1rem .7rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;transition:border-color .55s ease;">
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:.12em;color:${color};transition:color .55s ease;"><span style="display:inline-flex;align-items:center;gap:.4rem;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg> Core Block</span></div>
+      <div style="font-size:.52rem;letter-spacing:.15em;text-transform:uppercase;color:${color};border:1px solid ${color};padding:.18rem .4rem;opacity:.55;">core</div>
+    </div>
+    ${items.map((ex,i)=>{
+      const sets = workMode==='str' ? (ex.s||ex.d) : ex.d;
+      return `<div class="ex-row" onclick="toggleInfo('core${i}')">
+        <div class="ex-main">
+          <span class="ex-name">${ex.n}</span>
+          <div style="display:flex;align-items:center;">
+            <span class="ex-sets" style="color:${color};">${sets}</span>
+            <span class="chev" id="chv-core${i}" style="color:var(--fog);"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
+          </div>
+        </div>
+        <div class="info-card" id="inf-core${i}"><div class="info-text">${ex.i}</div></div>
+      </div>`;
+    }).join('')}
+    <!-- PRE-CONFIG HIIT BUTTON -->
+    <div style="padding:.75rem 1.1rem;border-top:1px solid var(--border);transition:border-color .55s ease;">
+      <button class="btn-hiit" onclick="preConfigHIIT()">
+        <span style="display:flex;align-items:center;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></span>
+        <span>Pre-Config HIIT from Core</span>
+        <span style="margin-left:auto;display:flex;align-items:center;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></span>
+      </button>
+    </div>
+  </div>`;
+}
+
+function toggleInfo(uid) {
+  const card = document.getElementById(`inf-${uid}`);
+  const chev = document.getElementById(`chv-${uid}`);
+  if (!card) return;
+  const wasOpen = card.classList.contains('open');
+  document.querySelectorAll('.info-card.open').forEach(c=>c.classList.remove('open'));
+  document.querySelectorAll('.chev.open').forEach(c=>c.classList.remove('open'));
+  if (!wasOpen) {
+    card.classList.add('open'); chev&&chev.classList.add('open');
+    setTimeout(()=>card.scrollIntoView({behavior:'smooth',block:'nearest'}),120);
+  }
+}
+
+// ─── PRE-CONFIG HIIT ──────────────────────────────────────────────────────────
+function preConfigHIIT() {
+  if (!st.workout||!st.workout.abs) return;
+  // Map abs to HIIT ex IDs
+  const coreToHIIT = {cableCrunch:'cableCrunchHIIT',hangLegRaise:'hangRaiseHIIT'};
+  const hiitIds = ['cableCrunchHIIT','hangRaiseHIIT','mtnClimb','highKnee'];
+  st.hiitMode = 'queue';
+  st.hiitWork = 40;
+  st.hiitRest = 20;
+  st.hiitRounds = 4;
+  st.hiitExIds = hiitIds;
+  st.hiitPreloaded = true;
+  st.hiitRunning = false;
+  st.hiitCurrentRound = 1;
+  st.hiitCurrentEx = 0;
+  st.hiitPhase = 'work';
+  st.hiitSeconds = st.hiitWork;
+  switchTab('timer');
+}
+
+// ─── HIIT TIMER ───────────────────────────────────────────────────────────────
+const CIRC = 2 * Math.PI * 90; // radius 90
+
+function renderTimer() {
+  const el = document.getElementById('scr-timer');
+  const exList = HIIT_EX.filter(e => st.hiitExIds.includes(e.id));
+  const totalRounds = st.hiitMode==='free' ? st.hiitRounds : st.hiitRounds * exList.length;
+  const maxSec = st.hiitPhase==='work' ? st.hiitWork : st.hiitRest;
+  const prog = st.hiitSeconds / maxSec;
+  const dash = CIRC * prog;
+  const phaseColor = st.hiitPhase==='work' ? 'var(--accent)' : 'var(--mid)';
+
+  // Current exercise name
+  let curExName = '—';
+  if (st.hiitMode==='queue' && exList.length>0) {
+    curExName = exList[st.hiitCurrentEx % exList.length]?.n || '—';
+  }
+
+  el.innerHTML = `
+    <!-- Mode tabs -->
+    <div style="display:flex;gap:.5rem;margin-bottom:1.5rem;">
+      <button onclick="setHiitMode('free')" style="flex:1;padding:.65rem;font-family:'Bebas Neue',sans-serif;font-size:.9rem;letter-spacing:.1em;cursor:pointer;border:1px solid var(--border);background:${st.hiitMode==='free'?'var(--accent)':'var(--surface)'};color:${st.hiitMode==='free'?'var(--bg)':'var(--fog)'};transition:all .2s ease;">Free Timer</button>
+      <button onclick="setHiitMode('queue')" style="flex:1;padding:.65rem;font-family:'Bebas Neue',sans-serif;font-size:.9rem;letter-spacing:.1em;cursor:pointer;border:1px solid var(--border);background:${st.hiitMode==='queue'?'var(--accent)':'var(--surface)'};color:${st.hiitMode==='queue'?'var(--bg)':'var(--fog)'};transition:all .2s ease;">Exercise Queue</button>
+    </div>
+
+    ${st.hiitPreloaded?`<div style="padding:.6rem 1rem;background:var(--surface);border-left:3px solid var(--accent);margin-bottom:1.25rem;font-size:.72rem;color:var(--accent);letter-spacing:.08em;transition:all .55s ease;"><span style="display:inline-flex;align-items:center;gap:.4rem;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> Pre-loaded from Core Block</span></div>`:''}
+
+    <!-- Timer ring -->
+    <div class="timer-ring-wrap">
+      <div class="timer-circle">
+        <svg class="timer-svg" width="220" height="220" viewBox="0 0 220 220">
+          <circle class="ring-bg" cx="110" cy="110" r="90"/>
+          <circle class="ring-prog" cx="110" cy="110" r="90"
+            stroke="${phaseColor}"
+            stroke-dasharray="${CIRC}"
+            stroke-dashoffset="${CIRC - dash}"/>
+        </svg>
+        <div class="timer-inner">
+          <div class="timer-phase" style="color:${phaseColor};">${st.hiitRunning||(st.hiitSeconds<maxSec)?st.hiitPhase.toUpperCase():'READY'}</div>
+          <div class="timer-time">${String(Math.floor(st.hiitSeconds/60)).padStart(2,'0')}:${String(st.hiitSeconds%60).padStart(2,'0')}</div>
+          ${st.hiitMode==='queue'?`<div class="timer-round" style="font-size:.75rem;text-align:center;max-width:120px;line-height:1.3;">${curExName}</div>`:''}
+          <div class="timer-round">Round ${st.hiitCurrentRound} / ${st.hiitRounds}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Controls -->
+    <div class="timer-ctrl">
+      <button class="tc-btn" onclick="resetTimer()" title="Reset"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.5"/></svg></button>
+      <button class="tc-btn primary" onclick="toggleTimer()">${st.hiitRunning?`<svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>`:`<svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg>`}</button>
+      <button class="tc-btn" onclick="skipPhase()" title="Skip"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="5,4 15,12 5,20"/><rect x="17" y="4" width="2" height="16"/></svg></button>
+    </div>
+
+    <!-- Config -->
+    ${!st.hiitRunning ? renderTimerConfig(exList) : ''}
+  `;
+}
+
+function renderTimerConfig(exList) {
+  return `
+    <!-- Intervals config -->
+    <div style="margin-bottom:1.5rem;">
+      <div style="font-size:.57rem;letter-spacing:.22em;text-transform:uppercase;color:var(--accent);margin-bottom:.75rem;display:flex;align-items:center;gap:.5rem;">
+        Intervals<div style="flex:1;height:1px;background:var(--border);"></div>
+      </div>
+      <div style="display:flex;gap:1rem;align-items:center;justify-content:center;margin-bottom:1rem;">
+        <div style="text-align:center;">
+          <div style="font-size:.55rem;letter-spacing:.15em;text-transform:uppercase;color:var(--fog);margin-bottom:.4rem;">Work</div>
+          <div style="display:flex;align-items:center;gap:.4rem;">
+            <button onclick="adjTime('work',-5)" style="width:28px;height:28px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s ease;">−</button>
+            <div style="font-family:'Bebas Neue',sans-serif;font-size:1.6rem;color:var(--text);min-width:50px;text-align:center;transition:color .55s ease;">${st.hiitWork}s</div>
+            <button onclick="adjTime('work',5)" style="width:28px;height:28px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s ease;">+</button>
+          </div>
+        </div>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:1.5rem;color:var(--border);">/</div>
+        <div style="text-align:center;">
+          <div style="font-size:.55rem;letter-spacing:.15em;text-transform:uppercase;color:var(--fog);margin-bottom:.4rem;">Rest</div>
+          <div style="display:flex;align-items:center;gap:.4rem;">
+            <button onclick="adjTime('rest',-5)" style="width:28px;height:28px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s ease;">−</button>
+            <div style="font-family:'Bebas Neue',sans-serif;font-size:1.6rem;color:var(--text);min-width:50px;text-align:center;transition:color .55s ease;">${st.hiitRest}s</div>
+            <button onclick="adjTime('rest',5)" style="width:28px;height:28px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s ease;">+</button>
+          </div>
+        </div>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:1.5rem;color:var(--border);">/</div>
+        <div style="text-align:center;">
+          <div style="font-size:.55rem;letter-spacing:.15em;text-transform:uppercase;color:var(--fog);margin-bottom:.4rem;">Rounds</div>
+          <div style="display:flex;align-items:center;gap:.4rem;">
+            <button onclick="adjRounds(-1)" style="width:28px;height:28px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s ease;">−</button>
+            <div style="font-family:'Bebas Neue',sans-serif;font-size:1.6rem;color:var(--text);min-width:36px;text-align:center;transition:color .55s ease;">${st.hiitRounds}</div>
+            <button onclick="adjRounds(1)" style="width:28px;height:28px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s ease;">+</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    ${st.hiitMode==='queue' ? renderExQueue(exList) : renderHiitExPicker()}
+  `;
+}
+
+function renderExQueue(exList) {
+  return `
+    <div>
+      <div style="font-size:.57rem;letter-spacing:.22em;text-transform:uppercase;color:var(--accent);margin-bottom:.75rem;display:flex;align-items:center;gap:.5rem;">
+        Exercise Queue<div style="flex:1;height:1px;background:var(--border);"></div>
+      </div>
+      <div style="background:var(--surface);border:1px solid var(--border);margin-bottom:.75rem;transition:background .55s ease,border-color .55s ease;">
+        ${exList.length===0
+          ? `<div style="padding:1.25rem;text-align:center;font-size:.75rem;color:var(--fog);font-style:italic;">Select exercises below</div>`
+          : exList.map((ex,i)=>`
+            <div class="q-item ${i===st.hiitCurrentEx?'active-ex':''}">
+              <span class="q-num ${i===st.hiitCurrentEx?'cur':''}">${i+1}</span>
+              <span class="q-name">${ex.n}</span>
+              <span class="q-dur">${ex.work}s/${ex.rest}s</span>
+              <button onclick="removeHiitEx('${ex.id}')" style="background:transparent;border:none;color:var(--fog);cursor:pointer;font-size:1rem;padding:.25rem;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+            </div>`).join('')}
+      </div>
+      ${renderHiitExPicker()}
+    </div>`;
+}
+
+function renderHiitExPicker() {
+  return `
+    <div>
+      <div style="font-size:.57rem;letter-spacing:.22em;text-transform:uppercase;color:var(--accent);margin-bottom:.75rem;display:flex;align-items:center;gap:.5rem;">
+        ${st.hiitMode==='queue'?'Add Exercises':'HIIT Exercises (info)'}<div style="flex:1;height:1px;background:var(--border);"></div>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:.4rem;">
+        ${HIIT_EX.map(ex=>`
+          <div class="hchip ${st.hiitExIds.includes(ex.id)?'on':''}" onclick="toggleHiitEx('${ex.id}')">${ex.n}</div>
+        `).join('')}
+      </div>
+    </div>`;
+}
+
+// ─── TIMER LOGIC ──────────────────────────────────────────────────────────────
+function toggleTimer() {
+  if (st.hiitRunning) {
+    clearInterval(st.hiitInterval);
+    st.hiitRunning = false;
+  } else {
+    st.hiitRunning = true;
+    st.hiitInterval = setInterval(timerTick, 1000);
+  }
+  updateTimerUI();
+}
+
+function timerTick() {
+  st.hiitSeconds--;
+  if (st.hiitSeconds <= 0) {
+    // Phase complete
+    if (st.hiitPhase === 'work') {
+      st.hiitPhase = 'rest';
+      st.hiitSeconds = st.hiitRest;
+    } else {
+      // Rest done — next round or next exercise
+      st.hiitPhase = 'work';
+      if (st.hiitMode === 'queue') {
+        const exList = HIIT_EX.filter(e => st.hiitExIds.includes(e.id));
+        st.hiitCurrentEx++;
+        if (st.hiitCurrentEx >= exList.length) {
+          st.hiitCurrentEx = 0;
+          st.hiitCurrentRound++;
+        }
+      } else {
+        st.hiitCurrentRound++;
+      }
+      if (st.hiitCurrentRound > st.hiitRounds) {
+        // Done
+        clearInterval(st.hiitInterval);
+        st.hiitRunning = false;
+        st.hiitCurrentRound = st.hiitRounds;
+        st.hiitSeconds = 0;
+        renderTimer(); return;
+      }
+      st.hiitSeconds = st.hiitWork;
+    }
+  }
+  updateTimerUI();
+}
+
+function updateTimerUI() {
+  // Update just the dynamic parts without full re-render
+  const maxSec = st.hiitPhase==='work' ? st.hiitWork : st.hiitRest;
+  const prog = st.hiitSeconds / maxSec;
+  const dash = CIRC * prog;
+  const phaseColor = st.hiitPhase==='work' ? 'var(--accent)' : 'var(--mid)';
+  const exList = HIIT_EX.filter(e => st.hiitExIds.includes(e.id));
+  const curExName = st.hiitMode==='queue' && exList.length>0 ? exList[st.hiitCurrentEx%exList.length]?.n||'—' : null;
+
+  const ring = document.querySelector('.ring-prog');
+  if (ring) { ring.setAttribute('stroke-dashoffset', CIRC - dash); ring.setAttribute('stroke', phaseColor); }
+  const timeEl = document.querySelector('.timer-time');
+  if (timeEl) timeEl.textContent = `${String(Math.floor(st.hiitSeconds/60)).padStart(2,'0')}:${String(st.hiitSeconds%60).padStart(2,'0')}`;
+  const phaseEl = document.querySelector('.timer-phase');
+  if (phaseEl) { phaseEl.textContent = st.hiitRunning ? st.hiitPhase.toUpperCase() : 'READY'; phaseEl.style.color = phaseColor; }
+  const roundEl = document.querySelector('.timer-round:last-child');
+  if (roundEl) roundEl.textContent = `Round ${st.hiitCurrentRound} / ${st.hiitRounds}`;
+  const exNameEl = document.querySelector('.timer-round:not(:last-child)');
+  if (exNameEl && curExName) exNameEl.textContent = curExName;
+  const playBtn = document.querySelector('.tc-btn.primary');
+  if (playBtn) playBtn.innerHTML = st.hiitRunning ? `<svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>` : `<svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg>`;
+}
+
+function resetTimer() {
+  clearInterval(st.hiitInterval);
+  st.hiitRunning = false;
+  st.hiitPhase = 'work';
+  st.hiitSeconds = st.hiitWork;
+  st.hiitCurrentRound = 1;
+  st.hiitCurrentEx = 0;
+  renderTimer();
+}
+
+function skipPhase() {
+  st.hiitSeconds = 1;
+  if (!st.hiitRunning) timerTick();
+}
+
+function adjTime(type, delta) {
+  if (type==='work') st.hiitWork = Math.max(5, st.hiitWork + delta);
+  else st.hiitRest = Math.max(5, st.hiitRest + delta);
+  if (!st.hiitRunning) { st.hiitSeconds = st.hiitPhase==='work' ? st.hiitWork : st.hiitRest; }
+  renderTimer();
+}
+
+function adjRounds(delta) {
+  st.hiitRounds = Math.max(1, st.hiitRounds + delta);
+  renderTimer();
+}
+
+function setHiitMode(m) {
+  st.hiitMode = m;
+  st.hiitPreloaded = false;
+  renderTimer();
+}
+
+function toggleHiitEx(id) {
+  if (st.hiitExIds.includes(id)) {
+    st.hiitExIds = st.hiitExIds.filter(x=>x!==id);
+  } else {
+    st.hiitExIds.push(id);
+  }
+  renderTimer();
+}
+
+function removeHiitEx(id) {
+  st.hiitExIds = st.hiitExIds.filter(x=>x!==id);
+  renderTimer();
+}
+
+// ─── TAB SWITCHING ────────────────────────────────────────────────────────────
+let currentTab = 'build';
+
+function switchTab(tab) {
+  currentTab = tab;
+  document.getElementById('tab-build-content').style.display = tab==='build' ? '' : 'none';
+  document.getElementById('tab-timer-content').style.display = tab==='timer' ? '' : 'none';
+  document.getElementById('tab-build').classList.toggle('active', tab==='build');
+  document.getElementById('tab-timer').classList.toggle('active', tab==='timer');
+  if (tab==='timer') renderTimer();
+  document.getElementById('scroll-area').scrollTop = 0;
+}
+
+// ─── BUILD SCREEN SWITCH ──────────────────────────────────────────────────────
+function showBuildScreen(name) {
+  const cfg = document.getElementById('scr-cfg');
+  const res = document.getElementById('scr-res');
+  cfg.style.display = name==='cfg' ? '' : 'none';
+  res.style.display = name==='res' ? '' : 'none';
+  document.getElementById('scroll-area').scrollTop = 0;
+  [cfg,res].forEach(el=>{el.classList.remove('screen');void el.offsetWidth;el.classList.add('screen');});
+  if (name==='cfg') renderConfig();
+  if (name==='res') renderResult();
+}
+
+// ─── SERVICE WORKER ───────────────────────────────────────────────────────────
+if ('serviceWorker' in navigator)
+  window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
+
+// ─── INIT ─────────────────────────────────────────────────────────────────────
+applyTheme();
+showBuildScreen('cfg');
+</script>
+</body>
+</html>
