@@ -1,0 +1,959 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="CoAt" />
+  <meta name="theme-color" content="#F0EDE8" />
+  <link rel="manifest" href="./manifest.json" />
+  <link rel="apple-touch-icon" href="./icon-192.png" />
+  <title>CoAt</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,700;1,9..144,300&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0; padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    :root {
+      --dirt:    #F0EDE8;
+      --concrete:#E8E4DD;
+      --slab:    #DEDAD2;
+      --moss:    #3D6B35;
+      --lichen:  #527A49;
+      --clay:    #2A2A26;
+      --rust:    #8B3A1A;
+      --chalk:   #1A1A18;
+      --fog:     #6B6860;
+      --shadow:  #C8C4BC;
+      --crack:   #C0BBB2;
+      --safe-top: env(safe-area-inset-top, 0px);
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+    }
+
+    html, body {
+      height: 100%;
+      background: var(--dirt);
+      color: var(--chalk);
+      font-family: 'Courier Prime', monospace;
+      overscroll-behavior: none;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    /* ── NOISE TEXTURE OVERLAY ── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 1000;
+      opacity: 0.6;
+    }
+
+    #app {
+      max-width: 430px;
+      margin: 0 auto;
+      min-height: 100vh;
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      background: var(--dirt);
+      position: relative;
+    }
+
+    /* ── HEADER ── */
+    .header {
+      padding: calc(var(--safe-top) + 2.75rem) 1.5rem 1.25rem;
+      border-bottom: 3px solid var(--crack);
+      flex-shrink: 0;
+      position: relative;
+      overflow: hidden;
+      animation: revealDown 0.5s cubic-bezier(0.16,1,0.3,1) both;
+    }
+
+    /* Horizontal concrete scan lines */
+    .header::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(
+        180deg,
+        transparent 0px,
+        transparent 3px,
+        rgba(0,0,0,0.08) 3px,
+        rgba(0,0,0,0.08) 4px
+      );
+      pointer-events: none;
+    }
+
+    /* Moss accent bar — left edge */
+    .header::after {
+      content: '';
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: 4px;
+      background: linear-gradient(180deg, var(--moss), var(--lichen), var(--moss));
+    }
+
+    .header-mark {
+      font-family: 'Courier Prime', monospace;
+      font-size: 0.6rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--moss);
+      margin-bottom: 0.5rem;
+      padding-left: 1rem;
+    }
+
+    .header-logo {
+      display: flex;
+      align-items: baseline;
+      gap: 0;
+      padding-left: 1rem;
+    }
+
+    .logo-co {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 4.5rem;
+      line-height: 0.85;
+      color: var(--chalk);
+      letter-spacing: 0.02em;
+    }
+
+    .logo-at {
+      font-family: 'Fraunces', serif;
+      font-size: 2.2rem;
+      font-weight: 300;
+      font-style: italic;
+      color: var(--clay);
+      line-height: 1;
+      margin-left: 0.15rem;
+      align-self: flex-end;
+      margin-bottom: 0.35rem;
+    }
+
+    .header-sub {
+      font-family: 'Courier Prime', monospace;
+      font-size: 0.6rem;
+      color: var(--fog);
+      padding-left: 1rem;
+      margin-top: 0.4rem;
+      letter-spacing: 0.08em;
+    }
+
+    /* ── SCROLL AREA ── */
+    .scroll-area {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1.75rem 1.5rem calc(var(--safe-bottom) + 2rem);
+      -webkit-overflow-scrolling: touch;
+    }
+
+    /* ── SECTION LABEL ── */
+    .section-label {
+      font-family: 'Courier Prime', monospace;
+      font-size: 0.58rem;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--moss);
+      margin-bottom: 0.65rem;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+    .section-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--crack);
+    }
+
+    /* ── MUSCLE CHIPS ── */
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      margin-bottom: 2.25rem;
+    }
+
+    .chip {
+      padding: 0.5rem 0.9rem;
+      border: 1px solid var(--crack);
+      background: var(--concrete);
+      color: var(--fog);
+      font-family: 'Courier Prime', monospace;
+      font-size: 0.72rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.12s ease;
+      -webkit-user-select: none;
+      user-select: none;
+      position: relative;
+    }
+
+    /* Brutalist corner cut */
+    .chip::before {
+      content: '';
+      position: absolute;
+      bottom: -1px; right: -1px;
+      width: 6px; height: 6px;
+      background: var(--dirt);
+      clip-path: polygon(100% 0, 100% 100%, 0 100%);
+    }
+
+    .chip.active {
+      border-color: var(--moss);
+      background: rgba(61,107,53,0.08);
+      color: var(--lichen);
+    }
+    .chip.active::before {
+      background: var(--dirt);
+    }
+
+    /* ── SLIDERS ── */
+    .slider-block {
+      margin-bottom: 2rem;
+    }
+
+    .slider-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-bottom: 0.6rem;
+    }
+
+    .slider-label {
+      font-family: 'Courier Prime', monospace;
+      font-size: 0.6rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--fog);
+    }
+
+    .slider-val {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 2rem;
+      color: var(--clay);
+      line-height: 1;
+    }
+    .slider-val span {
+      font-family: 'Courier Prime', monospace;
+      font-size: 0.65rem;
+      color: var(--fog);
+      margin-left: 2px;
+    }
+
+    input[type=range] {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      height: 2px;
+      background: var(--crack);
+      outline: none;
+      border: none;
+      cursor: pointer;
+    }
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 18px;
+      height: 18px;
+      background: var(--clay);
+      border: 2px solid var(--dirt);
+      cursor: pointer;
+      box-shadow: 0 0 0 3px rgba(200,185,122,0.2);
+    }
+
+    .divider-raw {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin: 0.5rem 0 1.5rem;
+    }
+    .divider-raw-line {
+      flex: 1;
+      height: 1px;
+      background: var(--crack);
+    }
+    .divider-raw-text {
+      font-family: 'Courier Prime', monospace;
+      font-size: 0.55rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--crack);
+    }
+
+    .total-display {
+      font-family: 'Courier Prime', monospace;
+      font-size: 0.6rem;
+      color: var(--crack);
+      letter-spacing: 0.1em;
+      text-align: right;
+      margin-top: -1rem;
+      margin-bottom: 2rem;
+    }
+    .total-display strong {
+      color: var(--fog);
+    }
+
+    /* ── GENERATE BUTTON ── */
+    .btn-generate {
+      width: 100%;
+      padding: 1.15rem 1.5rem;
+      background: var(--moss);
+      color: var(--dirt);
+      border: none;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.4rem;
+      letter-spacing: 0.12em;
+      cursor: pointer;
+      transition: background 0.12s ease;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn-generate::after {
+      content: '';
+      position: absolute;
+      bottom: 0; right: 0;
+      width: 10px; height: 10px;
+      background: var(--dirt);
+      clip-path: polygon(100% 0, 100% 100%, 0 100%);
+    }
+
+    .btn-generate:disabled {
+      background: var(--slab);
+      color: var(--crack);
+      cursor: not-allowed;
+    }
+    .btn-generate:not(:disabled):active {
+      background: var(--lichen);
+    }
+
+    .btn-arrow {
+      font-family: 'Courier Prime', monospace;
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+
+    .hint-text {
+      font-family: 'Courier Prime', monospace;
+      font-size: 0.55rem;
+      letter-spacing: 0.12em;
+      color: var(--crack);
+      text-align: center;
+      margin-top: 0.6rem;
+    }
+
+    .error-slab {
+      margin-top: 1rem;
+      padding: 0.875rem 1rem;
+      background: rgba(139,58,26,0.07);
+      border-left: 3px solid var(--rust);
+      font-family: 'Courier Prime', monospace;
+      font-size: 0.7rem;
+      color: var(--rust);
+      line-height: 1.5;
+    }
+
+    /* ── LOADING OVERLAY ── */
+    .loading-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(240,237,232,0.95);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 1.5rem;
+      z-index: 999;
+      animation: fadeIn 0.2s ease;
+    }
+
+    .loading-grid {
+      display: grid;
+      grid-template-columns: repeat(3,1fr);
+      gap: 5px;
+      width: 52px;
+    }
+    .loading-cell {
+      width: 14px;
+      height: 14px;
+      background: var(--slab);
+      animation: cellPulse 1.2s ease infinite;
+    }
+    .loading-cell:nth-child(1) { animation-delay: 0s; }
+    .loading-cell:nth-child(2) { animation-delay: 0.1s; }
+    .loading-cell:nth-child(3) { animation-delay: 0.2s; }
+    .loading-cell:nth-child(4) { animation-delay: 0.3s; }
+    .loading-cell:nth-child(5) { animation-delay: 0.4s; background: var(--moss); }
+    .loading-cell:nth-child(6) { animation-delay: 0.5s; }
+    .loading-cell:nth-child(7) { animation-delay: 0.6s; }
+    .loading-cell:nth-child(8) { animation-delay: 0.7s; }
+    .loading-cell:nth-child(9) { animation-delay: 0.8s; }
+
+    .loading-label {
+      font-family: 'Courier Prime', monospace;
+      font-size: 0.62rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--fog);
+    }
+
+    /* ── RESULT HEADER ── */
+    .result-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 1.75rem;
+      padding-bottom: 1.25rem;
+      border-bottom: 1px solid var(--crack);
+    }
+
+    .result-eyebrow {
+      font-family: 'Courier Prime', monospace;
+      font-size: 0.55rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--moss);
+      margin-bottom: 0.3rem;
+    }
+
+    .result-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 2rem;
+      letter-spacing: 0.05em;
+      color: var(--chalk);
+      line-height: 1;
+    }
+
+    .result-meta {
+      text-align: right;
+      font-family: 'Courier Prime', monospace;
+      font-size: 0.65rem;
+      color: var(--clay);
+      line-height: 1.8;
+    }
+    .result-meta .dim { color: var(--fog); }
+
+    /* ── WORKOUT BLOCKS ── */
+    .workout-block {
+      margin-bottom: 1.1rem;
+      border-left: 3px solid var(--crack);
+      background: var(--concrete);
+      position: relative;
+      overflow: hidden;
+      animation: slideIn 0.35s cubic-bezier(0.16,1,0.3,1) both;
+    }
+
+    .workout-block::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(
+        180deg,
+        transparent 0px,
+        transparent 4px,
+        rgba(0,0,0,0.06) 4px,
+        rgba(0,0,0,0.06) 5px
+      );
+      pointer-events: none;
+    }
+
+    .block-header {
+      padding: 0.75rem 1rem 0.6rem;
+      border-bottom: 1px solid var(--crack);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .block-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 0.9rem;
+      letter-spacing: 0.12em;
+    }
+
+    .block-tag {
+      font-family: 'Courier Prime', monospace;
+      font-size: 0.52rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      padding: 0.2rem 0.4rem;
+      border: 1px solid;
+      opacity: 0.6;
+    }
+
+    .block-body { padding: 0.75rem 1rem; }
+
+    .ex-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      padding: 0.45rem 0;
+      border-bottom: 1px solid rgba(192,187,178,0.5);
+      gap: 0.75rem;
+    }
+    .ex-row:last-child { border-bottom: none; }
+
+    .ex-name {
+      font-family: 'Courier Prime', monospace;
+      font-size: 0.82rem;
+      color: var(--chalk);
+      flex: 1;
+      line-height: 1.3;
+    }
+
+    .ex-sets {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 0.9rem;
+      letter-spacing: 0.05em;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .ex-plain {
+      font-family: 'Courier Prime', monospace;
+      font-size: 0.78rem;
+      color: var(--fog);
+      padding: 0.3rem 0;
+      font-style: italic;
+      line-height: 1.5;
+    }
+
+    .ex-note {
+      font-family: 'Courier Prime', monospace;
+      font-size: 0.68rem;
+      color: var(--fog);
+      padding: 0.5rem 0 0;
+      font-style: italic;
+      line-height: 1.6;
+      border-top: 1px dashed var(--crack);
+      margin-top: 0.25rem;
+    }
+
+    /* ── BOTTOM BUTTONS ── */
+    .btn-row {
+      display: flex;
+      gap: 0.6rem;
+      margin-top: 1.5rem;
+    }
+
+    .btn-new {
+      flex: 1;
+      padding: 0.85rem 1rem;
+      background: transparent;
+      color: var(--fog);
+      border: 1px solid var(--crack);
+      font-family: 'Courier Prime', monospace;
+      font-size: 0.7rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      cursor: pointer;
+    }
+    .btn-new:active { background: var(--concrete); }
+
+    .btn-regen {
+      flex: 1;
+      padding: 0.85rem 1rem;
+      background: rgba(61,107,53,0.07);
+      color: var(--lichen);
+      border: 1px solid rgba(61,107,53,0.3);
+      font-family: 'Courier Prime', monospace;
+      font-size: 0.7rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      cursor: pointer;
+    }
+    .btn-regen:disabled { opacity: 0.3; cursor: not-allowed; }
+    .btn-regen:not(:disabled):active { background: rgba(61,107,53,0.15); }
+
+    /* ── ANIMATIONS ── */
+    @keyframes revealDown {
+      from { opacity: 0; transform: translateY(-10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; } to { opacity: 1; }
+    }
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateX(-8px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+    @keyframes cellPulse {
+      0%, 100% { background: var(--slab); }
+      50%       { background: var(--moss); }
+    }
+
+    .screen { animation: fadeIn 0.25s ease both; }
+
+    ::-webkit-scrollbar { width: 2px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--crack); }
+  </style>
+</head>
+<body>
+<div id="app">
+  <div class="header">
+    <div class="header-mark">// custom output trainer</div>
+    <div class="header-logo">
+      <span class="logo-co">Co</span><span class="logo-at">At</span>
+    </div>
+    <div class="header-sub">Grounded. Loaded. Yours.</div>
+  </div>
+  <div class="scroll-area" id="scroll-area">
+    <div id="screen-config" class="screen"></div>
+    <div id="screen-result" class="screen" style="display:none;"></div>
+  </div>
+</div>
+
+<div id="loading-overlay" class="loading-overlay" style="display:none;">
+  <div class="loading-grid">
+    <div class="loading-cell"></div>
+    <div class="loading-cell"></div>
+    <div class="loading-cell"></div>
+    <div class="loading-cell"></div>
+    <div class="loading-cell"></div>
+    <div class="loading-cell"></div>
+    <div class="loading-cell"></div>
+    <div class="loading-cell"></div>
+    <div class="loading-cell"></div>
+  </div>
+  <div class="loading-label">compiling session...</div>
+</div>
+
+<script>
+// ── CONSTANTS ──────────────────────────────────────────────────────────
+
+const EQUIPMENT = `
+- Dumbbells (full rack)
+- Straight bars and curl bars
+- Benches (flat and incline)
+- Preacher curl bench
+- Cable stations: pulldowns (lat bar, straight bar, rope), cable rows, lateral push/fly attachments
+- Machine curl
+- Pec fly machine
+- Chest press machine
+- Shoulder press machine
+- Hip abductor machine
+- Hip adductor machine
+- Dip bars
+- Pull-up bar
+- Smith machine
+- Leg press, leg curl, leg extension, calf raise machines
+- Cardio machines (warmup only)
+`;
+
+const AB_SYSTEM = `
+PHILOSOPHY: Progressive overload, aesthetic definition focus. Every movement must have resistance — bodyweight is last resort.
+
+APPROVED EXERCISES ONLY:
+- Cable crunches (rope attachment) — PRIMARY overload movement, always goes first
+- Hanging leg raises — lower ab emphasis, add ankle weights when possible
+- Decline sit-ups — weighted plate on chest
+- Ab wheel rollouts — full extension
+- Oblique cable crunches — unilateral, heavy
+- Pallof press — anti-rotation stability
+
+BANNED (never include): regular sit-ups on flat floor, basic unweighted crunches, flutter kicks, mountain climbers, planks as primary movement
+
+SESSION STRUCTURE: Heaviest compound first (cable crunches or weighted hanging leg raises), then accessories. All sets should have progressive resistance.
+`;
+
+const MUSCLE_GROUPS = [
+  { id: 'chest',     label: 'Chest'     },
+  { id: 'back',      label: 'Back'      },
+  { id: 'shoulders', label: 'Shoulders' },
+  { id: 'biceps',    label: 'Biceps'    },
+  { id: 'triceps',   label: 'Triceps'   },
+  { id: 'legs',      label: 'Legs'      },
+  { id: 'glutes',    label: 'Glutes'    },
+];
+
+// Block theme: [border color, title color, tag label]
+const BLOCK_THEMES = {
+  'WARMUP':       ['#527A49', '#527A49', 'warmup'],
+  'MAIN WORKOUT': ['#3D6B35', '#3D6B35', 'main'],
+  'AB BLOCK':     ['#2A5C22', '#2A5C22', 'core'],
+  'NOTES':        ['#8B3A1A', '#8B3A1A', 'coach'],
+};
+
+// ── STATE ──────────────────────────────────────────────────────────────
+
+let state = {
+  workoutTime: 45,
+  abTime: 10,
+  selectedGroups: [],
+  workout: null,
+  loading: false,
+  error: null,
+};
+
+// ── RENDER CONFIG ──────────────────────────────────────────────────────
+
+function renderConfig() {
+  const el = document.getElementById('screen-config');
+  const pct1 = ((state.workoutTime - 20) / 70) * 100;
+  const pct2 = ((state.abTime - 5)  / 20) * 100;
+  const hasGroups = state.selectedGroups.length > 0;
+
+  el.innerHTML = `
+    <div class="section-label">Target Muscles</div>
+    <div class="chips">
+      ${MUSCLE_GROUPS.map(g => `
+        <div class="chip ${state.selectedGroups.includes(g.id) ? 'active' : ''}"
+             data-group="${g.id}">${g.label}</div>
+      `).join('')}
+    </div>
+
+    <div class="section-label">Session Time</div>
+
+    <div class="slider-block">
+      <div class="slider-header">
+        <div class="slider-label">Main Workout</div>
+        <div class="slider-val">${state.workoutTime}<span>min</span></div>
+      </div>
+      <input type="range" id="slider-workout" min="20" max="90" step="5" value="${state.workoutTime}"
+        style="background: linear-gradient(to right, #3D6B35 ${pct1}%, #C0BBB2 ${pct1}%)" />
+    </div>
+
+    <div class="divider-raw">
+      <div class="divider-raw-line"></div>
+      <div class="divider-raw-text">then</div>
+      <div class="divider-raw-line"></div>
+    </div>
+
+    <div class="slider-block">
+      <div class="slider-header">
+        <div class="slider-label">Ab Block</div>
+        <div class="slider-val">${state.abTime}<span>min</span></div>
+      </div>
+      <input type="range" id="slider-abs" min="5" max="25" step="5" value="${state.abTime}"
+        style="background: linear-gradient(to right, #527A49 ${pct2}%, #C0BBB2 ${pct2}%)" />
+    </div>
+
+    <div class="total-display">total output — <strong>${state.workoutTime + state.abTime} min</strong></div>
+
+    <button class="btn-generate" id="btn-generate" ${!hasGroups ? 'disabled' : ''}>
+      <span>Compile Session</span>
+      <span class="btn-arrow">${hasGroups ? '→' : '—'}</span>
+    </button>
+
+    ${!hasGroups ? '<div class="hint-text">// select at least one muscle group</div>' : ''}
+    ${state.error ? `<div class="error-slab">${state.error}</div>` : ''}
+  `;
+
+  el.querySelectorAll('.chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      const g = chip.dataset.group;
+      state.selectedGroups = state.selectedGroups.includes(g)
+        ? state.selectedGroups.filter(x => x !== g)
+        : [...state.selectedGroups, g];
+      renderConfig();
+    });
+  });
+
+  document.getElementById('slider-workout').addEventListener('input', e => {
+    state.workoutTime = Number(e.target.value);
+    renderConfig();
+  });
+
+  document.getElementById('slider-abs').addEventListener('input', e => {
+    state.abTime = Number(e.target.value);
+    renderConfig();
+  });
+
+  const btn = document.getElementById('btn-generate');
+  if (btn) btn.addEventListener('click', () => { if (hasGroups) generateWorkout(); });
+}
+
+// ── RENDER RESULT ──────────────────────────────────────────────────────
+
+function renderResult() {
+  const el = document.getElementById('screen-result');
+  const w = state.workout;
+  if (!w) return;
+
+  const muscleLabel = state.selectedGroups.join(' + ').toUpperCase();
+
+  el.innerHTML = `
+    <div class="result-header">
+      <div>
+        <div class="result-eyebrow">// session compiled</div>
+        <div class="result-title">${muscleLabel}</div>
+      </div>
+      <div class="result-meta">
+        <div>${state.workoutTime}m</div>
+        <div class="dim">+${state.abTime}m core</div>
+      </div>
+    </div>
+
+    ${w.WARMUP            ? renderBlock('WARMUP',       w.WARMUP,            0) : ''}
+    ${w['MAIN WORKOUT']   ? renderBlock('MAIN WORKOUT', w['MAIN WORKOUT'],   1) : ''}
+    ${w['AB BLOCK']       ? renderBlock('AB BLOCK',     w['AB BLOCK'],       2) : ''}
+    ${w.NOTES             ? renderBlock('NOTES',        w.NOTES,             3) : ''}
+
+    <div class="btn-row">
+      <button class="btn-new" id="btn-new">← New Session</button>
+      <button class="btn-regen" id="btn-regen">Recompile ↺</button>
+    </div>
+  `;
+
+  document.getElementById('btn-new').addEventListener('click', () => {
+    state.workout = null;
+    state.error = null;
+    showScreen('config');
+  });
+  document.getElementById('btn-regen').addEventListener('click', generateWorkout);
+}
+
+function renderBlock(key, content, delayIdx) {
+  const [borderColor, titleColor, tag] = BLOCK_THEMES[key] || ['#6B6555','#6B6555','block'];
+  const lines = content.split('\n').filter(l => l.trim());
+  let rows = '';
+
+  lines.forEach(line => {
+    const clean = line.replace(/^#+\s*/, '').replace(/^[-•]\s*/, '').replace(/\*\*/g, '').trim();
+    if (!clean) return;
+
+    const isNote = /^note:|^tip:|^coach:/i.test(clean);
+    if (isNote) {
+      rows += `<div class="ex-note">${clean}</div>`;
+      return;
+    }
+
+    const dashMatch = clean.match(/^(.+?)\s*[—–]\s*(.+)$/);
+    if (dashMatch) {
+      rows += `
+        <div class="ex-row">
+          <span class="ex-name">${dashMatch[1].trim()}</span>
+          <span class="ex-sets" style="color:${titleColor}">${dashMatch[2].trim()}</span>
+        </div>`;
+    } else {
+      rows += `<div class="ex-plain">${clean}</div>`;
+    }
+  });
+
+  const displayTitles = {
+    'WARMUP': 'Warmup Protocol',
+    'MAIN WORKOUT': 'Main Session',
+    'AB BLOCK': 'Core Block',
+    'NOTES': 'Field Notes',
+  };
+
+  return `
+    <div class="workout-block" style="border-left-color:${borderColor}; animation-delay:${delayIdx * 0.07}s">
+      <div class="block-header">
+        <div class="block-title" style="color:${titleColor}">${displayTitles[key] || key}</div>
+        <div class="block-tag" style="color:${borderColor}; border-color:${borderColor}">${tag}</div>
+      </div>
+      <div class="block-body">${rows}</div>
+    </div>`;
+}
+
+// ── SCREEN SWITCH ──────────────────────────────────────────────────────
+
+function showScreen(name) {
+  document.getElementById('screen-config').style.display = name === 'config' ? '' : 'none';
+  document.getElementById('screen-result').style.display = name === 'result' ? '' : 'none';
+  document.getElementById('scroll-area').scrollTop = 0;
+  if (name === 'config') renderConfig();
+  if (name === 'result') renderResult();
+}
+
+// ── API ────────────────────────────────────────────────────────────────
+
+async function generateWorkout() {
+  if (state.selectedGroups.length === 0) return;
+  state.loading = true;
+  state.error = null;
+  document.getElementById('loading-overlay').style.display = 'flex';
+
+  const muscleList = state.selectedGroups.join(', ');
+  const prompt = `You are an elite personal trainer. Generate a complete structured workout.
+
+EQUIPMENT AVAILABLE:${EQUIPMENT}
+
+TARGET MUSCLES: ${muscleList}
+MAIN WORKOUT TIME: ${state.workoutTime} minutes — scale sets/exercises to fill this time
+AB BLOCK TIME: ${state.abTime} minutes — always included, scale accordingly
+
+AB TRAINING SYSTEM — FOLLOW EXACTLY:${AB_SYSTEM}
+
+OUTPUT FORMAT — use exactly these section headers, nothing else before or after:
+
+WARMUP
+[2-3 movements formatted as: Movement Name — duration or sets x reps]
+
+MAIN WORKOUT
+[exercises only for: ${muscleList}]
+[Format every line as: Exercise Name — sets x reps (rest time)]
+[Compound first, isolation last. Fill ${state.workoutTime} minutes of volume.]
+
+AB BLOCK
+[Follow the ab system above strictly. Format: Exercise Name — sets x reps (rest)]
+[Fill ${state.abTime} minutes. Cable crunches MUST be first.]
+
+NOTES
+[1-2 short coaching notes for this session, prefixed with "Note:"]
+
+Use em dashes (—) only. No markdown, no asterisks, no numbered lists. No intro or outro text.`;
+
+  try {
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        messages: [{ role: 'user', content: prompt }],
+      }),
+    });
+
+    const data = await resp.json();
+    const text = (data.content || []).map(b => b.text || '').join('');
+
+    const sections = {};
+    const names = ['WARMUP', 'MAIN WORKOUT', 'AB BLOCK', 'NOTES'];
+    names.forEach((name, i) => {
+      const next = names[i + 1];
+      const start = text.indexOf(name);
+      if (start === -1) return;
+      const end = next ? text.indexOf(next) : text.length;
+      sections[name] = text.slice(start + name.length, end === -1 ? text.length : end).trim();
+    });
+
+    state.workout = sections;
+    document.getElementById('loading-overlay').style.display = 'none';
+    showScreen('result');
+  } catch (err) {
+    state.error = '// connection failed. check signal and retry.';
+    document.getElementById('loading-overlay').style.display = 'none';
+    renderConfig();
+  }
+
+  state.loading = false;
+}
+
+// ── SERVICE WORKER ────────────────────────────────────────────────────
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js').catch(() => {});
+  });
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────
+showScreen('config');
+</script>
+</body>
+</html>
