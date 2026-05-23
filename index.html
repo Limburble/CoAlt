@@ -6,959 +6,660 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="CoAt" />
-  <meta name="theme-color" content="#F0EDE8" />
   <link rel="manifest" href="./manifest.json" />
   <link rel="apple-touch-icon" href="./icon-192.png" />
   <title>CoAt</title>
+  <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,700;1,9..144,300&display=swap" rel="stylesheet" />
   <style>
-    *, *::before, *::after {
-      box-sizing: border-box;
-      margin: 0; padding: 0;
-      -webkit-tap-highlight-color: transparent;
-    }
+    *, *::before, *::after { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
     :root {
-      --dirt:    #F0EDE8;
-      --concrete:#E8E4DD;
+      --bg:      #F0EDE8;
+      --surface: #E8E4DD;
       --slab:    #DEDAD2;
-      --moss:    #3D6B35;
-      --lichen:  #527A49;
-      --clay:    #2A2A26;
-      --rust:    #8B3A1A;
-      --chalk:   #1A1A18;
+      --border:  #C0BBB2;
       --fog:     #6B6860;
-      --shadow:  #C8C4BC;
-      --crack:   #C0BBB2;
+      --text:    #1A1A18;
+      --accent:  #3D6B35;
+      --mid:     #527A49;
+      --rust:    #8B3A1A;
       --safe-top: env(safe-area-inset-top, 0px);
       --safe-bottom: env(safe-area-inset-bottom, 0px);
     }
 
     html, body {
-      height: 100%;
-      background: var(--dirt);
-      color: var(--chalk);
+      height: 100%; margin: 0; padding: 0;
+      background: var(--bg);
+      color: var(--text);
       font-family: 'Courier Prime', monospace;
       overscroll-behavior: none;
       -webkit-overflow-scrolling: touch;
+      transition: background 0.55s ease, color 0.55s ease;
     }
 
-    /* ── NOISE TEXTURE OVERLAY ── */
-    body::before {
+    body::after {
       content: '';
-      position: fixed;
-      inset: 0;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
-      pointer-events: none;
-      z-index: 1000;
-      opacity: 0.6;
+      position: fixed; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+      pointer-events: none; z-index: 9999; opacity: 0.5;
     }
 
-    #app {
-      max-width: 430px;
-      margin: 0 auto;
-      min-height: 100vh;
-      min-height: 100dvh;
-      display: flex;
-      flex-direction: column;
-      background: var(--dirt);
-      position: relative;
-    }
+    /* All themed elements */
+    .t { transition: background 0.55s ease, color 0.55s ease, border-color 0.55s ease; }
 
-    /* ── HEADER ── */
-    .header {
-      padding: calc(var(--safe-top) + 2.75rem) 1.5rem 1.25rem;
-      border-bottom: 3px solid var(--crack);
-      flex-shrink: 0;
-      position: relative;
-      overflow: hidden;
-      animation: revealDown 0.5s cubic-bezier(0.16,1,0.3,1) both;
+    /* ── TOGGLE ── */
+    .toggle-track {
+      width: 210px; height: 38px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      position: relative; cursor: pointer;
+      display: flex; align-items: center;
+      transition: background 0.55s ease, border-color 0.55s ease;
     }
-
-    /* Horizontal concrete scan lines */
-    .header::before {
-      content: '';
+    .toggle-thumb {
       position: absolute;
-      inset: 0;
-      background: repeating-linear-gradient(
-        180deg,
-        transparent 0px,
-        transparent 3px,
-        rgba(0,0,0,0.08) 3px,
-        rgba(0,0,0,0.08) 4px
-      );
-      pointer-events: none;
+      width: calc(50% - 2px); height: calc(100% - 4px);
+      top: 2px; left: 2px;
+      background: var(--accent);
+      transition: transform 0.42s cubic-bezier(0.34,1.4,0.64,1), background 0.55s ease;
+      z-index: 1;
     }
-
-    /* Moss accent bar — left edge */
-    .header::after {
-      content: '';
-      position: absolute;
-      left: 0; top: 0; bottom: 0;
-      width: 4px;
-      background: linear-gradient(180deg, var(--moss), var(--lichen), var(--moss));
-    }
-
-    .header-mark {
-      font-family: 'Courier Prime', monospace;
-      font-size: 0.6rem;
-      letter-spacing: 0.25em;
-      text-transform: uppercase;
-      color: var(--moss);
-      margin-bottom: 0.5rem;
-      padding-left: 1rem;
-    }
-
-    .header-logo {
-      display: flex;
-      align-items: baseline;
-      gap: 0;
-      padding-left: 1rem;
-    }
-
-    .logo-co {
+    .toggle-thumb.right { transform: translateX(105px); }
+    .toggle-label {
+      position: relative; z-index: 2;
+      flex: 1; text-align: center;
       font-family: 'Bebas Neue', sans-serif;
-      font-size: 4.5rem;
-      line-height: 0.85;
-      color: var(--chalk);
-      letter-spacing: 0.02em;
+      font-size: 0.88rem; letter-spacing: 0.12em;
+      pointer-events: none;
+      transition: color 0.3s ease;
     }
 
-    .logo-at {
-      font-family: 'Fraunces', serif;
-      font-size: 2.2rem;
-      font-weight: 300;
-      font-style: italic;
-      color: var(--clay);
-      line-height: 1;
-      margin-left: 0.15rem;
-      align-self: flex-end;
-      margin-bottom: 0.35rem;
-    }
-
-    .header-sub {
-      font-family: 'Courier Prime', monospace;
-      font-size: 0.6rem;
-      color: var(--fog);
-      padding-left: 1rem;
-      margin-top: 0.4rem;
-      letter-spacing: 0.08em;
-    }
-
-    /* ── SCROLL AREA ── */
-    .scroll-area {
-      flex: 1;
-      overflow-y: auto;
-      padding: 1.75rem 1.5rem calc(var(--safe-bottom) + 2rem);
+    /* ── PICKER ── */
+    .picker-wrap { position: relative; height: 196px; overflow: hidden; }
+    .picker-scroll {
+      height: 100%; overflow-y: scroll;
+      scroll-snap-type: y mandatory;
       -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      padding: 78px 0;
     }
-
-    /* ── SECTION LABEL ── */
-    .section-label {
-      font-family: 'Courier Prime', monospace;
-      font-size: 0.58rem;
-      letter-spacing: 0.22em;
-      text-transform: uppercase;
-      color: var(--moss);
-      margin-bottom: 0.65rem;
-      display: flex;
-      align-items: center;
-      gap: 0.6rem;
-    }
-    .section-label::after {
-      content: '';
-      flex: 1;
-      height: 1px;
-      background: var(--crack);
-    }
-
-    /* ── MUSCLE CHIPS ── */
-    .chips {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.45rem;
-      margin-bottom: 2.25rem;
-    }
-
-    .chip {
-      padding: 0.5rem 0.9rem;
-      border: 1px solid var(--crack);
-      background: var(--concrete);
-      color: var(--fog);
-      font-family: 'Courier Prime', monospace;
-      font-size: 0.72rem;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      cursor: pointer;
-      transition: all 0.12s ease;
-      -webkit-user-select: none;
+    .picker-scroll::-webkit-scrollbar { display: none; }
+    .picker-item {
+      height: 40px;
+      display: flex; align-items: center; justify-content: center;
+      scroll-snap-align: center;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.45rem; letter-spacing: 0.08em;
+      color: var(--fog); cursor: pointer;
+      transition: color 0.2s ease, font-size 0.2s ease;
       user-select: none;
-      position: relative;
+    }
+    .picker-item.sel { color: var(--text); font-size: 1.85rem; }
+    .picker-fade-top {
+      position: absolute; top: 0; left: 0; right: 0; height: 78px;
+      background: linear-gradient(to bottom, var(--bg) 0%, transparent 100%);
+      pointer-events: none; z-index: 2;
+      transition: background 0.55s ease;
+    }
+    .picker-fade-bot {
+      position: absolute; bottom: 0; left: 0; right: 0; height: 78px;
+      background: linear-gradient(to top, var(--bg) 0%, transparent 100%);
+      pointer-events: none; z-index: 2;
+      transition: background 0.55s ease;
+    }
+    .picker-sel-line {
+      position: absolute; top: 50%; left: 1.25rem; right: 1.25rem;
+      height: 40px; margin-top: -20px;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      pointer-events: none; z-index: 3;
+      transition: border-color 0.55s ease;
     }
 
-    /* Brutalist corner cut */
-    .chip::before {
-      content: '';
-      position: absolute;
-      bottom: -1px; right: -1px;
-      width: 6px; height: 6px;
-      background: var(--dirt);
+    /* ── CHIP ── */
+    .chip {
+      padding: 0.48rem 1rem;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--fog);
+      font-family: 'Courier Prime', monospace;
+      font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase;
+      cursor: pointer; position: relative;
+      transition: all 0.15s ease;
+      user-select: none;
+    }
+    .chip::after {
+      content: ''; position: absolute; bottom: -1px; right: -1px;
+      width: 7px; height: 7px; background: var(--bg);
       clip-path: polygon(100% 0, 100% 100%, 0 100%);
+      transition: background 0.55s ease;
     }
+    .chip.on { border-color: var(--accent); background: var(--bg); color: var(--accent); }
 
-    .chip.active {
-      border-color: var(--moss);
-      background: rgba(61,107,53,0.08);
-      color: var(--lichen);
-    }
-    .chip.active::before {
-      background: var(--dirt);
-    }
-
-    /* ── SLIDERS ── */
-    .slider-block {
-      margin-bottom: 2rem;
-    }
-
-    .slider-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-end;
-      margin-bottom: 0.6rem;
-    }
-
-    .slider-label {
-      font-family: 'Courier Prime', monospace;
-      font-size: 0.6rem;
-      letter-spacing: 0.15em;
-      text-transform: uppercase;
-      color: var(--fog);
-    }
-
-    .slider-val {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 2rem;
-      color: var(--clay);
-      line-height: 1;
-    }
-    .slider-val span {
-      font-family: 'Courier Prime', monospace;
-      font-size: 0.65rem;
-      color: var(--fog);
-      margin-left: 2px;
-    }
-
-    input[type=range] {
-      -webkit-appearance: none;
-      appearance: none;
-      width: 100%;
-      height: 2px;
-      background: var(--crack);
-      outline: none;
-      border: none;
-      cursor: pointer;
-    }
-    input[type=range]::-webkit-slider-thumb {
-      -webkit-appearance: none;
-      width: 18px;
-      height: 18px;
-      background: var(--clay);
-      border: 2px solid var(--dirt);
-      cursor: pointer;
-      box-shadow: 0 0 0 3px rgba(200,185,122,0.2);
-    }
-
-    .divider-raw {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      margin: 0.5rem 0 1.5rem;
-    }
-    .divider-raw-line {
-      flex: 1;
-      height: 1px;
-      background: var(--crack);
-    }
-    .divider-raw-text {
-      font-family: 'Courier Prime', monospace;
-      font-size: 0.55rem;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: var(--crack);
-    }
-
-    .total-display {
-      font-family: 'Courier Prime', monospace;
-      font-size: 0.6rem;
-      color: var(--crack);
-      letter-spacing: 0.1em;
-      text-align: right;
-      margin-top: -1rem;
-      margin-bottom: 2rem;
-    }
-    .total-display strong {
-      color: var(--fog);
-    }
-
-    /* ── GENERATE BUTTON ── */
-    .btn-generate {
-      width: 100%;
-      padding: 1.15rem 1.5rem;
-      background: var(--moss);
-      color: var(--dirt);
+    /* ── CTA ── */
+    .btn-cta {
+      width: 100%; padding: 1.1rem 1.5rem;
+      background: var(--accent); color: var(--bg);
       border: none;
       font-family: 'Bebas Neue', sans-serif;
-      font-size: 1.4rem;
-      letter-spacing: 0.12em;
-      cursor: pointer;
-      transition: background 0.12s ease;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      position: relative;
-      overflow: hidden;
+      font-size: 1.4rem; letter-spacing: 0.12em;
+      cursor: pointer; position: relative; overflow: hidden;
+      display: flex; align-items: center; justify-content: space-between;
+      transition: background 0.55s ease, color 0.55s ease;
     }
-
-    .btn-generate::after {
-      content: '';
-      position: absolute;
-      bottom: 0; right: 0;
-      width: 10px; height: 10px;
-      background: var(--dirt);
+    .btn-cta::after {
+      content: ''; position: absolute; bottom: 0; right: 0;
+      width: 10px; height: 10px; background: var(--bg);
       clip-path: polygon(100% 0, 100% 100%, 0 100%);
+      transition: background 0.55s ease;
     }
+    .btn-cta:disabled { background: var(--slab); color: var(--border); cursor: not-allowed; }
+    .btn-cta:not(:disabled):active { opacity: 0.85; }
 
-    .btn-generate:disabled {
-      background: var(--slab);
-      color: var(--crack);
-      cursor: not-allowed;
+    /* ── WORKOUT BLOCK ── */
+    .w-block {
+      background: var(--surface);
+      border-left: 3px solid var(--accent);
+      margin-bottom: 1rem; position: relative; overflow: hidden;
+      transition: background 0.55s ease, border-color 0.55s ease;
     }
-    .btn-generate:not(:disabled):active {
-      background: var(--lichen);
-    }
-
-    .btn-arrow {
-      font-family: 'Courier Prime', monospace;
-      font-size: 1.1rem;
-      font-weight: 700;
-    }
-
-    .hint-text {
-      font-family: 'Courier Prime', monospace;
-      font-size: 0.55rem;
-      letter-spacing: 0.12em;
-      color: var(--crack);
-      text-align: center;
-      margin-top: 0.6rem;
-    }
-
-    .error-slab {
-      margin-top: 1rem;
-      padding: 0.875rem 1rem;
-      background: rgba(139,58,26,0.07);
-      border-left: 3px solid var(--rust);
-      font-family: 'Courier Prime', monospace;
-      font-size: 0.7rem;
-      color: var(--rust);
-      line-height: 1.5;
-    }
-
-    /* ── LOADING OVERLAY ── */
-    .loading-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(240,237,232,0.95);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 1.5rem;
-      z-index: 999;
-      animation: fadeIn 0.2s ease;
-    }
-
-    .loading-grid {
-      display: grid;
-      grid-template-columns: repeat(3,1fr);
-      gap: 5px;
-      width: 52px;
-    }
-    .loading-cell {
-      width: 14px;
-      height: 14px;
-      background: var(--slab);
-      animation: cellPulse 1.2s ease infinite;
-    }
-    .loading-cell:nth-child(1) { animation-delay: 0s; }
-    .loading-cell:nth-child(2) { animation-delay: 0.1s; }
-    .loading-cell:nth-child(3) { animation-delay: 0.2s; }
-    .loading-cell:nth-child(4) { animation-delay: 0.3s; }
-    .loading-cell:nth-child(5) { animation-delay: 0.4s; background: var(--moss); }
-    .loading-cell:nth-child(6) { animation-delay: 0.5s; }
-    .loading-cell:nth-child(7) { animation-delay: 0.6s; }
-    .loading-cell:nth-child(8) { animation-delay: 0.7s; }
-    .loading-cell:nth-child(9) { animation-delay: 0.8s; }
-
-    .loading-label {
-      font-family: 'Courier Prime', monospace;
-      font-size: 0.62rem;
-      letter-spacing: 0.2em;
-      text-transform: uppercase;
-      color: var(--fog);
-    }
-
-    /* ── RESULT HEADER ── */
-    .result-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      margin-bottom: 1.75rem;
-      padding-bottom: 1.25rem;
-      border-bottom: 1px solid var(--crack);
-    }
-
-    .result-eyebrow {
-      font-family: 'Courier Prime', monospace;
-      font-size: 0.55rem;
-      letter-spacing: 0.2em;
-      text-transform: uppercase;
-      color: var(--moss);
-      margin-bottom: 0.3rem;
-    }
-
-    .result-title {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 2rem;
-      letter-spacing: 0.05em;
-      color: var(--chalk);
-      line-height: 1;
-    }
-
-    .result-meta {
-      text-align: right;
-      font-family: 'Courier Prime', monospace;
-      font-size: 0.65rem;
-      color: var(--clay);
-      line-height: 1.8;
-    }
-    .result-meta .dim { color: var(--fog); }
-
-    /* ── WORKOUT BLOCKS ── */
-    .workout-block {
-      margin-bottom: 1.1rem;
-      border-left: 3px solid var(--crack);
-      background: var(--concrete);
-      position: relative;
-      overflow: hidden;
-      animation: slideIn 0.35s cubic-bezier(0.16,1,0.3,1) both;
-    }
-
-    .workout-block::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: repeating-linear-gradient(
-        180deg,
-        transparent 0px,
-        transparent 4px,
-        rgba(0,0,0,0.06) 4px,
-        rgba(0,0,0,0.06) 5px
-      );
+    .w-block::before {
+      content: ''; position: absolute; inset: 0;
+      background: repeating-linear-gradient(180deg, transparent 0, transparent 4px, rgba(0,0,0,0.035) 4px, rgba(0,0,0,0.035) 5px);
       pointer-events: none;
     }
 
-    .block-header {
-      padding: 0.75rem 1rem 0.6rem;
-      border-bottom: 1px solid var(--crack);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    .block-title {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 0.9rem;
-      letter-spacing: 0.12em;
-    }
-
-    .block-tag {
-      font-family: 'Courier Prime', monospace;
-      font-size: 0.52rem;
-      letter-spacing: 0.15em;
-      text-transform: uppercase;
-      padding: 0.2rem 0.4rem;
-      border: 1px solid;
-      opacity: 0.6;
-    }
-
-    .block-body { padding: 0.75rem 1rem; }
-
-    .ex-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: baseline;
-      padding: 0.45rem 0;
-      border-bottom: 1px solid rgba(192,187,178,0.5);
-      gap: 0.75rem;
-    }
+    /* ── EX ROW ── */
+    .ex-row { cursor: pointer; border-bottom: 1px solid var(--border); transition: background 0.15s ease, border-color 0.55s ease; }
     .ex-row:last-child { border-bottom: none; }
+    .ex-row:active { background: var(--slab); }
 
-    .ex-name {
-      font-family: 'Courier Prime', monospace;
-      font-size: 0.82rem;
-      color: var(--chalk);
-      flex: 1;
-      line-height: 1.3;
+    /* ── INFO CARD ── */
+    .info-card {
+      max-height: 0; overflow: hidden;
+      background: var(--slab);
+      border-top: 0px solid var(--border);
+      transition: max-height 0.4s cubic-bezier(0.4,0,0.2,1), background 0.55s ease, border-top-width 0.4s ease;
     }
+    .info-card.open { max-height: 420px; border-top-width: 1px; }
 
-    .ex-sets {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 0.9rem;
-      letter-spacing: 0.05em;
-      white-space: nowrap;
-      flex-shrink: 0;
-    }
+    /* ── CHEVRON ── */
+    .chev { transition: transform 0.3s ease, color 0.55s ease; display:inline-block; }
+    .chev.open { transform: rotate(180deg); }
 
-    .ex-plain {
-      font-family: 'Courier Prime', monospace;
-      font-size: 0.78rem;
-      color: var(--fog);
-      padding: 0.3rem 0;
-      font-style: italic;
-      line-height: 1.5;
-    }
+    /* ── SCREENS ── */
+    .screen { animation: fadeUp 0.32s cubic-bezier(0.16,1,0.3,1) both; }
+    @keyframes fadeUp { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+    .blk-in { animation: blkIn 0.35s cubic-bezier(0.16,1,0.3,1) both; }
+    @keyframes blkIn { from { opacity:0; transform:translateX(-8px); } to { opacity:1; transform:translateX(0); } }
 
-    .ex-note {
-      font-family: 'Courier Prime', monospace;
-      font-size: 0.68rem;
-      color: var(--fog);
-      padding: 0.5rem 0 0;
-      font-style: italic;
-      line-height: 1.6;
-      border-top: 1px dashed var(--crack);
-      margin-top: 0.25rem;
-    }
+    /* ── LOADING ── */
+    .lcell { width:14px; height:14px; background:var(--slab); animation: lp 1.2s ease infinite; transition: background 0.55s ease; }
+    @keyframes lp { 0%,100%{background:var(--slab)} 50%{background:var(--accent)} }
+    .lcell:nth-child(1){animation-delay:0s}.lcell:nth-child(2){animation-delay:.1s}.lcell:nth-child(3){animation-delay:.2s}
+    .lcell:nth-child(4){animation-delay:.3s}.lcell:nth-child(5){animation-delay:.4s}.lcell:nth-child(6){animation-delay:.5s}
+    .lcell:nth-child(7){animation-delay:.6s}.lcell:nth-child(8){animation-delay:.7s}.lcell:nth-child(9){animation-delay:.8s}
 
-    /* ── BOTTOM BUTTONS ── */
-    .btn-row {
-      display: flex;
-      gap: 0.6rem;
-      margin-top: 1.5rem;
+    /* ── BUTTONS ── */
+    .btn-sec {
+      flex:1; padding:0.85rem 1rem; background:transparent;
+      color:var(--fog); border:1px solid var(--border);
+      font-family:'Courier Prime',monospace; font-size:0.7rem; letter-spacing:0.1em; text-transform:uppercase;
+      cursor:pointer; transition: all 0.15s ease;
     }
+    .btn-sec:active { background:var(--surface); }
+    .btn-alt {
+      flex:1; padding:0.85rem 1rem; background:transparent;
+      color:var(--accent); border:1px solid var(--accent);
+      font-family:'Courier Prime',monospace; font-size:0.7rem; letter-spacing:0.1em; text-transform:uppercase;
+      cursor:pointer; opacity:0.75; transition: all 0.15s ease;
+    }
+    .btn-alt:active { opacity:1; }
 
-    .btn-new {
-      flex: 1;
-      padding: 0.85rem 1rem;
-      background: transparent;
-      color: var(--fog);
-      border: 1px solid var(--crack);
-      font-family: 'Courier Prime', monospace;
-      font-size: 0.7rem;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      cursor: pointer;
-    }
-    .btn-new:active { background: var(--concrete); }
-
-    .btn-regen {
-      flex: 1;
-      padding: 0.85rem 1rem;
-      background: rgba(61,107,53,0.07);
-      color: var(--lichen);
-      border: 1px solid rgba(61,107,53,0.3);
-      font-family: 'Courier Prime', monospace;
-      font-size: 0.7rem;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      cursor: pointer;
-    }
-    .btn-regen:disabled { opacity: 0.3; cursor: not-allowed; }
-    .btn-regen:not(:disabled):active { background: rgba(61,107,53,0.15); }
-
-    /* ── ANIMATIONS ── */
-    @keyframes revealDown {
-      from { opacity: 0; transform: translateY(-10px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-    @keyframes fadeIn {
-      from { opacity: 0; } to { opacity: 1; }
-    }
-    @keyframes slideIn {
-      from { opacity: 0; transform: translateX(-8px); }
-      to   { opacity: 1; transform: translateX(0); }
-    }
-    @keyframes cellPulse {
-      0%, 100% { background: var(--slab); }
-      50%       { background: var(--moss); }
-    }
-
-    .screen { animation: fadeIn 0.25s ease both; }
-
-    ::-webkit-scrollbar { width: 2px; }
-    ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: var(--crack); }
+    ::-webkit-scrollbar { width:2px; }
+    ::-webkit-scrollbar-thumb { background:var(--border); }
   </style>
 </head>
 <body>
-<div id="app">
-  <div class="header">
-    <div class="header-mark">// custom output trainer</div>
-    <div class="header-logo">
-      <span class="logo-co">Co</span><span class="logo-at">At</span>
+
+<div id="app" style="max-width:430px;margin:0 auto;min-height:100dvh;display:flex;flex-direction:column;background:var(--bg);position:relative;transition:background 0.55s ease;">
+
+  <!-- HEADER -->
+  <div id="hdr" style="padding:calc(var(--safe-top) + 2.5rem) 1.5rem 1.1rem;border-bottom:3px solid var(--border);flex-shrink:0;position:relative;overflow:hidden;background:var(--surface);transition:background 0.55s ease,border-color 0.55s ease;">
+    <div style="position:absolute;left:0;top:0;bottom:0;width:4px;background:linear-gradient(180deg,var(--accent),var(--mid),var(--accent));transition:background 0.55s ease;"></div>
+    <div style="position:absolute;inset:0;background:repeating-linear-gradient(180deg,transparent 0,transparent 3px,rgba(0,0,0,0.045) 3px,rgba(0,0,0,0.045) 4px);pointer-events:none;"></div>
+    <div style="padding-left:1rem;position:relative;">
+      <div style="font-size:0.57rem;letter-spacing:0.25em;text-transform:uppercase;color:var(--accent);margin-bottom:0.35rem;transition:color 0.55s ease;">// custom output trainer</div>
+      <div style="display:flex;align-items:baseline;">
+        <span style="font-family:'Bebas Neue',sans-serif;font-size:4rem;line-height:0.85;color:var(--text);transition:color 0.55s ease;">Co</span>
+        <span style="font-family:'Fraunces',serif;font-size:1.9rem;font-weight:300;font-style:italic;color:var(--accent);margin-left:0.1rem;align-self:flex-end;margin-bottom:0.25rem;transition:color 0.55s ease;">At</span>
+      </div>
+      <div id="hdr-sub" style="font-size:0.57rem;letter-spacing:0.08em;color:var(--fog);margin-top:0.25rem;transition:color 0.55s ease;">Grounded. Loaded. Yours.</div>
     </div>
-    <div class="header-sub">Grounded. Loaded. Yours.</div>
   </div>
-  <div class="scroll-area" id="scroll-area">
-    <div id="screen-config" class="screen"></div>
-    <div id="screen-result" class="screen" style="display:none;"></div>
+
+  <!-- TOGGLE -->
+  <div style="padding:0.875rem 1.5rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:center;background:var(--bg);transition:background 0.55s ease,border-color 0.55s ease;">
+    <div class="toggle-track" onclick="toggleTheme()">
+      <div class="toggle-thumb" id="t-thumb"></div>
+      <div class="toggle-label" id="lbl-d" style="color:var(--bg);">Definition</div>
+      <div class="toggle-label" id="lbl-s" style="color:var(--fog);">Strength</div>
+    </div>
+  </div>
+
+  <!-- SCROLL -->
+  <div id="scroll-area" style="flex:1;overflow-y:auto;padding:1.5rem 1.5rem calc(var(--safe-bottom) + 2rem);-webkit-overflow-scrolling:touch;">
+    <div id="scr-cfg" class="screen"></div>
+    <div id="scr-res" class="screen" style="display:none;"></div>
   </div>
 </div>
 
-<div id="loading-overlay" class="loading-overlay" style="display:none;">
-  <div class="loading-grid">
-    <div class="loading-cell"></div>
-    <div class="loading-cell"></div>
-    <div class="loading-cell"></div>
-    <div class="loading-cell"></div>
-    <div class="loading-cell"></div>
-    <div class="loading-cell"></div>
-    <div class="loading-cell"></div>
-    <div class="loading-cell"></div>
-    <div class="loading-cell"></div>
+<!-- LOADING -->
+<div id="loader" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.08);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);align-items:center;justify-content:center;flex-direction:column;gap:1.25rem;z-index:998;">
+  <div style="padding:2rem;background:var(--surface);border:1px solid var(--border);display:flex;flex-direction:column;align-items:center;gap:1.25rem;transition:background 0.55s ease,border-color 0.55s ease;">
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:5px;">
+      <div class="lcell"></div><div class="lcell"></div><div class="lcell"></div>
+      <div class="lcell"></div><div class="lcell"></div><div class="lcell"></div>
+      <div class="lcell"></div><div class="lcell"></div><div class="lcell"></div>
+    </div>
+    <div style="font-size:0.6rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--fog);transition:color 0.55s ease;">compiling session...</div>
   </div>
-  <div class="loading-label">compiling session...</div>
 </div>
 
 <script>
-// ── CONSTANTS ──────────────────────────────────────────────────────────
+// ─── THEMES ───────────────────────────────────────────────────
+const THEMES = {
+  def: {
+    bg:'#F0EDE8', surface:'#E8E4DD', slab:'#DEDAD2', border:'#C0BBB2',
+    fog:'#6B6860', text:'#1A1A18', accent:'#3D6B35', mid:'#527A49', rust:'#8B3A1A',
+    name:'Definition', sub:'Grounded. Loaded. Yours.',
+  },
+  str: {
+    bg:'#181614', surface:'#211F1C', slab:'#2C2925', border:'#3D3830',
+    fog:'#7A7168', text:'#F2EBD9', accent:'#C47B1A', mid:'#A66010', rust:'#C0522D',
+    name:'Strength', sub:'Heavy. Intentional. Yours.',
+  },
+};
 
-const EQUIPMENT = `
-- Dumbbells (full rack)
-- Straight bars and curl bars
-- Benches (flat and incline)
-- Preacher curl bench
-- Cable stations: pulldowns (lat bar, straight bar, rope), cable rows, lateral push/fly attachments
-- Machine curl
-- Pec fly machine
-- Chest press machine
-- Shoulder press machine
-- Hip abductor machine
-- Hip adductor machine
-- Dip bars
-- Pull-up bar
-- Smith machine
-- Leg press, leg curl, leg extension, calf raise machines
-- Cardio machines (warmup only)
-`;
+let mode = 'def';
 
-const AB_SYSTEM = `
-PHILOSOPHY: Progressive overload, aesthetic definition focus. Every movement must have resistance — bodyweight is last resort.
+function applyTheme(m) {
+  const t = THEMES[m];
+  const s = document.documentElement.style;
+  Object.entries({ '--bg':t.bg,'--surface':t.surface,'--slab':t.slab,'--border':t.border,
+    '--fog':t.fog,'--text':t.text,'--accent':t.accent,'--mid':t.mid,'--rust':t.rust })
+    .forEach(([k,v]) => s.setProperty(k,v));
+  document.getElementById('hdr-sub').textContent = t.sub;
+  const isStr = m === 'str';
+  document.getElementById('lbl-d').style.color = isStr ? t.fog : t.bg;
+  document.getElementById('lbl-s').style.color = isStr ? t.bg : t.fog;
+  document.getElementById('t-thumb').classList.toggle('right', isStr);
+}
 
-APPROVED EXERCISES ONLY:
-- Cable crunches (rope attachment) — PRIMARY overload movement, always goes first
-- Hanging leg raises — lower ab emphasis, add ankle weights when possible
-- Decline sit-ups — weighted plate on chest
-- Ab wheel rollouts — full extension
-- Oblique cable crunches — unilateral, heavy
-- Pallof press — anti-rotation stability
+function toggleTheme() {
+  mode = mode === 'def' ? 'str' : 'def';
+  applyTheme(mode);
+  if (document.getElementById('scr-cfg').style.display !== 'none') renderConfig();
+  else renderResult();
+}
 
-BANNED (never include): regular sit-ups on flat floor, basic unweighted crunches, flutter kicks, mountain climbers, planks as primary movement
-
-SESSION STRUCTURE: Heaviest compound first (cable crunches or weighted hanging leg raises), then accessories. All sets should have progressive resistance.
-`;
-
-const MUSCLE_GROUPS = [
-  { id: 'chest',     label: 'Chest'     },
-  { id: 'back',      label: 'Back'      },
-  { id: 'shoulders', label: 'Shoulders' },
-  { id: 'biceps',    label: 'Biceps'    },
-  { id: 'triceps',   label: 'Triceps'   },
-  { id: 'legs',      label: 'Legs'      },
-  { id: 'glutes',    label: 'Glutes'    },
+// ─── CONSTANTS ─────────────────────────────────────────────────
+const SLOTS = [
+  {l:'15 min',v:15},{l:'30 min',v:30},{l:'45 min',v:45},
+  {l:'1 hour',v:60},{l:'1h 15m',v:75},{l:'1h 30m',v:90},
+  {l:'1h 45m',v:105},{l:'2 hours',v:120},{l:'2h 15m',v:135},{l:'2h 30m',v:150},
 ];
 
-// Block theme: [border color, title color, tag label]
-const BLOCK_THEMES = {
-  'WARMUP':       ['#527A49', '#527A49', 'warmup'],
-  'MAIN WORKOUT': ['#3D6B35', '#3D6B35', 'main'],
-  'AB BLOCK':     ['#2A5C22', '#2A5C22', 'core'],
-  'NOTES':        ['#8B3A1A', '#8B3A1A', 'coach'],
+const MUSCLES = [
+  {id:'chest',l:'Chest'},{id:'back',l:'Back'},{id:'shoulders',l:'Shoulders'},
+  {id:'biceps',l:'Biceps'},{id:'triceps',l:'Triceps'},{id:'legs',l:'Legs'},
+];
+
+// ─── STATE ────────────────────────────────────────────────────
+let st = { tidx: 2, groups: [], workout: null };
+
+// ─── EXERCISES (modules — each has name, def sets/reps, str sets/reps, info) ──────
+// format: { n: name, d: 'def prescription', s: 'str prescription', i: 'form info' }
+const EX = {
+  // CHEST
+  benchPress:   { n:'Barbell Bench Press',     d:'4 × 10–12 (60s)', s:'5 × 3–5 (3min)',   i:'Grip just outside shoulder width. Retract and depress scapula before unracking — this is non-negotiable for shoulder health. Bar path travels slightly down toward lower chest as you lower. Touch chest lightly, press in a slight arc back to start. Drive feet hard into the floor throughout. At the top, think "push yourself through the bench" not "push the bar up."' },
+  inclineDB:    { n:'Incline Dumbbell Press',  d:'3 × 12 (60s)',    s:'4 × 6–8 (2min)',   i:'Set bench 30–45°. Start with dumbbells at chest level, elbows at roughly 45° from torso — not flared to 90°. Press up and slightly in, converging at the top. The incline biases the upper pec and anterior delt. Control the descent over 2 seconds. Squeeze at the peak before lowering.' },
+  pecFly:       { n:'Pec Fly Machine',         d:'3 × 15 (45s)',    s:'3 × 10 (90s)',     i:'Adjust seat so handles align exactly with mid-chest. Allow a full stretch at the start — you should feel a mild pull across the pec. Squeeze hard as you bring the handles together but stop just before they touch to keep tension on the muscle. Slow negatives (3 sec) maximize time under tension. Drop sets work well here.' },
+  cableFly:     { n:'Cable Crossover',         d:'3 × 15 (45s)',    s:'3 × 12 (60s)',     i:'Set cables at shoulder height. Slight forward lean from hips, maintain soft elbow bend throughout — do not change elbow angle mid-rep. Lead with the elbow, not the hand. Think "hugging a barrel." Squeeze at center. Return with control over 3 seconds. This is isolation — use a weight you can fully control through the entire range.' },
+  chestPress:   { n:'Chest Press Machine',     d:'3 × 12–15 (60s)', s:'4 × 8 (90s)',      i:'Adjust seat so handles are at mid-chest. Push through heels of your palms. At full extension, do not hyperextend elbows — stop just short of lockout to maintain tension. The machine removes stabilization demands, allowing you to fully focus on pec contraction. Good for high-rep finisher sets.' },
+  dips:         { n:'Chest Dips',              d:'3 × 12 (60s)',    s:'4 × 6–8 (2min)',   i:'Lean slightly forward throughout — this shifts loading from triceps to chest. Lower until elbows reach 90° or you feel a stretch in the chest. Do not go deeper if you feel shoulder impingement. Drive through heels of palms to return. Add weight via belt when bodyweight becomes easy for 12+ reps.' },
+  // BACK
+  latPulldown:  { n:'Lat Pulldown',            d:'4 × 12 (60s)',    s:'4 × 6–8 (2min)',   i:'Grip slightly wider than shoulder width, overhand. Lean back slightly (not excessively). Initiate by depressing the scapula first — think "put your shoulder blades in your back pockets." Pull elbows down and back toward your hips. Bar should reach upper chest. Squeeze lats at the bottom. Slow return over 3 seconds. Never use momentum.' },
+  cableRow:     { n:'Seated Cable Row',        d:'3 × 12 (60s)',    s:'4 × 6–8 (2min)',   i:'Sit upright, slight forward lean at start (stretch the lats). Drive elbows back close to torso — not flared out. Squeeze shoulder blades together at the end of each rep. Hold 1 second at full contraction. Return with control, allowing thoracic rotation at the end to increase lat stretch. Use a neutral grip handle for maximum range.' },
+  pullUp:       { n:'Pull-Ups',                d:'3 × failure (90s)',s:'5 × 5 (3min)',    i:'Dead hang to start each rep. Initiate with scapular depression (not a shrug). Pull elbows toward hips. Chin over bar at the top. Lower fully under control — a 3-second negative builds significant back thickness. Add weight via belt once you can do 10+ bodyweight reps with perfect form.' },
+  straightPull: { n:'Straight-Arm Pulldown',   d:'3 × 15 (45s)',    s:'3 × 12 (60s)',     i:'Stand facing cable stack, arms extended, slight elbow bend. Pull the bar down in an arc to your hips using only your lats — no elbow flexion. This is a lat isolation movement. You should feel a deep stretch at the top and a hard squeeze at the bottom. Keep your core braced throughout.' },
+  // SHOULDERS
+  ohpDB:        { n:'Dumbbell Overhead Press', d:'4 × 10–12 (75s)', s:'5 × 4–6 (3min)',   i:'Seated or standing, start at ear level with neutral or pronated grip. Press straight up, converging slightly at the top. Do not flare elbows excessively — about 30° forward of the coronal plane. Lock out overhead without arching the lower back. Lower under full control to ear height. Core must stay braced.' },
+  shoulderPress:{ n:'Shoulder Press Machine',  d:'3 × 12–15 (60s)', s:'4 × 8 (90s)',      i:'Adjust seat so handles are at ear level. Press straight up without shrugging traps at the top. Keep upper back pressed into the pad. Focus on feeling the anterior and medial delt fire. The machine removes stabilization demands — use this to push volume safely when fatigued.' },
+  lateralRaise: { n:'Cable Lateral Raise',     d:'4 × 15 (45s)',    s:'3 × 12 (60s)',     i:'Stand perpendicular to cable, low pulley. Slight forward lean, slight elbow bend throughout. Raise arm to just above shoulder height — no higher, as the trap takes over above 90°. Lead with the elbow, not the hand. Slow descent over 3 seconds. Cable keeps tension at the bottom unlike dumbbells. Do both sides.' },
+  facePull:     { n:'Face Pull',               d:'3 × 20 (45s)',    s:'3 × 15 (60s)',     i:'Set cable at face height, use rope attachment. Pull toward your face, separating the rope ends as you go — externally rotate at the end of each rep. Elbows stay high and parallel to the floor. This builds the posterior delt and external rotators, which are chronically underdeveloped. Never skip this.' },
+  // BICEPS
+  barbellCurl:  { n:'Barbell Curl',            d:'4 × 10–12 (60s)', s:'4 × 6–8 (2min)',   i:'Use EZ-bar or straight bar. Grip shoulder-width, supinated. Start from full extension. Curl by flexing the elbow — do not swing the body or let elbows drift forward. Squeeze hard at the top, peak contraction is everything for bicep definition. Lower over 3 seconds. Do not hyperextend at the bottom.' },
+  hammerCurl:   { n:'Hammer Curl',             d:'3 × 12 (60s)',    s:'3 × 8–10 (90s)',   i:'Neutral (hammer) grip, elbows fixed to sides. This targets the brachialis and brachioradialis as well as the bicep long head. Curl to shoulder height, hold 1 second, lower over 3 seconds. Alternating or simultaneous — both work. Keep torso still. Avoid the temptation to lean back at the top.' },
+  preacherCurl: { n:'Preacher Curl',           d:'3 × 12 (60s)',    s:'3 × 8 (90s)',      i:'Drape upper arm over the pad so the pad hits just above the elbow. This eliminates momentum completely. Lower to near-full extension (not hyperextension). Curl up hard. The angled pad creates maximum tension at the bottom of the movement where straight curls are weak. Great for peak bicep development.' },
+  machineCurl:  { n:'Machine Curl',            d:'3 × 15 (45s)',    s:'3 × 10 (75s)',     i:'Adjust seat so elbows align with the machine pivot point — this is critical. Curl through the full range. At the top, hold for a 1-second peak contraction. Slow negative over 3 seconds. Drop sets are highly effective: hit 15 reps, reduce weight by 20%, go to failure.' },
+  // TRICEPS
+  triPushdown:  { n:'Tricep Rope Pushdown',    d:'4 × 12–15 (60s)', s:'4 × 8–10 (90s)',   i:'Stand close to cable, elbows pinned to sides throughout. Use rope attachment. Push down and flare the rope ends apart at the bottom — this hits all three tricep heads. Lock out fully at the bottom. Do not let elbows drift forward or flare out. Slow return over 2 seconds. This is the most complete tricep isolation movement.' },
+  skullCrusher: { n:'Skull Crushers',          d:'3 × 12 (60s)',    s:'4 × 6–8 (2min)',   i:'Lie flat, EZ-bar or dumbbells. Lower the weight toward your forehead (or slightly behind the head for more stretch) by hinging ONLY at the elbow — upper arm stays vertical and fixed. Extend back to start. The long head of the tricep gets the most stretch with elbows slightly back. Control the descent — do not let the bar drop.' },
+  dipsTri:      { n:'Tricep Dips',             d:'3 × 12–15 (60s)', s:'4 × 8 (2min)',     i:'Stay upright throughout — do not lean forward (that shifts the load to chest). Elbows track straight back, close to the body. Lower until elbows reach 90°. Drive through heels of palms to full extension. Add weight via belt when 15 reps becomes easy. One of the best mass builders for the tricep.' },
+  ohTricep:     { n:'Overhead Tricep Extension',d:'3 × 12 (60s)',   s:'3 × 8–10 (90s)',   i:'Seated or standing. Hold one dumbbell overhead with both hands, or use cable rope. Lower behind head by hinging at the elbow — this stretches the long head maximally. Upper arms stay fixed pointing straight up. Extend to full lockout. The overhead position is the only way to fully stretch the long head, which makes up the majority of tricep mass.' },
+  // LEGS
+  legPress:     { n:'Leg Press',               d:'4 × 12–15 (60s)', s:'5 × 5–6 (3min)',   i:'Set feet shoulder-width, mid-height on the platform. Lower the platform until knees are at 90° — do not allow lower back to round off the pad (this is dangerous). Press through heels, not toes. Lock out at the top without hyperextending knees. Foot position changes emphasis: higher = more hamstring/glute, lower = more quad.' },
+  legCurl:      { n:'Leg Curl',                d:'4 × 12 (60s)',    s:'4 × 8 (90s)',      i:'Lie prone, adjust roller so it sits just above the heel. Curl through the full range — try to touch heels to glutes. Squeeze at the top for 1 second. Return slowly over 3 seconds. Your hips should stay pressed into the pad throughout — if they lift, the weight is too heavy. This isolates the hamstrings.' },
+  legExt:       { n:'Leg Extension',           d:'3 × 15 (45s)',    s:'3 × 12 (75s)',     i:'Adjust so the pad sits just above the ankle. Sit with full back support. Extend to full lockout and hold 1 second — squeezing hard at the top is critical for quad definition. Lower slowly over 3 seconds. Do not use momentum. This is pure quad isolation; use it as a finisher.' },
+  calfRaise:    { n:'Calf Raise',              d:'4 × 20 (30s)',    s:'5 × 15 (60s)',     i:'Stand on the edge of a platform, full stretch at the bottom — do not bounce out of the stretch. Rise as high as possible, hold 2 seconds at the top. Lower slowly over 3 seconds. Calves are built through high volume and full range of motion. Vary foot position: neutral, toes-in, toes-out to hit different heads.' },
+  smithSquat:   { n:'Smith Machine Squat',     d:'4 × 10–12 (90s)', s:'5 × 4–6 (3min)',   i:'Position bar across upper traps (not neck). Feet slightly in front of the bar, shoulder-width or slightly wider. Sit back into the squat, not straight down. Knees track over toes. Break parallel if mobility allows. The Smith machine guides the path, allowing more aggressive loading safely. Drive through heels on the ascent.' },
+  hipAbduct:    { n:'Hip Abductor Machine',    d:'3 × 15 (45s)',    s:'3 × 12 (60s)',     i:'Sit with back fully pressed against the pad. Push outward against the pads through the full range. Hold at maximum abduction for 1 second. Return slowly. This targets the glute medius — critical for hip stability and the outer glute shape. Often undertrained.' },
+  hipAdduct:    { n:'Hip Adductor Machine',    d:'3 × 15 (45s)',    s:'3 × 12 (60s)',     i:'Sit with pads against inner thighs. Squeeze inward through the full range. Do not use momentum — this is a small muscle group. Hold at maximum adduction for 1 second. Return slowly. Targets the inner thigh and hip adductors. Pair with the abductor for complete hip development.' },
+  // ABS
+  cableCrunch:  { n:'Cable Crunches',          d:'4 × 12–15 (60s)', s:'4 × 10 (75s)',     i:'Kneel facing the cable stack, rope attachment at top. Hold rope ends at either side of your face — do not pull with your arms. The movement comes entirely from spinal flexion: crunch DOWN by rounding the spine, trying to bring your elbows toward your knees. This is not a hip hinge. Add weight every session — this is your primary overload ab movement.' },
+  hangLegRaise: { n:'Hanging Leg Raises',      d:'3 × 12 (60s)',    s:'4 × 10 (75s)',     i:'Dead hang from pull-up bar. Eliminate swing before starting each rep. Initiate by tilting the pelvis posteriorly — you should feel your lower abs engage before your legs move. Raise legs to at least 90° (parallel), higher if possible. Lower slowly over 3 seconds. Add ankle weights when bodyweight becomes easy.' },
+  declineSitUp: { n:'Decline Weighted Sit-Up', d:'3 × 15 (45s)',    s:'3 × 12 (60s)',     i:'Set decline bench at 30–45°. Hold a plate to your chest. Lower fully until your back is nearly parallel to the bench. Rise using spinal flexion — do not yank through the hip flexors. Slow and controlled. The decline increases range of motion significantly over flat sit-ups, maximizing the rectus abdominis stretch.' },
+  abWheel:      { n:'Ab Wheel Rollout',        d:'3 × 10 (60s)',    s:'4 × 10 (75s)',     i:'Kneel on a pad. Roll forward until your body is nearly parallel to the floor — this requires significant core strength. Do not let your hips sag or your lower back arch (this is a compression injury risk). Roll back by contracting your abs and pulling your hips back. If you cannot maintain a straight line from knee to shoulder, shorten the range.' },
+  obliqueCrunch:{ n:'Oblique Cable Crunch',    d:'3 × 12 each (45s)',s:'3 × 10 each (60s)','i':'Same setup as cable crunches but crunch at an angle — toward the opposite knee. This isolates the obliques, which create the visual "cuts" on the sides of the core. Keep resistance heavy enough that 12 reps is genuinely difficult. Do each side separately. Do not rush the rep — feel the oblique working.' },
+  pallofPress:  { n:'Pallof Press',            d:'3 × 12 each (45s)',s:'3 × 12 each (60s)','i':'Stand perpendicular to cable, set at chest height. Hold cable at chest, step away until there is tension. Press straight out, hold 2 seconds, return. Your entire job is to resist the cable pulling you into rotation — this is anti-rotation training. Brutally effective for core stability and the deep transverse abdominus.' },
 };
 
-// ── STATE ──────────────────────────────────────────────────────────────
+// ─── ROUTINES ──────────────────────────────────────────────────
+// Each routine: { warmup: [exKey,...], main: [exKey,...], abs: [exKey,...], notes: ['...'] }
+// Routines are indexed by [muscle][modeKey][slotIndex]
+// For UI stage, we use a smart selector function that picks based on time
 
-let state = {
-  workoutTime: 45,
-  abTime: 10,
-  selectedGroups: [],
-  workout: null,
-  loading: false,
-  error: null,
-};
+function getRoutine(groups, modeKey, slotIdx) {
+  const t = SLOTS[slotIdx].v;
+  const isStr = modeKey === 'str';
 
-// ── RENDER CONFIG ──────────────────────────────────────────────────────
+  // Warmup (always the same base)
+  const warmup = [];
+  if (t >= 15) warmup.push({ ex: null, n: 'Light Cardio', sets: '3–5 min', i: 'Treadmill walk or bike at low resistance. Target heart rate 100–110 BPM. Loosen hips and shoulders with gentle arm swings. Do not skip this — cold muscles tear.' });
+  if (t >= 30) warmup.push({ ex: null, n: 'Dynamic Stretching', sets: '2 min', i: '10 reps each: leg swings, arm circles, torso rotations, hip circles. Movement-based activation, not static holds. Raises core temperature and lubricates joints.' });
 
-function renderConfig() {
-  const el = document.getElementById('screen-config');
-  const pct1 = ((state.workoutTime - 20) / 70) * 100;
-  const pct2 = ((state.abTime - 5)  / 20) * 100;
-  const hasGroups = state.selectedGroups.length > 0;
-
-  el.innerHTML = `
-    <div class="section-label">Target Muscles</div>
-    <div class="chips">
-      ${MUSCLE_GROUPS.map(g => `
-        <div class="chip ${state.selectedGroups.includes(g.id) ? 'active' : ''}"
-             data-group="${g.id}">${g.label}</div>
-      `).join('')}
-    </div>
-
-    <div class="section-label">Session Time</div>
-
-    <div class="slider-block">
-      <div class="slider-header">
-        <div class="slider-label">Main Workout</div>
-        <div class="slider-val">${state.workoutTime}<span>min</span></div>
-      </div>
-      <input type="range" id="slider-workout" min="20" max="90" step="5" value="${state.workoutTime}"
-        style="background: linear-gradient(to right, #3D6B35 ${pct1}%, #C0BBB2 ${pct1}%)" />
-    </div>
-
-    <div class="divider-raw">
-      <div class="divider-raw-line"></div>
-      <div class="divider-raw-text">then</div>
-      <div class="divider-raw-line"></div>
-    </div>
-
-    <div class="slider-block">
-      <div class="slider-header">
-        <div class="slider-label">Ab Block</div>
-        <div class="slider-val">${state.abTime}<span>min</span></div>
-      </div>
-      <input type="range" id="slider-abs" min="5" max="25" step="5" value="${state.abTime}"
-        style="background: linear-gradient(to right, #527A49 ${pct2}%, #C0BBB2 ${pct2}%)" />
-    </div>
-
-    <div class="total-display">total output — <strong>${state.workoutTime + state.abTime} min</strong></div>
-
-    <button class="btn-generate" id="btn-generate" ${!hasGroups ? 'disabled' : ''}>
-      <span>Compile Session</span>
-      <span class="btn-arrow">${hasGroups ? '→' : '—'}</span>
-    </button>
-
-    ${!hasGroups ? '<div class="hint-text">// select at least one muscle group</div>' : ''}
-    ${state.error ? `<div class="error-slab">${state.error}</div>` : ''}
-  `;
-
-  el.querySelectorAll('.chip').forEach(chip => {
-    chip.addEventListener('click', () => {
-      const g = chip.dataset.group;
-      state.selectedGroups = state.selectedGroups.includes(g)
-        ? state.selectedGroups.filter(x => x !== g)
-        : [...state.selectedGroups, g];
-      renderConfig();
-    });
-  });
-
-  document.getElementById('slider-workout').addEventListener('input', e => {
-    state.workoutTime = Number(e.target.value);
-    renderConfig();
-  });
-
-  document.getElementById('slider-abs').addEventListener('input', e => {
-    state.abTime = Number(e.target.value);
-    renderConfig();
-  });
-
-  const btn = document.getElementById('btn-generate');
-  if (btn) btn.addEventListener('click', () => { if (hasGroups) generateWorkout(); });
-}
-
-// ── RENDER RESULT ──────────────────────────────────────────────────────
-
-function renderResult() {
-  const el = document.getElementById('screen-result');
-  const w = state.workout;
-  if (!w) return;
-
-  const muscleLabel = state.selectedGroups.join(' + ').toUpperCase();
-
-  el.innerHTML = `
-    <div class="result-header">
-      <div>
-        <div class="result-eyebrow">// session compiled</div>
-        <div class="result-title">${muscleLabel}</div>
-      </div>
-      <div class="result-meta">
-        <div>${state.workoutTime}m</div>
-        <div class="dim">+${state.abTime}m core</div>
-      </div>
-    </div>
-
-    ${w.WARMUP            ? renderBlock('WARMUP',       w.WARMUP,            0) : ''}
-    ${w['MAIN WORKOUT']   ? renderBlock('MAIN WORKOUT', w['MAIN WORKOUT'],   1) : ''}
-    ${w['AB BLOCK']       ? renderBlock('AB BLOCK',     w['AB BLOCK'],       2) : ''}
-    ${w.NOTES             ? renderBlock('NOTES',        w.NOTES,             3) : ''}
-
-    <div class="btn-row">
-      <button class="btn-new" id="btn-new">← New Session</button>
-      <button class="btn-regen" id="btn-regen">Recompile ↺</button>
-    </div>
-  `;
-
-  document.getElementById('btn-new').addEventListener('click', () => {
-    state.workout = null;
-    state.error = null;
-    showScreen('config');
-  });
-  document.getElementById('btn-regen').addEventListener('click', generateWorkout);
-}
-
-function renderBlock(key, content, delayIdx) {
-  const [borderColor, titleColor, tag] = BLOCK_THEMES[key] || ['#6B6555','#6B6555','block'];
-  const lines = content.split('\n').filter(l => l.trim());
-  let rows = '';
-
-  lines.forEach(line => {
-    const clean = line.replace(/^#+\s*/, '').replace(/^[-•]\s*/, '').replace(/\*\*/g, '').trim();
-    if (!clean) return;
-
-    const isNote = /^note:|^tip:|^coach:/i.test(clean);
-    if (isNote) {
-      rows += `<div class="ex-note">${clean}</div>`;
-      return;
-    }
-
-    const dashMatch = clean.match(/^(.+?)\s*[—–]\s*(.+)$/);
-    if (dashMatch) {
-      rows += `
-        <div class="ex-row">
-          <span class="ex-name">${dashMatch[1].trim()}</span>
-          <span class="ex-sets" style="color:${titleColor}">${dashMatch[2].trim()}</span>
-        </div>`;
-    } else {
-      rows += `<div class="ex-plain">${clean}</div>`;
-    }
-  });
-
-  const displayTitles = {
-    'WARMUP': 'Warmup Protocol',
-    'MAIN WORKOUT': 'Main Session',
-    'AB BLOCK': 'Core Block',
-    'NOTES': 'Field Notes',
+  // Build main exercise list from selected groups
+  const POOL = {
+    chest:     ['benchPress','inclineDB','pecFly','cableFly','chestPress','dips'],
+    back:      ['latPulldown','cableRow','pullUp','straightPull'],
+    shoulders: ['ohpDB','shoulderPress','lateralRaise','facePull'],
+    biceps:    ['barbellCurl','hammerCurl','preacherCurl','machineCurl'],
+    triceps:   ['triPushdown','skullCrusher','dipsTri','ohTricep'],
+    legs:      ['legPress','legCurl','legExt','calfRaise','smithSquat','hipAbduct','hipAdduct'],
   };
 
+  // Time-based volume: exercises per group
+  const exPerGroup = t <= 15 ? 1 : t <= 30 ? 2 : t <= 45 ? 2 : t <= 60 ? 3 : t <= 90 ? 3 : t <= 120 ? 4 : 5;
+  const setsMulti  = t <= 30 ? 0.75 : t >= 90 ? 1.2 : 1;
+
+  const mainKeys = [];
+  groups.forEach(g => {
+    const pool = POOL[g] || [];
+    // Compound first (index 0-1), then isolation
+    const picks = pool.slice(0, exPerGroup);
+    picks.forEach(k => { if (!mainKeys.includes(k)) mainKeys.push(k); });
+  });
+
+  // Abs (always included)
+  const abTime = t <= 15 ? 5 : t <= 45 ? 10 : t <= 90 ? 12 : 15;
+  const absKeys = t <= 15
+    ? ['cableCrunch']
+    : t <= 30
+    ? ['cableCrunch','hangLegRaise']
+    : ['cableCrunch','hangLegRaise','abWheel','obliqueCrunch'].slice(0, Math.floor(abTime / 3));
+
+  // Notes
+  const defNotes = [
+    'Progressive overload is the only driver of visible change — log every weight.',
+    'Rest periods are prescribed for a reason. Cutting rest short blunts the stimulus.',
+    'Definition comes from the kitchen as much as the gym — total caloric deficit is the variable.',
+  ];
+  const strNotes = [
+    'Strength gains require adequate recovery — minimum 7–8 hours sleep.',
+    'On heavy compound days, warm-up sets are not optional. Build to your working weight over 3–4 sets.',
+    'Do not sacrifice form for weight. A rep that breaks form does not count.',
+  ];
+
+  return {
+    warmup: warmup,
+    main: mainKeys.map(k => EX[k]),
+    abs: absKeys.map(k => EX[k]),
+    notes: isStr ? strNotes.slice(0,2) : defNotes.slice(0,2),
+  };
+}
+
+// ─── PICKER ──────────────────────────────────────────────────
+function buildPickerHTML() {
   return `
-    <div class="workout-block" style="border-left-color:${borderColor}; animation-delay:${delayIdx * 0.07}s">
-      <div class="block-header">
-        <div class="block-title" style="color:${titleColor}">${displayTitles[key] || key}</div>
-        <div class="block-tag" style="color:${borderColor}; border-color:${borderColor}">${tag}</div>
+    <div class="picker-wrap">
+      <div class="picker-fade-top"></div>
+      <div class="picker-fade-bot"></div>
+      <div class="picker-sel-line"></div>
+      <div class="picker-scroll" id="ps">
+        ${SLOTS.map((s,i)=>`<div class="picker-item ${i===st.tidx?'sel':''}" data-i="${i}">${s.l}</div>`).join('')}
       </div>
-      <div class="block-body">${rows}</div>
     </div>`;
 }
 
-// ── SCREEN SWITCH ──────────────────────────────────────────────────────
-
-function showScreen(name) {
-  document.getElementById('screen-config').style.display = name === 'config' ? '' : 'none';
-  document.getElementById('screen-result').style.display = name === 'result' ? '' : 'none';
-  document.getElementById('scroll-area').scrollTop = 0;
-  if (name === 'config') renderConfig();
-  if (name === 'result') renderResult();
-}
-
-// ── API ────────────────────────────────────────────────────────────────
-
-async function generateWorkout() {
-  if (state.selectedGroups.length === 0) return;
-  state.loading = true;
-  state.error = null;
-  document.getElementById('loading-overlay').style.display = 'flex';
-
-  const muscleList = state.selectedGroups.join(', ');
-  const prompt = `You are an elite personal trainer. Generate a complete structured workout.
-
-EQUIPMENT AVAILABLE:${EQUIPMENT}
-
-TARGET MUSCLES: ${muscleList}
-MAIN WORKOUT TIME: ${state.workoutTime} minutes — scale sets/exercises to fill this time
-AB BLOCK TIME: ${state.abTime} minutes — always included, scale accordingly
-
-AB TRAINING SYSTEM — FOLLOW EXACTLY:${AB_SYSTEM}
-
-OUTPUT FORMAT — use exactly these section headers, nothing else before or after:
-
-WARMUP
-[2-3 movements formatted as: Movement Name — duration or sets x reps]
-
-MAIN WORKOUT
-[exercises only for: ${muscleList}]
-[Format every line as: Exercise Name — sets x reps (rest time)]
-[Compound first, isolation last. Fill ${state.workoutTime} minutes of volume.]
-
-AB BLOCK
-[Follow the ab system above strictly. Format: Exercise Name — sets x reps (rest)]
-[Fill ${state.abTime} minutes. Cable crunches MUST be first.]
-
-NOTES
-[1-2 short coaching notes for this session, prefixed with "Note:"]
-
-Use em dashes (—) only. No markdown, no asterisks, no numbered lists. No intro or outro text.`;
-
-  try {
-const resp = await fetch('https://api.anthropic.com/v1/messages', {
-  method: 'POST',
-  headers: {
-    'Content-Type': 'application/json',
-    'x-api-key': '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',
-    'anthropic-version': '2023-06-01',
-    'anthropic-dangerous-direct-browser-access': 'true',
-  },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 1000,
-        messages: [{ role: 'user', content: prompt }],
-      }),
+function initPicker() {
+  const ps = document.getElementById('ps');
+  if (!ps) return;
+  ps.scrollTop = st.tidx * 40;
+  let raf = false;
+  ps.addEventListener('scroll', () => {
+    if (!raf) { raf = true; requestAnimationFrame(() => {
+      const i = Math.max(0, Math.min(SLOTS.length-1, Math.round(ps.scrollTop/40)));
+      if (i !== st.tidx) { st.tidx = i; highlightPicker(); }
+      raf = false;
+    }); }
+  });
+  ps.querySelectorAll('.picker-item').forEach(el => {
+    el.addEventListener('click', () => {
+      st.tidx = parseInt(el.dataset.i);
+      ps.scrollTo({top: st.tidx*40, behavior:'smooth'});
+      highlightPicker();
     });
-
-    const data = await resp.json();
-    const text = (data.content || []).map(b => b.text || '').join('');
-
-    const sections = {};
-    const names = ['WARMUP', 'MAIN WORKOUT', 'AB BLOCK', 'NOTES'];
-    names.forEach((name, i) => {
-      const next = names[i + 1];
-      const start = text.indexOf(name);
-      if (start === -1) return;
-      const end = next ? text.indexOf(next) : text.length;
-      sections[name] = text.slice(start + name.length, end === -1 ? text.length : end).trim();
-    });
-
-    state.workout = sections;
-    document.getElementById('loading-overlay').style.display = 'none';
-    showScreen('result');
-  } catch (err) {
-    state.error = '// connection failed. check signal and retry.';
-    document.getElementById('loading-overlay').style.display = 'none';
-    renderConfig();
-  }
-
-  state.loading = false;
-}
-
-// ── SERVICE WORKER ────────────────────────────────────────────────────
-
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./sw.js').catch(() => {});
   });
 }
 
-// ── INIT ──────────────────────────────────────────────────────────────
-showScreen('config');
+function highlightPicker() {
+  document.querySelectorAll('.picker-item').forEach((el,i) => el.classList.toggle('sel', i===st.tidx));
+}
+
+// ─── RENDER CONFIG ────────────────────────────────────────────
+function renderConfig() {
+  const el = document.getElementById('scr-cfg');
+  const t = THEMES[mode];
+  const has = st.groups.length > 0;
+
+  el.innerHTML = `
+    <div style="margin-bottom:1.75rem;">
+      <div style="font-size:0.57rem;letter-spacing:0.22em;text-transform:uppercase;color:var(--accent);margin-bottom:0.75rem;display:flex;align-items:center;gap:0.5rem;transition:color 0.55s ease;">
+        Session Duration<div style="flex:1;height:1px;background:var(--border);transition:background 0.55s ease;"></div>
+      </div>
+      ${buildPickerHTML()}
+    </div>
+
+    <div style="margin-bottom:1.75rem;">
+      <div style="font-size:0.57rem;letter-spacing:0.22em;text-transform:uppercase;color:var(--accent);margin-bottom:0.75rem;display:flex;align-items:center;gap:0.5rem;transition:color 0.55s ease;">
+        Target Muscles<div style="flex:1;height:1px;background:var(--border);transition:background 0.55s ease;"></div>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:0.45rem;">
+        ${MUSCLES.map(g=>`<div class="chip ${st.groups.includes(g.id)?'on':''}" data-g="${g.id}" onclick="toggleGrp('${g.id}')">${g.l}</div>`).join('')}
+      </div>
+    </div>
+
+    <div style="margin-bottom:1.5rem;padding:0.65rem 1rem;background:var(--surface);border-left:3px solid var(--accent);display:flex;align-items:center;justify-content:space-between;transition:background 0.55s ease,border-color 0.55s ease;">
+      <span style="font-size:0.58rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--fog);transition:color 0.55s ease;">Mode Active</span>
+      <span style="font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:0.1em;color:var(--accent);transition:color 0.55s ease;">${t.name}</span>
+    </div>
+
+    <button class="btn-cta" ${!has?'disabled':''} onclick="compile()">
+      <span>Compile Session</span>
+      <span style="font-family:'Courier Prime',monospace;font-size:1rem;font-weight:700;">${has?'→':'—'}</span>
+    </button>
+    ${!has?`<div style="text-align:center;font-size:0.54rem;letter-spacing:0.12em;color:var(--border);margin-top:0.5rem;transition:color 0.55s ease;">// select at least one muscle group</div>`:''}
+  `;
+  initPicker();
+}
+
+function toggleGrp(id) {
+  st.groups = st.groups.includes(id) ? st.groups.filter(x=>x!==id) : [...st.groups, id];
+  document.querySelectorAll('.chip[data-g]').forEach(c => c.classList.toggle('on', st.groups.includes(c.dataset.g)));
+  const btn = document.querySelector('.btn-cta');
+  if (btn) {
+    btn.disabled = st.groups.length === 0;
+    btn.querySelector('span:last-child').textContent = st.groups.length > 0 ? '→' : '—';
+  }
+}
+
+// ─── COMPILE ─────────────────────────────────────────────────
+function compile() {
+  if (!st.groups.length) return;
+  document.getElementById('loader').style.display = 'flex';
+  // Small delay for loading feel
+  setTimeout(() => {
+    st.workout = getRoutine(st.groups, mode, st.tidx);
+    document.getElementById('loader').style.display = 'none';
+    showScreen('res');
+  }, 600);
+}
+
+// ─── RENDER RESULT ────────────────────────────────────────────
+let openInfo = null;
+
+function renderResult() {
+  openInfo = null;
+  const el = document.getElementById('scr-res');
+  const w = st.workout;
+  if (!w) return;
+  const mLabel = st.groups.join(' + ').toUpperCase();
+  const slot = SLOTS[st.tidx].l;
+  const mName = THEMES[mode].name.toUpperCase();
+
+  el.innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1.5rem;padding-bottom:1.25rem;border-bottom:1px solid var(--border);transition:border-color 0.55s ease;">
+      <div>
+        <div style="font-size:0.54rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--accent);margin-bottom:0.2rem;transition:color 0.55s ease;">// session compiled</div>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:1.75rem;letter-spacing:0.04em;color:var(--text);line-height:1;transition:color 0.55s ease;">${mLabel}</div>
+      </div>
+      <div style="text-align:right;font-family:'Courier Prime',monospace;font-size:0.63rem;line-height:1.9;">
+        <div style="color:var(--accent);transition:color 0.55s ease;">${slot}</div>
+        <div style="color:var(--fog);transition:color 0.55s ease;">${mName}</div>
+      </div>
+    </div>
+
+    ${renderWBlock('🌿 Warmup', w.warmup, 'var(--mid)', 0)}
+    ${renderMBlock('⚡ Main Session', w.main, 'var(--accent)', 1)}
+    ${renderMBlock('🎯 Core Block', w.abs, 'var(--accent)', 2)}
+
+    <div class="w-block blk-in" style="border-left-color:var(--rust);padding:0.875rem 1rem;animation-delay:0.21s;transition:background 0.55s ease,border-color 0.55s ease;">
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:0.85rem;letter-spacing:0.12em;color:var(--rust);margin-bottom:0.5rem;transition:color 0.55s ease;">Field Notes</div>
+      ${w.notes.map(n=>`<div style="font-size:0.71rem;color:var(--fog);font-style:italic;line-height:1.7;margin-bottom:0.2rem;transition:color 0.55s ease;">— ${n}</div>`).join('')}
+    </div>
+
+    <div style="display:flex;gap:0.6rem;margin-top:1.5rem;">
+      <button class="btn-sec" onclick="showScreen('cfg')">← New</button>
+      <button class="btn-alt" onclick="compile()">Recompile ↺</button>
+    </div>
+  `;
+}
+
+function renderWBlock(title, items, color, di) {
+  if (!items || !items.length) return '';
+  return `
+    <div class="w-block blk-in" style="border-left-color:${color};animation-delay:${di*0.07}s;transition:background 0.55s ease,border-color 0.55s ease;">
+      <div style="padding:0.75rem 1rem 0.6rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;transition:border-color 0.55s ease;">
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:0.88rem;letter-spacing:0.12em;color:${color};transition:color 0.55s ease;">${title}</div>
+        <div style="font-size:0.5rem;letter-spacing:0.15em;text-transform:uppercase;color:${color};border:1px solid ${color};padding:0.15rem 0.35rem;opacity:0.55;transition:color 0.55s ease,border-color 0.55s ease;">warmup</div>
+      </div>
+      ${items.map((ex,i)=>`
+        <div class="ex-row" onclick="toggleInfo('w-${i}','${escStr(ex.i)}')">
+          <div style="padding:0.6rem 1rem;display:flex;justify-content:space-between;align-items:center;">
+            <span style="font-size:0.84rem;color:var(--text);transition:color 0.55s ease;">${ex.n}</span>
+            <div style="display:flex;align-items:center;gap:0.45rem;flex-shrink:0;">
+              <span style="font-family:'Bebas Neue',sans-serif;font-size:0.88rem;color:${color};letter-spacing:0.05em;transition:color 0.55s ease;">${ex.sets}</span>
+              <span class="chev" id="chv-w-${i}" style="font-size:0.6rem;color:var(--fog);transition:color 0.55s ease;">▾</span>
+            </div>
+          </div>
+          <div class="info-card" id="inf-w-${i}">
+            <div style="padding:0.875rem 1rem;font-size:0.71rem;color:var(--fog);line-height:1.75;font-style:italic;transition:color 0.55s ease,background 0.55s ease;">${ex.i}</div>
+          </div>
+        </div>
+      `).join('')}
+    </div>`;
+}
+
+function renderMBlock(title, items, color, di) {
+  if (!items || !items.length) return '';
+  const tag = title.includes('Core') ? 'core' : 'main';
+  return `
+    <div class="w-block blk-in" style="border-left-color:${color};animation-delay:${di*0.07}s;transition:background 0.55s ease,border-color 0.55s ease;">
+      <div style="padding:0.75rem 1rem 0.6rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;transition:border-color 0.55s ease;">
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:0.88rem;letter-spacing:0.12em;color:${color};transition:color 0.55s ease;">${title}</div>
+        <div style="font-size:0.5rem;letter-spacing:0.15em;text-transform:uppercase;color:${color};border:1px solid ${color};padding:0.15rem 0.35rem;opacity:0.55;transition:color 0.55s ease,border-color 0.55s ease;">${tag}</div>
+      </div>
+      ${items.map((ex,i)=>{
+        const sets = mode === 'str' ? (ex.s||ex.d) : ex.d;
+        const uid = `${tag}-${i}`;
+        return `
+          <div class="ex-row" onclick="toggleInfo('${uid}','${escStr(ex.i)}')">
+            <div style="padding:0.6rem 1rem;display:flex;justify-content:space-between;align-items:center;">
+              <span style="font-size:0.84rem;color:var(--text);transition:color 0.55s ease;">${ex.n}</span>
+              <div style="display:flex;align-items:center;gap:0.45rem;flex-shrink:0;">
+                <span style="font-family:'Bebas Neue',sans-serif;font-size:0.88rem;color:${color};letter-spacing:0.05em;transition:color 0.55s ease;">${sets}</span>
+                <span class="chev" id="chv-${uid}" style="font-size:0.6rem;color:var(--fog);transition:color 0.55s ease;">▾</span>
+              </div>
+            </div>
+            <div class="info-card" id="inf-${uid}">
+              <div style="padding:0.875rem 1rem;font-size:0.71rem;color:var(--fog);line-height:1.75;font-style:italic;transition:color 0.55s ease,background 0.55s ease;">${ex.i}</div>
+            </div>
+          </div>`;
+      }).join('')}
+    </div>`;
+}
+
+function escStr(s) { return (s||'').replace(/'/g,'&#39;').replace(/"/g,'&quot;'); }
+
+function toggleInfo(uid) {
+  const card = document.getElementById(`inf-${uid}`);
+  const chev = document.getElementById(`chv-${uid}`);
+  if (!card) return;
+  const wasOpen = card.classList.contains('open');
+  // Close all
+  document.querySelectorAll('.info-card.open').forEach(c => c.classList.remove('open'));
+  document.querySelectorAll('.chev.open').forEach(c => c.classList.remove('open'));
+  if (!wasOpen) {
+    card.classList.add('open');
+    chev && chev.classList.add('open');
+    // Scroll into view after animation
+    setTimeout(() => card.scrollIntoView({ behavior:'smooth', block:'nearest' }), 100);
+  }
+}
+
+// ─── SCREEN SWITCH ────────────────────────────────────────────
+function showScreen(name) {
+  const cfg = document.getElementById('scr-cfg');
+  const res = document.getElementById('scr-res');
+  cfg.style.display = name === 'cfg' ? '' : 'none';
+  res.style.display = name === 'res' ? '' : 'none';
+  document.getElementById('scroll-area').scrollTop = 0;
+  [cfg,res].forEach(el => { el.classList.remove('screen'); void el.offsetWidth; el.classList.add('screen'); });
+  if (name === 'cfg') renderConfig();
+  if (name === 'res') renderResult();
+}
+
+// ─── SW ───────────────────────────────────────────────────────
+if ('serviceWorker' in navigator)
+  window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(()=>{}));
+
+// ─── INIT ─────────────────────────────────────────────────────
+applyTheme('def');
+showScreen('cfg');
 </script>
 </body>
 </html>
