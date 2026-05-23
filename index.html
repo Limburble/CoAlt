@@ -909,9 +909,14 @@ NOTES
 Use em dashes (—) only. No markdown, no asterisks, no numbered lists. No intro or outro text.`;
 
   try {
-    const resp = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+const resp = await fetch('https://api.anthropic.com/v1/messages', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'x-api-key': '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',
+    'anthropic-version': '2023-06-01',
+    'anthropic-dangerous-direct-browser-access': 'true',
+  },
       body: JSON.stringify({
         model: 'claude-sonnet-4-20250514',
         max_tokens: 1000,
