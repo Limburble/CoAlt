@@ -1,665 +1,455 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="apple-mobile-web-app-title" content="CoAt" />
-  <link rel="manifest" href="./manifest.json" />
-  <link rel="apple-touch-icon" href="./icon-192.png" />
-  <title>CoAt</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,700;1,9..144,300&display=swap" rel="stylesheet" />
-  <style>
-    *, *::before, *::after { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+python3 << 'PYEOF'
+with open('/mnt/user-data/outputs/CoAt.html', 'r') as f:
+    html = f.read()
 
-    :root {
-      --bg:      #F0EDE8;
-      --surface: #E8E4DD;
-      --slab:    #DEDAD2;
-      --border:  #C0BBB2;
-      --fog:     #6B6860;
-      --text:    #1A1A18;
-      --accent:  #3D6B35;
-      --mid:     #527A49;
-      --rust:    #8B3A1A;
-      --safe-top: env(safe-area-inset-top, 0px);
-      --safe-bottom: env(safe-area-inset-bottom, 0px);
-    }
-
-    html, body {
-      height: 100%; margin: 0; padding: 0;
-      background: var(--bg);
-      color: var(--text);
-      font-family: 'Courier Prime', monospace;
-      overscroll-behavior: none;
-      -webkit-overflow-scrolling: touch;
-      transition: background 0.55s ease, color 0.55s ease;
-    }
-
-    body::after {
-      content: '';
-      position: fixed; inset: 0;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
-      pointer-events: none; z-index: 9999; opacity: 0.5;
-    }
-
-    /* All themed elements */
-    .t { transition: background 0.55s ease, color 0.55s ease, border-color 0.55s ease; }
-
-    /* ── TOGGLE ── */
-    .toggle-track {
-      width: 210px; height: 38px;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      position: relative; cursor: pointer;
-      display: flex; align-items: center;
-      transition: background 0.55s ease, border-color 0.55s ease;
-    }
-    .toggle-thumb {
-      position: absolute;
-      width: calc(50% - 2px); height: calc(100% - 4px);
-      top: 2px; left: 2px;
-      background: var(--accent);
-      transition: transform 0.42s cubic-bezier(0.34,1.4,0.64,1), background 0.55s ease;
-      z-index: 1;
-    }
-    .toggle-thumb.right { transform: translateX(105px); }
-    .toggle-label {
-      position: relative; z-index: 2;
-      flex: 1; text-align: center;
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 0.88rem; letter-spacing: 0.12em;
-      pointer-events: none;
-      transition: color 0.3s ease;
-    }
-
-    /* ── PICKER ── */
-    .picker-wrap { position: relative; height: 196px; overflow: hidden; }
-    .picker-scroll {
-      height: 100%; overflow-y: scroll;
-      scroll-snap-type: y mandatory;
-      -webkit-overflow-scrolling: touch;
-      scrollbar-width: none;
-      padding: 78px 0;
-    }
-    .picker-scroll::-webkit-scrollbar { display: none; }
-    .picker-item {
-      height: 40px;
-      display: flex; align-items: center; justify-content: center;
-      scroll-snap-align: center;
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 1.45rem; letter-spacing: 0.08em;
-      color: var(--fog); cursor: pointer;
-      transition: color 0.2s ease, font-size 0.2s ease;
-      user-select: none;
-    }
-    .picker-item.sel { color: var(--text); font-size: 1.85rem; }
-    .picker-fade-top {
-      position: absolute; top: 0; left: 0; right: 0; height: 78px;
-      background: linear-gradient(to bottom, var(--bg) 0%, transparent 100%);
-      pointer-events: none; z-index: 2;
-      transition: background 0.55s ease;
-    }
-    .picker-fade-bot {
-      position: absolute; bottom: 0; left: 0; right: 0; height: 78px;
-      background: linear-gradient(to top, var(--bg) 0%, transparent 100%);
-      pointer-events: none; z-index: 2;
-      transition: background 0.55s ease;
-    }
-    .picker-sel-line {
-      position: absolute; top: 50%; left: 1.25rem; right: 1.25rem;
-      height: 40px; margin-top: -20px;
-      border-top: 1px solid var(--border);
-      border-bottom: 1px solid var(--border);
-      pointer-events: none; z-index: 3;
-      transition: border-color 0.55s ease;
-    }
-
-    /* ── CHIP ── */
-    .chip {
-      padding: 0.48rem 1rem;
-      border: 1px solid var(--border);
-      background: var(--surface);
-      color: var(--fog);
-      font-family: 'Courier Prime', monospace;
-      font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase;
-      cursor: pointer; position: relative;
-      transition: all 0.15s ease;
-      user-select: none;
-    }
-    .chip::after {
-      content: ''; position: absolute; bottom: -1px; right: -1px;
-      width: 7px; height: 7px; background: var(--bg);
-      clip-path: polygon(100% 0, 100% 100%, 0 100%);
-      transition: background 0.55s ease;
-    }
-    .chip.on { border-color: var(--accent); background: var(--bg); color: var(--accent); }
-
-    /* ── CTA ── */
-    .btn-cta {
-      width: 100%; padding: 1.1rem 1.5rem;
-      background: var(--accent); color: var(--bg);
-      border: none;
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 1.4rem; letter-spacing: 0.12em;
-      cursor: pointer; position: relative; overflow: hidden;
-      display: flex; align-items: center; justify-content: space-between;
-      transition: background 0.55s ease, color 0.55s ease;
-    }
-    .btn-cta::after {
-      content: ''; position: absolute; bottom: 0; right: 0;
-      width: 10px; height: 10px; background: var(--bg);
-      clip-path: polygon(100% 0, 100% 100%, 0 100%);
-      transition: background 0.55s ease;
-    }
-    .btn-cta:disabled { background: var(--slab); color: var(--border); cursor: not-allowed; }
-    .btn-cta:not(:disabled):active { opacity: 0.85; }
-
-    /* ── WORKOUT BLOCK ── */
-    .w-block {
-      background: var(--surface);
-      border-left: 3px solid var(--accent);
-      margin-bottom: 1rem; position: relative; overflow: hidden;
-      transition: background 0.55s ease, border-color 0.55s ease;
-    }
-    .w-block::before {
-      content: ''; position: absolute; inset: 0;
-      background: repeating-linear-gradient(180deg, transparent 0, transparent 4px, rgba(0,0,0,0.035) 4px, rgba(0,0,0,0.035) 5px);
-      pointer-events: none;
-    }
-
-    /* ── EX ROW ── */
-    .ex-row { cursor: pointer; border-bottom: 1px solid var(--border); transition: background 0.15s ease, border-color 0.55s ease; }
-    .ex-row:last-child { border-bottom: none; }
-    .ex-row:active { background: var(--slab); }
-
-    /* ── INFO CARD ── */
-    .info-card {
-      max-height: 0; overflow: hidden;
-      background: var(--slab);
-      border-top: 0px solid var(--border);
-      transition: max-height 0.4s cubic-bezier(0.4,0,0.2,1), background 0.55s ease, border-top-width 0.4s ease;
-    }
-    .info-card.open { max-height: 420px; border-top-width: 1px; }
-
-    /* ── CHEVRON ── */
-    .chev { transition: transform 0.3s ease, color 0.55s ease; display:inline-block; }
-    .chev.open { transform: rotate(180deg); }
-
-    /* ── SCREENS ── */
-    .screen { animation: fadeUp 0.32s cubic-bezier(0.16,1,0.3,1) both; }
-    @keyframes fadeUp { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
-    .blk-in { animation: blkIn 0.35s cubic-bezier(0.16,1,0.3,1) both; }
-    @keyframes blkIn { from { opacity:0; transform:translateX(-8px); } to { opacity:1; transform:translateX(0); } }
-
-    /* ── LOADING ── */
-    .lcell { width:14px; height:14px; background:var(--slab); animation: lp 1.2s ease infinite; transition: background 0.55s ease; }
-    @keyframes lp { 0%,100%{background:var(--slab)} 50%{background:var(--accent)} }
-    .lcell:nth-child(1){animation-delay:0s}.lcell:nth-child(2){animation-delay:.1s}.lcell:nth-child(3){animation-delay:.2s}
-    .lcell:nth-child(4){animation-delay:.3s}.lcell:nth-child(5){animation-delay:.4s}.lcell:nth-child(6){animation-delay:.5s}
-    .lcell:nth-child(7){animation-delay:.6s}.lcell:nth-child(8){animation-delay:.7s}.lcell:nth-child(9){animation-delay:.8s}
-
-    /* ── BUTTONS ── */
-    .btn-sec {
-      flex:1; padding:0.85rem 1rem; background:transparent;
-      color:var(--fog); border:1px solid var(--border);
-      font-family:'Courier Prime',monospace; font-size:0.7rem; letter-spacing:0.1em; text-transform:uppercase;
-      cursor:pointer; transition: all 0.15s ease;
-    }
-    .btn-sec:active { background:var(--surface); }
-    .btn-alt {
-      flex:1; padding:0.85rem 1rem; background:transparent;
-      color:var(--accent); border:1px solid var(--accent);
-      font-family:'Courier Prime',monospace; font-size:0.7rem; letter-spacing:0.1em; text-transform:uppercase;
-      cursor:pointer; opacity:0.75; transition: all 0.15s ease;
-    }
-    .btn-alt:active { opacity:1; }
-
-    ::-webkit-scrollbar { width:2px; }
-    ::-webkit-scrollbar-thumb { background:var(--border); }
-  </style>
-</head>
-<body>
-
-<div id="app" style="max-width:430px;margin:0 auto;min-height:100dvh;display:flex;flex-direction:column;background:var(--bg);position:relative;transition:background 0.55s ease;">
-
-  <!-- HEADER -->
-  <div id="hdr" style="padding:calc(var(--safe-top) + 2.5rem) 1.5rem 1.1rem;border-bottom:3px solid var(--border);flex-shrink:0;position:relative;overflow:hidden;background:var(--surface);transition:background 0.55s ease,border-color 0.55s ease;">
-    <div style="position:absolute;left:0;top:0;bottom:0;width:4px;background:linear-gradient(180deg,var(--accent),var(--mid),var(--accent));transition:background 0.55s ease;"></div>
-    <div style="position:absolute;inset:0;background:repeating-linear-gradient(180deg,transparent 0,transparent 3px,rgba(0,0,0,0.045) 3px,rgba(0,0,0,0.045) 4px);pointer-events:none;"></div>
-    <div style="padding-left:1rem;position:relative;">
-      <div style="font-size:0.57rem;letter-spacing:0.25em;text-transform:uppercase;color:var(--accent);margin-bottom:0.35rem;transition:color 0.55s ease;">// custom output trainer</div>
-      <div style="display:flex;align-items:baseline;">
-        <span style="font-family:'Bebas Neue',sans-serif;font-size:4rem;line-height:0.85;color:var(--text);transition:color 0.55s ease;">Co</span>
-        <span style="font-family:'Fraunces',serif;font-size:1.9rem;font-weight:300;font-style:italic;color:var(--accent);margin-left:0.1rem;align-self:flex-end;margin-bottom:0.25rem;transition:color 0.55s ease;">At</span>
-      </div>
-      <div id="hdr-sub" style="font-size:0.57rem;letter-spacing:0.08em;color:var(--fog);margin-top:0.25rem;transition:color 0.55s ease;">Grounded. Loaded. Yours.</div>
-    </div>
-  </div>
-
-  <!-- TOGGLE -->
-  <div style="padding:0.875rem 1.5rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:center;background:var(--bg);transition:background 0.55s ease,border-color 0.55s ease;">
-    <div class="toggle-track" onclick="toggleTheme()">
-      <div class="toggle-thumb" id="t-thumb"></div>
-      <div class="toggle-label" id="lbl-d" style="color:var(--bg);">Definition</div>
-      <div class="toggle-label" id="lbl-s" style="color:var(--fog);">Strength</div>
-    </div>
-  </div>
-
-  <!-- SCROLL -->
-  <div id="scroll-area" style="flex:1;overflow-y:auto;padding:1.5rem 1.5rem calc(var(--safe-bottom) + 2rem);-webkit-overflow-scrolling:touch;">
-    <div id="scr-cfg" class="screen"></div>
-    <div id="scr-res" class="screen" style="display:none;"></div>
-  </div>
-</div>
-
-<!-- LOADING -->
-<div id="loader" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.08);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);align-items:center;justify-content:center;flex-direction:column;gap:1.25rem;z-index:998;">
-  <div style="padding:2rem;background:var(--surface);border:1px solid var(--border);display:flex;flex-direction:column;align-items:center;gap:1.25rem;transition:background 0.55s ease,border-color 0.55s ease;">
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:5px;">
-      <div class="lcell"></div><div class="lcell"></div><div class="lcell"></div>
-      <div class="lcell"></div><div class="lcell"></div><div class="lcell"></div>
-      <div class="lcell"></div><div class="lcell"></div><div class="lcell"></div>
-    </div>
-    <div style="font-size:0.6rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--fog);transition:color 0.55s ease;">compiling session...</div>
-  </div>
-</div>
-
-<script>
-// ─── THEMES ───────────────────────────────────────────────────
-const THEMES = {
-  def: {
-    bg:'#F0EDE8', surface:'#E8E4DD', slab:'#DEDAD2', border:'#C0BBB2',
-    fog:'#6B6860', text:'#1A1A18', accent:'#3D6B35', mid:'#527A49', rust:'#8B3A1A',
-    name:'Definition', sub:'Grounded. Loaded. Yours.',
-  },
-  str: {
-    bg:'#181614', surface:'#211F1C', slab:'#2C2925', border:'#3D3830',
-    fog:'#7A7168', text:'#F2EBD9', accent:'#C47B1A', mid:'#A66010', rust:'#C0522D',
-    name:'Strength', sub:'Heavy. Intentional. Yours.',
-  },
-};
-
-let mode = 'def';
-
-function applyTheme(m) {
-  const t = THEMES[m];
-  const s = document.documentElement.style;
-  Object.entries({ '--bg':t.bg,'--surface':t.surface,'--slab':t.slab,'--border':t.border,
-    '--fog':t.fog,'--text':t.text,'--accent':t.accent,'--mid':t.mid,'--rust':t.rust })
-    .forEach(([k,v]) => s.setProperty(k,v));
-  document.getElementById('hdr-sub').textContent = t.sub;
-  const isStr = m === 'str';
-  document.getElementById('lbl-d').style.color = isStr ? t.fog : t.bg;
-  document.getElementById('lbl-s').style.color = isStr ? t.bg : t.fog;
-  document.getElementById('t-thumb').classList.toggle('right', isStr);
-}
-
-function toggleTheme() {
-  mode = mode === 'def' ? 'str' : 'def';
-  applyTheme(mode);
-  if (document.getElementById('scr-cfg').style.display !== 'none') renderConfig();
-  else renderResult();
-}
-
-// ─── CONSTANTS ─────────────────────────────────────────────────
-const SLOTS = [
-  {l:'15 min',v:15},{l:'30 min',v:30},{l:'45 min',v:45},
-  {l:'1 hour',v:60},{l:'1h 15m',v:75},{l:'1h 30m',v:90},
-  {l:'1h 45m',v:105},{l:'2 hours',v:120},{l:'2h 15m',v:135},{l:'2h 30m',v:150},
-];
-
-const MUSCLES = [
-  {id:'chest',l:'Chest'},{id:'back',l:'Back'},{id:'shoulders',l:'Shoulders'},
-  {id:'biceps',l:'Biceps'},{id:'triceps',l:'Triceps'},{id:'legs',l:'Legs'},
-];
-
-// ─── STATE ────────────────────────────────────────────────────
-let st = { tidx: 2, groups: [], workout: null };
-
-// ─── EXERCISES (modules — each has name, def sets/reps, str sets/reps, info) ──────
-// format: { n: name, d: 'def prescription', s: 'str prescription', i: 'form info' }
+OLD_EX = """// ─── EXERCISE LIBRARY ─────────────────────────────────────────────────────────
 const EX = {
-  // CHEST
-  benchPress:   { n:'Barbell Bench Press',     d:'4 × 10–12 (60s)', s:'5 × 3–5 (3min)',   i:'Grip just outside shoulder width. Retract and depress scapula before unracking — this is non-negotiable for shoulder health. Bar path travels slightly down toward lower chest as you lower. Touch chest lightly, press in a slight arc back to start. Drive feet hard into the floor throughout. At the top, think "push yourself through the bench" not "push the bar up."' },
-  inclineDB:    { n:'Incline Dumbbell Press',  d:'3 × 12 (60s)',    s:'4 × 6–8 (2min)',   i:'Set bench 30–45°. Start with dumbbells at chest level, elbows at roughly 45° from torso — not flared to 90°. Press up and slightly in, converging at the top. The incline biases the upper pec and anterior delt. Control the descent over 2 seconds. Squeeze at the peak before lowering.' },
-  pecFly:       { n:'Pec Fly Machine',         d:'3 × 15 (45s)',    s:'3 × 10 (90s)',     i:'Adjust seat so handles align exactly with mid-chest. Allow a full stretch at the start — you should feel a mild pull across the pec. Squeeze hard as you bring the handles together but stop just before they touch to keep tension on the muscle. Slow negatives (3 sec) maximize time under tension. Drop sets work well here.' },
-  cableFly:     { n:'Cable Crossover',         d:'3 × 15 (45s)',    s:'3 × 12 (60s)',     i:'Set cables at shoulder height. Slight forward lean from hips, maintain soft elbow bend throughout — do not change elbow angle mid-rep. Lead with the elbow, not the hand. Think "hugging a barrel." Squeeze at center. Return with control over 3 seconds. This is isolation — use a weight you can fully control through the entire range.' },
-  chestPress:   { n:'Chest Press Machine',     d:'3 × 12–15 (60s)', s:'4 × 8 (90s)',      i:'Adjust seat so handles are at mid-chest. Push through heels of your palms. At full extension, do not hyperextend elbows — stop just short of lockout to maintain tension. The machine removes stabilization demands, allowing you to fully focus on pec contraction. Good for high-rep finisher sets.' },
-  dips:         { n:'Chest Dips',              d:'3 × 12 (60s)',    s:'4 × 6–8 (2min)',   i:'Lean slightly forward throughout — this shifts loading from triceps to chest. Lower until elbows reach 90° or you feel a stretch in the chest. Do not go deeper if you feel shoulder impingement. Drive through heels of palms to return. Add weight via belt when bodyweight becomes easy for 12+ reps.' },
-  // BACK
-  latPulldown:  { n:'Lat Pulldown',            d:'4 × 12 (60s)',    s:'4 × 6–8 (2min)',   i:'Grip slightly wider than shoulder width, overhand. Lean back slightly (not excessively). Initiate by depressing the scapula first — think "put your shoulder blades in your back pockets." Pull elbows down and back toward your hips. Bar should reach upper chest. Squeeze lats at the bottom. Slow return over 3 seconds. Never use momentum.' },
-  cableRow:     { n:'Seated Cable Row',        d:'3 × 12 (60s)',    s:'4 × 6–8 (2min)',   i:'Sit upright, slight forward lean at start (stretch the lats). Drive elbows back close to torso — not flared out. Squeeze shoulder blades together at the end of each rep. Hold 1 second at full contraction. Return with control, allowing thoracic rotation at the end to increase lat stretch. Use a neutral grip handle for maximum range.' },
-  pullUp:       { n:'Pull-Ups',                d:'3 × failure (90s)',s:'5 × 5 (3min)',    i:'Dead hang to start each rep. Initiate with scapular depression (not a shrug). Pull elbows toward hips. Chin over bar at the top. Lower fully under control — a 3-second negative builds significant back thickness. Add weight via belt once you can do 10+ bodyweight reps with perfect form.' },
-  straightPull: { n:'Straight-Arm Pulldown',   d:'3 × 15 (45s)',    s:'3 × 12 (60s)',     i:'Stand facing cable stack, arms extended, slight elbow bend. Pull the bar down in an arc to your hips using only your lats — no elbow flexion. This is a lat isolation movement. You should feel a deep stretch at the top and a hard squeeze at the bottom. Keep your core braced throughout.' },
-  // SHOULDERS
-  ohpDB:        { n:'Dumbbell Overhead Press', d:'4 × 10–12 (75s)', s:'5 × 4–6 (3min)',   i:'Seated or standing, start at ear level with neutral or pronated grip. Press straight up, converging slightly at the top. Do not flare elbows excessively — about 30° forward of the coronal plane. Lock out overhead without arching the lower back. Lower under full control to ear height. Core must stay braced.' },
-  shoulderPress:{ n:'Shoulder Press Machine',  d:'3 × 12–15 (60s)', s:'4 × 8 (90s)',      i:'Adjust seat so handles are at ear level. Press straight up without shrugging traps at the top. Keep upper back pressed into the pad. Focus on feeling the anterior and medial delt fire. The machine removes stabilization demands — use this to push volume safely when fatigued.' },
-  lateralRaise: { n:'Cable Lateral Raise',     d:'4 × 15 (45s)',    s:'3 × 12 (60s)',     i:'Stand perpendicular to cable, low pulley. Slight forward lean, slight elbow bend throughout. Raise arm to just above shoulder height — no higher, as the trap takes over above 90°. Lead with the elbow, not the hand. Slow descent over 3 seconds. Cable keeps tension at the bottom unlike dumbbells. Do both sides.' },
-  facePull:     { n:'Face Pull',               d:'3 × 20 (45s)',    s:'3 × 15 (60s)',     i:'Set cable at face height, use rope attachment. Pull toward your face, separating the rope ends as you go — externally rotate at the end of each rep. Elbows stay high and parallel to the floor. This builds the posterior delt and external rotators, which are chronically underdeveloped. Never skip this.' },
-  // BICEPS
-  barbellCurl:  { n:'Barbell Curl',            d:'4 × 10–12 (60s)', s:'4 × 6–8 (2min)',   i:'Use EZ-bar or straight bar. Grip shoulder-width, supinated. Start from full extension. Curl by flexing the elbow — do not swing the body or let elbows drift forward. Squeeze hard at the top, peak contraction is everything for bicep definition. Lower over 3 seconds. Do not hyperextend at the bottom.' },
-  hammerCurl:   { n:'Hammer Curl',             d:'3 × 12 (60s)',    s:'3 × 8–10 (90s)',   i:'Neutral (hammer) grip, elbows fixed to sides. This targets the brachialis and brachioradialis as well as the bicep long head. Curl to shoulder height, hold 1 second, lower over 3 seconds. Alternating or simultaneous — both work. Keep torso still. Avoid the temptation to lean back at the top.' },
-  preacherCurl: { n:'Preacher Curl',           d:'3 × 12 (60s)',    s:'3 × 8 (90s)',      i:'Drape upper arm over the pad so the pad hits just above the elbow. This eliminates momentum completely. Lower to near-full extension (not hyperextension). Curl up hard. The angled pad creates maximum tension at the bottom of the movement where straight curls are weak. Great for peak bicep development.' },
-  machineCurl:  { n:'Machine Curl',            d:'3 × 15 (45s)',    s:'3 × 10 (75s)',     i:'Adjust seat so elbows align with the machine pivot point — this is critical. Curl through the full range. At the top, hold for a 1-second peak contraction. Slow negative over 3 seconds. Drop sets are highly effective: hit 15 reps, reduce weight by 20%, go to failure.' },
-  // TRICEPS
-  triPushdown:  { n:'Tricep Rope Pushdown',    d:'4 × 12–15 (60s)', s:'4 × 8–10 (90s)',   i:'Stand close to cable, elbows pinned to sides throughout. Use rope attachment. Push down and flare the rope ends apart at the bottom — this hits all three tricep heads. Lock out fully at the bottom. Do not let elbows drift forward or flare out. Slow return over 2 seconds. This is the most complete tricep isolation movement.' },
-  skullCrusher: { n:'Skull Crushers',          d:'3 × 12 (60s)',    s:'4 × 6–8 (2min)',   i:'Lie flat, EZ-bar or dumbbells. Lower the weight toward your forehead (or slightly behind the head for more stretch) by hinging ONLY at the elbow — upper arm stays vertical and fixed. Extend back to start. The long head of the tricep gets the most stretch with elbows slightly back. Control the descent — do not let the bar drop.' },
-  dipsTri:      { n:'Tricep Dips',             d:'3 × 12–15 (60s)', s:'4 × 8 (2min)',     i:'Stay upright throughout — do not lean forward (that shifts the load to chest). Elbows track straight back, close to the body. Lower until elbows reach 90°. Drive through heels of palms to full extension. Add weight via belt when 15 reps becomes easy. One of the best mass builders for the tricep.' },
-  ohTricep:     { n:'Overhead Tricep Extension',d:'3 × 12 (60s)',   s:'3 × 8–10 (90s)',   i:'Seated or standing. Hold one dumbbell overhead with both hands, or use cable rope. Lower behind head by hinging at the elbow — this stretches the long head maximally. Upper arms stay fixed pointing straight up. Extend to full lockout. The overhead position is the only way to fully stretch the long head, which makes up the majority of tricep mass.' },
-  // LEGS
-  legPress:     { n:'Leg Press',               d:'4 × 12–15 (60s)', s:'5 × 5–6 (3min)',   i:'Set feet shoulder-width, mid-height on the platform. Lower the platform until knees are at 90° — do not allow lower back to round off the pad (this is dangerous). Press through heels, not toes. Lock out at the top without hyperextending knees. Foot position changes emphasis: higher = more hamstring/glute, lower = more quad.' },
-  legCurl:      { n:'Leg Curl',                d:'4 × 12 (60s)',    s:'4 × 8 (90s)',      i:'Lie prone, adjust roller so it sits just above the heel. Curl through the full range — try to touch heels to glutes. Squeeze at the top for 1 second. Return slowly over 3 seconds. Your hips should stay pressed into the pad throughout — if they lift, the weight is too heavy. This isolates the hamstrings.' },
-  legExt:       { n:'Leg Extension',           d:'3 × 15 (45s)',    s:'3 × 12 (75s)',     i:'Adjust so the pad sits just above the ankle. Sit with full back support. Extend to full lockout and hold 1 second — squeezing hard at the top is critical for quad definition. Lower slowly over 3 seconds. Do not use momentum. This is pure quad isolation; use it as a finisher.' },
-  calfRaise:    { n:'Calf Raise',              d:'4 × 20 (30s)',    s:'5 × 15 (60s)',     i:'Stand on the edge of a platform, full stretch at the bottom — do not bounce out of the stretch. Rise as high as possible, hold 2 seconds at the top. Lower slowly over 3 seconds. Calves are built through high volume and full range of motion. Vary foot position: neutral, toes-in, toes-out to hit different heads.' },
-  smithSquat:   { n:'Smith Machine Squat',     d:'4 × 10–12 (90s)', s:'5 × 4–6 (3min)',   i:'Position bar across upper traps (not neck). Feet slightly in front of the bar, shoulder-width or slightly wider. Sit back into the squat, not straight down. Knees track over toes. Break parallel if mobility allows. The Smith machine guides the path, allowing more aggressive loading safely. Drive through heels on the ascent.' },
-  hipAbduct:    { n:'Hip Abductor Machine',    d:'3 × 15 (45s)',    s:'3 × 12 (60s)',     i:'Sit with back fully pressed against the pad. Push outward against the pads through the full range. Hold at maximum abduction for 1 second. Return slowly. This targets the glute medius — critical for hip stability and the outer glute shape. Often undertrained.' },
-  hipAdduct:    { n:'Hip Adductor Machine',    d:'3 × 15 (45s)',    s:'3 × 12 (60s)',     i:'Sit with pads against inner thighs. Squeeze inward through the full range. Do not use momentum — this is a small muscle group. Hold at maximum adduction for 1 second. Return slowly. Targets the inner thigh and hip adductors. Pair with the abductor for complete hip development.' },
-  // ABS
-  cableCrunch:  { n:'Cable Crunches',          d:'4 × 12–15 (60s)', s:'4 × 10 (75s)',     i:'Kneel facing the cable stack, rope attachment at top. Hold rope ends at either side of your face — do not pull with your arms. The movement comes entirely from spinal flexion: crunch DOWN by rounding the spine, trying to bring your elbows toward your knees. This is not a hip hinge. Add weight every session — this is your primary overload ab movement.' },
-  hangLegRaise: { n:'Hanging Leg Raises',      d:'3 × 12 (60s)',    s:'4 × 10 (75s)',     i:'Dead hang from pull-up bar. Eliminate swing before starting each rep. Initiate by tilting the pelvis posteriorly — you should feel your lower abs engage before your legs move. Raise legs to at least 90° (parallel), higher if possible. Lower slowly over 3 seconds. Add ankle weights when bodyweight becomes easy.' },
-  declineSitUp: { n:'Decline Weighted Sit-Up', d:'3 × 15 (45s)',    s:'3 × 12 (60s)',     i:'Set decline bench at 30–45°. Hold a plate to your chest. Lower fully until your back is nearly parallel to the bench. Rise using spinal flexion — do not yank through the hip flexors. Slow and controlled. The decline increases range of motion significantly over flat sit-ups, maximizing the rectus abdominis stretch.' },
-  abWheel:      { n:'Ab Wheel Rollout',        d:'3 × 10 (60s)',    s:'4 × 10 (75s)',     i:'Kneel on a pad. Roll forward until your body is nearly parallel to the floor — this requires significant core strength. Do not let your hips sag or your lower back arch (this is a compression injury risk). Roll back by contracting your abs and pulling your hips back. If you cannot maintain a straight line from knee to shoulder, shorten the range.' },
-  obliqueCrunch:{ n:'Oblique Cable Crunch',    d:'3 × 12 each (45s)',s:'3 × 10 each (60s)','i':'Same setup as cable crunches but crunch at an angle — toward the opposite knee. This isolates the obliques, which create the visual "cuts" on the sides of the core. Keep resistance heavy enough that 12 reps is genuinely difficult. Do each side separately. Do not rush the rep — feel the oblique working.' },
-  pallofPress:  { n:'Pallof Press',            d:'3 × 12 each (45s)',s:'3 × 12 each (60s)','i':'Stand perpendicular to cable, set at chest height. Hold cable at chest, step away until there is tension. Press straight out, hold 2 seconds, return. Your entire job is to resist the cable pulling you into rotation — this is anti-rotation training. Brutally effective for core stability and the deep transverse abdominus.' },
-};
+  benchPress:    {n:'Barbell Bench Press',     d:'4 × 10–12 (60s rest)', s:'5 × 3–5 (3 min rest)',   i:'Grip just outside shoulder width. Retract and depress your scapula before unracking — this protects the shoulder joint. Bar travels slightly toward lower chest as you lower. Touch lightly, press back in a slight arc. Drive feet hard into the floor. At the top, push yourself through the bench, not the bar upward.'},
+  inclineDB:     {n:'Incline Dumbbell Press',  d:'3 × 12 (60s rest)',    s:'4 × 6–8 (2 min rest)',   i:'Set bench 30–45°. Elbows at roughly 45° from torso — not flared to 90°. Press up and slightly in, converging at the top. The incline biases upper pec and anterior delt heavily. Control the descent over 2 full seconds. Squeeze at the peak before lowering.'},
+  pecFly:        {n:'Pec Fly Machine',         d:'3 × 15 (45s rest)',    s:'3 × 10 (90s rest)',      i:'Adjust seat so handles align exactly with mid-chest. Allow a full stretch — feel a mild pull across the pec at the start. Squeeze hard as handles approach center. Stop just before they touch to keep tension on the muscle. Slow negatives (3 seconds) maximize time under tension.'},
+  cableFly:      {n:'Cable Crossover',         d:'3 × 15 (45s rest)',    s:'3 × 12 (60s rest)',      i:'Set cables at shoulder height. Slight forward lean from hips, maintain a fixed soft elbow bend throughout. Lead with the elbow, not the hand — think "hugging a barrel." Squeeze at center. Return with full 3-second control. Use a weight you can fully own through the entire range.'},
+  chestPress:    {n:'Chest Press Machine',     d:'3 × 12–15 (60s rest)', s:'4 × 8 (90s rest)',       i:'Adjust seat so handles are at mid-chest. Push through heels of your palms. At full extension, stop just short of lockout to maintain tension. The machine removes stabilization demands — use this to fully concentrate on pec contraction. Excellent high-rep finisher.'},
+  dipsChest:     {n:'Chest Dips',              d:'3 × 12 (60s rest)',    s:'4 × 6–8 (2 min rest)',   i:'Lean slightly forward throughout — this shifts loading from triceps to chest. Lower until elbows reach 90° or you feel a chest stretch. Drive through heels of palms to return. Add weight via belt when bodyweight gives you 12+ reps easily.'},
+  latPulldown:   {n:'Lat Pulldown',            d:'4 × 12 (60s rest)',    s:'4 × 6–8 (2 min rest)',   i:'Grip slightly wider than shoulder width, overhand. Initiate by depressing the scapula first — "shoulder blades into your back pockets." Pull elbows down and back toward your hips. Bar reaches upper chest. Squeeze lats at the bottom. Return over 3 seconds. Never use momentum.'},
+  cableRow:      {n:'Seated Cable Row',        d:'3 × 12 (60s rest)',    s:'4 × 6–8 (2 min rest)',   i:'Slight forward lean at start to stretch the lats. Drive elbows back close to torso — not flared. Squeeze shoulder blades together at full contraction. Hold 1 second. Return with control, allowing a thoracic rotation at the end to increase lat stretch.'},
+  pullUp:        {n:'Pull-Ups',                d:'3 × max (90s rest)',   s:'5 × 5 (3 min rest)',     i:'Dead hang to start every rep. Initiate with scapular depression — not a shrug. Pull elbows toward hips. Chin clears the bar at the top. Lower fully under control, 3-second negatives. Add weight via belt once you can do 10+ bodyweight reps cleanly.'},
+  straightPull:  {n:'Straight-Arm Pulldown',   d:'3 × 15 (45s rest)',    s:'3 × 12 (60s rest)',      i:'Stand facing cable stack, arms extended, slight fixed elbow bend. Pull the bar to your hips in an arc using only your lats — no elbow flexion. Feel a deep stretch at the top and a hard squeeze at the bottom. Core braced throughout.'},
+  ohpDB:         {n:'Dumbbell Overhead Press', d:'4 × 10–12 (75s rest)', s:'5 × 4–6 (3 min rest)',   i:'Seated or standing, start at ear level. Press straight up, elbows about 30° forward of the coronal plane — not directly out to the sides. Lock out overhead without arching the lower back. Lower under full control to ear height. Core must stay braced.'},
+  shoulderPress: {n:'Shoulder Press Machine',  d:'3 × 12–15 (60s rest)', s:'4 × 8 (90s rest)',       i:'Adjust seat so handles are at ear level. Press straight up without shrugging traps at the top. Keep upper back pressed into the pad throughout. Focus on feeling the anterior and medial delt fire. Use this to push volume safely when fatigued.'},
+  lateralRaise:  {n:'Cable Lateral Raise',     d:'4 × 15 (45s rest)',    s:'3 × 12 (60s rest)',      i:'Stand perpendicular to cable, low pulley. Slight forward lean, fixed soft elbow bend. Raise arm to just above shoulder height — the trap takes over above 90° so stop there. Lead with elbow. Slow 3-second descent. Cable keeps tension at the bottom unlike dumbbells.'},
+  facePull:      {n:'Face Pull',               d:'3 × 20 (45s rest)',    s:'3 × 15 (60s rest)',      i:'Set cable at face height, rope attachment. Pull toward your face, separating rope ends — externally rotate at the end of each rep. Elbows stay high and parallel to the floor. This builds the posterior delt and external rotators which are chronically undertrained. Never skip.'},
+  barbellCurl:   {n:'Barbell Curl',            d:'4 × 10–12 (60s rest)', s:'4 × 6–8 (2 min rest)',   i:'EZ-bar or straight bar, shoulder-width supinated grip. Start from full extension. Curl by flexing the elbow only — no body swing, no elbows drifting forward. Squeeze hard at the top. Lower over 3 seconds. The slow negative builds far more size than the curl itself.'},
+  hammerCurl:    {n:'Hammer Curl',             d:'3 × 12 (60s rest)',    s:'3 × 8–10 (90s rest)',    i:'Neutral (hammer) grip, elbows fixed to sides. Targets brachialis and brachioradialis as well as the bicep long head. Curl to shoulder height, 1-second hold, 3-second descent. Avoid the temptation to lean back at the top.'},
+  preacherCurl:  {n:'Preacher Curl',           d:'3 × 12 (60s rest)',    s:'3 × 8 (90s rest)',       i:'Upper arm draped over the pad just above the elbow — this eliminates all momentum. Lower to near-full extension (not hyperextension). Curl hard. The angled pad creates maximum tension at the bottom where standard curls are weakest. Outstanding for peak bicep development.'},
+  machineCurl:   {n:'Machine Curl',            d:'3 × 15 (45s rest)',    s:'3 × 10 (75s rest)',      i:'Align elbows with the machine pivot point — critical. Curl through the full range. At the top, 1-second peak contraction. 3-second negative. Drop sets are highly effective here: hit your reps, drop 20%, go to failure immediately.'},
+  triPushdown:   {n:'Tricep Rope Pushdown',    d:'4 × 12–15 (60s rest)', s:'4 × 8–10 (90s rest)',    i:'Stand close to the cable. Elbows pinned to sides throughout. Use rope attachment. Push down and flare the rope ends apart at the bottom — this activates all three tricep heads simultaneously. Lock out fully. Do not let elbows drift forward or flare. Slow 2-second return.'},
+  skullCrusher:  {n:'Skull Crushers',          d:'3 × 12 (60s rest)',    s:'4 × 6–8 (2 min rest)',   i:'Lie flat, EZ-bar or dumbbells. Lower toward your forehead or slightly behind the head by hinging ONLY at the elbow — upper arm stays completely vertical and fixed. Extend back to start. The long head gets maximum stretch with elbows slightly behind vertical. Control the descent.'},
+  dipsTri:       {n:'Tricep Dips',             d:'3 × 12–15 (60s rest)', s:'4 × 8 (2 min rest)',     i:'Stay upright — do not lean forward or you shift the load to chest. Elbows track straight back, close to the body. Lower until elbows hit 90°. Drive through heels of palms to full extension. Add weight via belt when 15 reps becomes easy.'},
+  ohTricep:      {n:'Overhead Tricep Extension',d:'3 × 12 (60s rest)',   s:'3 × 8–10 (90s rest)',    i:'Seated or standing, hold one dumbbell overhead with both hands or use a cable rope. Lower behind head by hinging at the elbow. Upper arms stay fixed pointing straight up. Extend to full lockout. The overhead position is the only way to fully stretch the long head — which makes up most of tricep mass.'},
+  legPress:      {n:'Leg Press',               d:'4 × 12–15 (60s rest)', s:'5 × 5–6 (3 min rest)',   i:'Feet shoulder-width, mid-height on platform. Lower until knees reach 90° — never let lower back round off the pad. Press through heels. Lock out without hyperextending knees. Higher foot position = more hamstring/glute. Lower position = more quad.'},
+  legCurl:       {n:'Leg Curl',                d:'4 × 12 (60s rest)',    s:'4 × 8 (90s rest)',       i:'Lie prone, roller sits just above the heel. Curl through the full range — try to touch heels to glutes. 1-second squeeze at the top. 3-second descent. Hips must stay pressed into the pad — if they lift, reduce the weight.'},
+  legExt:        {n:'Leg Extension',           d:'3 × 15 (45s rest)',    s:'3 × 12 (75s rest)',      i:'Pad sits just above the ankle. Extend to full lockout and hold 1 second — the squeeze at the top drives quad definition. 3-second descent. Do not use momentum. Pure quad isolation. Use as a finisher after compound movements.'},
+  calfRaise:     {n:'Calf Raise',              d:'4 × 20 (30s rest)',    s:'5 × 15 (60s rest)',      i:'Stand on the edge of a platform, full stretch at the bottom — no bouncing. Rise as high as possible, hold 2 seconds at the top. 3-second descent. Calves require high volume and full range of motion. Vary foot angle: neutral / toes-in / toes-out for different heads.'},
+  smithSquat:    {n:'Smith Machine Squat',     d:'4 × 10–12 (90s rest)', s:'5 × 4–6 (3 min rest)',   i:'Bar across upper traps, not the neck. Feet slightly in front of the bar, shoulder-width. Sit back into the squat. Knees track over toes. Break parallel if mobility allows. Drive through heels on the ascent. The guided path allows more aggressive loading.'},
+  hipAbduct:     {n:'Hip Abductor Machine',    d:'3 × 15 (45s rest)',    s:'3 × 12 (60s rest)',      i:'Back fully pressed against the pad. Push outward against the pads through full range. Hold at max abduction 1 second. Return slowly. Targets the glute medius — critical for hip stability and outer glute shape. Often undertrained.'},
+  hipAdduct:     {n:'Hip Adductor Machine',    d:'3 × 15 (45s rest)',    s:'3 × 12 (60s rest)',      i:'Pads against inner thighs. Squeeze inward through full range — do not use momentum. Hold at max adduction 1 second. Targets inner thigh and hip adductors. Pair with abductor machine for complete hip development.'},
+  cableCrunch:   {n:'Cable Crunches',          d:'4 × 12–15 (60s rest)', s:'4 × 10 (75s rest)',      i:'Kneel facing the cable stack, rope at top. Hold rope ends at either side of your face. The movement comes entirely from spinal flexion — crunch DOWN to bring elbows toward knees. This is not a hip hinge. Add weight every single session. This is your primary overload ab movement.'},
+  hangLegRaise:  {n:'Hanging Leg Raises',      d:'3 × 12 (60s rest)',    s:'4 × 10 (75s rest)',      i:'Dead hang from bar. Eliminate swing before starting. Initiate by tilting the pelvis posteriorly — lower abs engage before the legs move. Raise legs to at least 90°. 3-second descent. Add ankle weights when bodyweight becomes easy for 12+ clean reps.'},
+  declineSitUp:  {n:'Decline Weighted Sit-Up', d:'3 × 15 (45s rest)',    s:'3 × 12 (60s rest)',      i:'Set decline bench 30–45°. Hold a plate to your chest. Lower fully until back is nearly parallel to the bench. Rise using spinal flexion — do not yank through hip flexors. Slow and controlled throughout. The decline massively increases range of motion vs flat sit-ups.'},
+  abWheel:       {n:'Ab Wheel Rollout',        d:'3 × 10 (60s rest)',    s:'4 × 10 (75s rest)',      i:'Kneel on a pad. Roll forward until body is nearly parallel to the floor. Do not let hips sag or lower back arch — spinal compression injury risk. Roll back by contracting abs and pulling hips back. If you cannot maintain a straight line from knee to shoulder, shorten the range until you can.'},
+  obliqueCrunch: {n:'Oblique Cable Crunch',    d:'3 × 12 ea (45s rest)', s:'3 × 10 ea (60s rest)',   i:'Same setup as cable crunches but crunch at an angle toward the opposite knee. Isolates the obliques which create the visual side cuts. Keep resistance heavy enough that 12 reps is genuinely difficult. Do each side separately. Feel the oblique — do not rush.'},
+  pallofPress:   {n:'Pallof Press',            d:'3 × 12 ea (45s rest)', s:'3 × 12 ea (60s rest)',   i:'Stand perpendicular to cable at chest height. Hold cable at chest, step out until there is tension. Press straight out, hold 2 seconds, return. Your only job is to resist rotation — anti-rotation training. Extremely effective for deep core stability and the transverse abdominus.'},
+};"""
 
-// ─── ROUTINES ──────────────────────────────────────────────────
-// Each routine: { warmup: [exKey,...], main: [exKey,...], abs: [exKey,...], notes: ['...'] }
-// Routines are indexed by [muscle][modeKey][slotIndex]
-// For UI stage, we use a smart selector function that picks based on time
+NEW_EX = """// ─── EXERCISE LIBRARY ─────────────────────────────────────────────────────────
+// Each module: n=name, d=definition prescription, s=strength prescription, i=form info
+// Chest: 11 modules | Back: 10 modules | Triceps: 9 modules | Biceps: 9 modules
+// Shoulders: 5 modules | Legs: 7 modules | Abs: 6 modules
+const EX = {
 
-function getRoutine(groups, modeKey, slotIdx) {
-  const t = SLOTS[slotIdx].v;
-  const isStr = modeKey === 'str';
+  // ═══════════════════════════════════════════════════════
+  // CHEST — 11 modules
+  // Primary drivers: pec major (sternal + clavicular heads)
+  // Science: horizontal press = primary mass builder; incline = upper pec;
+  // cable/machine = constant tension isolation for definition
+  // ═══════════════════════════════════════════════════════
 
-  // Warmup (always the same base)
-  const warmup = [];
-  if (t >= 15) warmup.push({ ex: null, n: 'Light Cardio', sets: '3–5 min', i: 'Treadmill walk or bike at low resistance. Target heart rate 100–110 BPM. Loosen hips and shoulders with gentle arm swings. Do not skip this — cold muscles tear.' });
-  if (t >= 30) warmup.push({ ex: null, n: 'Dynamic Stretching', sets: '2 min', i: '10 reps each: leg swings, arm circles, torso rotations, hip circles. Movement-based activation, not static holds. Raises core temperature and lubricates joints.' });
+  benchPress: {
+    n:'Barbell Bench Press',
+    d:'4 × 8–12 (75s)',
+    s:'5 × 3–5 (3 min)',
+    i:'The foundational horizontal push. Grip just outside shoulder-width — too wide reduces ROM, too narrow shifts load to triceps. Retract and depress the scapula hard into the bench before unracking, and maintain that retraction throughout every rep. This is not optional — losing scapular position is how shoulders get hurt. Bar path is a slight diagonal: touch mid-to-lower chest, press in a shallow arc back to start. On the descent, control over 2 seconds. Drive feet aggressively into the floor and think about spreading the bar apart as you press. At full extension, do not hyperextend elbows — stop just short of lockout to keep pec tension. The bench press is the single highest-load chest exercise available and should always be performed first when energy is highest.',
+  },
+  inclineDB: {
+    n:'Incline Dumbbell Press',
+    d:'3 × 10–12 (60s)',
+    s:'4 × 6–8 (2 min)',
+    i:'Set the bench to 30–45°. Beyond 45° the anterior deltoid takes over from the clavicular pec head — keep it at or below 45°. Start with dumbbells at chest level, elbows at 45° from torso (not flared to 90°, not tucked to 0°). Press up and very slightly in — dumbbells converge fractionally at the top. The incline specifically targets the upper pec, which is the portion that creates the aesthetic "shelf" look when developed. Control the descent over 2 seconds. Dumbbells allow greater ROM than a barbell and also train each side independently, exposing and correcting strength imbalances over time.',
+  },
+  declineBench: {
+    n:'Decline Bench Press',
+    d:'3 × 10–12 (75s)',
+    s:'4 × 4–6 (2.5 min)',
+    i:'Set bench to 15–30° decline. This angle specifically recruits the sternal (lower) head of the pectoralis major — the portion that creates lower chest density. Grip is the same as flat bench: just outside shoulder-width. Bar travels to lower chest. Because the decline angle puts your shoulder joint in a safer position than flat or incline, many lifters can handle more weight here. Retract scapula, control the descent, drive through heels of palms. Spot is recommended at heavy weights due to the head-down position. Use a Smith machine if training alone.',
+  },
+  dipsChest: {
+    n:'Chest Dips',
+    d:'3 × 10–12 (60s)',
+    s:'4 × 6–8 (2 min)',
+    i:'Grip the dip bars and lean your torso forward 20–30° throughout the entire movement — this is what differentiates a chest dip from a tricep dip. If you stay upright, you shift loading to the triceps. Lower until elbows reach 90° or until you feel a stretch across the chest — do not push into shoulder impingement territory. Drive through the heels of the palms to return. At the top, squeeze the chest by thinking about pushing the handles toward each other. When bodyweight becomes easy for 12+ reps, add weight via a dip belt. EMG data confirms dips produce comparable pec activation to the bench press with greater lower pec emphasis.',
+  },
+  cableFly: {
+    n:'Cable Crossover',
+    d:'3 × 12–15 (60s)',
+    s:'3 × 10–12 (75s)',
+    i:'Set cables at shoulder height (mid-chest variation) or above (lower pec emphasis) or below (upper pec emphasis). Step forward so cables form a Y shape behind you — you should feel a stretch in the chest at the start of every rep. Slight forward lean from the hips. Maintain a fixed, soft elbow bend throughout — changing elbow angle mid-rep turns this into a pressing movement. Lead with the elbow, not the hand. Think "hugging a barrel." At the center, cross one hand over the other and squeeze for a full 1-second peak contraction — this full adduction is unique to cable and fly movements. Return with complete 3-second control. The cable maintains tension through the entire arc, unlike dumbbells which go slack at the bottom.',
+  },
+  lowCableFly: {
+    n:'Low-to-High Cable Fly',
+    d:'3 × 12–15 (60s)',
+    s:'3 × 10 (75s)',
+    i:'Set both cables at the lowest position. Stand centered, cables between your legs at the start. Bring both handles up and together in an arc — ending above chest height. This specifically targets the clavicular (upper) pec head, the same head as incline pressing. The constant upward pull of the cable creates a unique loading angle that no press movement can replicate. Keep elbows soft and fixed. Squeeze hard at the top. Return slowly. Particularly effective as a finisher after incline pressing when the upper pec is already fatigued and primed for isolation work.',
+  },
+  pecFly: {
+    n:'Pec Fly Machine',
+    d:'3 × 15 (45s)',
+    s:'3 × 10 (90s)',
+    i:'Adjust the seat height so the handles align exactly with mid-chest when you grip them — an inch up or down changes the loading angle significantly. Set the start position to where you feel a genuine stretch, not pain. From there, squeeze the pecs to bring the handles together — stop just before they touch to maintain continuous tension on the muscle. At the end position, hold for a full 1-second contraction. Return slowly over 3 seconds. The fly machine is excellent for definition work because the strength curve is similar to a cable fly — constant tension throughout. Drop sets are highly effective here: hit your reps to near-failure, immediately reduce weight by 20%, go to failure again.',
+  },
+  chestPress: {
+    n:'Chest Press Machine',
+    d:'3 × 12–15 (60s)',
+    s:'4 × 8 (90s)',
+    i:'Adjust the seat so handles are at mid-chest height. The machine removes the stabilization demand of free weights, allowing you to isolate the pec contraction more effectively — which is its primary advantage. Push through the heels of your palms, not your fingers. At full extension, stop just short of lockout — a small elbow bend maintains pec tension. Squeeze at the extended position for 1 second before returning. The chest press machine is best used later in a session after free-weight pressing, or on high-rep definition finisher sets. It is also safer for solo training at near-failure intensities.',
+  },
+  smithBench: {
+    n:'Smith Machine Bench Press',
+    d:'3 × 10–12 (75s)',
+    s:'4 × 5–6 (2.5 min)',
+    i:'Position the bench so the bar descends to your mid-chest at the bottom of the movement. The guided path of the Smith machine eliminates stabilizer demand — this is both its advantage and its limitation. Use it to push heavier loads safely, particularly when training alone without a spotter. Grip just outside shoulder-width. Retract scapula. Bar travels straight down, not in the natural arc of a free barbell — adjust grip width accordingly to avoid shoulder discomfort. Excellent for drop sets, pause reps (hold 2 seconds at the chest), and negatives because the bar can be locked at any point.',
+  },
+  inclineSmith: {
+    n:'Incline Smith Press',
+    d:'3 × 10–12 (75s)',
+    s:'4 × 5–6 (2.5 min)',
+    i:'Set the bench to 30–45° under the Smith machine. Position yourself so the bar descends to the upper chest. Same scapular retraction as any press — do not let the shoulder round forward. The Smith machine allows more aggressive loading on the incline than a free barbell because you do not need to control the path. This is useful for upper pec strength work. Control the descent over 2 seconds. Full extension at the top without locking the elbow. A great option when a barbell incline bench is occupied or when training solo.',
+  },
+  dbFly: {
+    n:'Dumbbell Flat Fly',
+    d:'3 × 12–15 (60s)',
+    s:'3 × 10 (75s)',
+    i:'Lie flat on a bench, dumbbells held above chest with a slight elbow bend locked in place. Lower the dumbbells in a wide arc — elbows descend toward the floor, going as deep as you feel a stretch without shoulder discomfort. The pec should be on a full stretch at the bottom. Squeeze the pecs to bring the dumbbells back together in the same arc. Do not change the elbow angle mid-rep — this is a fly, not a press. The dumbbell fly is the original chest stretch movement; its limitation is that tension drops off significantly at the top. Use it early-to-mid session for stretch-focused pec work, before cables.',
+  },
 
-  // Build main exercise list from selected groups
-  const POOL = {
-    chest:     ['benchPress','inclineDB','pecFly','cableFly','chestPress','dips'],
-    back:      ['latPulldown','cableRow','pullUp','straightPull'],
-    shoulders: ['ohpDB','shoulderPress','lateralRaise','facePull'],
-    biceps:    ['barbellCurl','hammerCurl','preacherCurl','machineCurl'],
-    triceps:   ['triPushdown','skullCrusher','dipsTri','ohTricep'],
-    legs:      ['legPress','legCurl','legExt','calfRaise','smithSquat','hipAbduct','hipAdduct'],
-  };
+  // ═══════════════════════════════════════════════════════
+  // BACK — 10 modules
+  // Primary drivers: latissimus dorsi, rhomboids, mid-trap,
+  // teres major, rear delt, erector spinae
+  // Science: vertical pulls = lat width; horizontal pulls = thickness;
+  // both required for complete back development
+  // ═══════════════════════════════════════════════════════
 
-  // Time-based volume: exercises per group
-  const exPerGroup = t <= 15 ? 1 : t <= 30 ? 2 : t <= 45 ? 2 : t <= 60 ? 3 : t <= 90 ? 3 : t <= 120 ? 4 : 5;
-  const setsMulti  = t <= 30 ? 0.75 : t >= 90 ? 1.2 : 1;
+  pullUp: {
+    n:'Pull-Ups',
+    d:'3 × max (90s)',
+    s:'5 × 4–6 (3 min)',
+    i:'The foundational vertical pull. Dead hang at the start of every rep — no kipping, no partial ROM. Initiate the movement by depressing the scapula first, before the elbow bends at all. Think "shoulder blades into your back pockets." Pull elbows down and back toward your hips — not out to the sides. Chin clears the bar at the top. Lower under full control over 3 seconds — the eccentric is where significant strength and mass gains occur. A 3-second negative pull-up builds back thickness faster than a fast-rep set. Add weight via dip belt once you can complete 10+ reps with perfect form. Grip options: pronated (wider, more lat), supinated (chin-up, more bicep involvement), neutral (easiest on wrists).',
+  },
+  latPulldown: {
+    n:'Lat Pulldown',
+    d:'4 × 10–12 (75s)',
+    s:'4 × 6–8 (2 min)',
+    i:'Grip the bar slightly wider than shoulder-width, overhand. Sit with thighs locked under the pad. Lean back very slightly — about 10–15° — before you begin pulling. The scapula must depress and retract before the elbows bend: this is the most commonly skipped step and the reason most people do not feel this in their lats. Pull the bar to your upper chest, driving elbows down and back toward your hips. At the bottom, hold 1 second and squeeze the lats hard. Return over 3 seconds — let the lats fully stretch at the top. Never use momentum. The lat pulldown directly mimics the pull-up movement pattern and is the primary lat isolation movement available.',
+  },
+  closeGripPulldown: {
+    n:'Close-Grip Pulldown',
+    d:'3 × 12 (60s)',
+    s:'3 × 8 (90s)',
+    i:'Use a narrow neutral-grip attachment (V-bar or parallel handles). This grip brings the elbows closer to the body during the pull, increasing the range of motion at the shoulder joint and creating a deeper lat stretch at the top. Pull the handles to your sternum, elbows driving down into your sides. The close grip also increases bicep involvement, making this a good bridge movement on arm-plus-back days. Same scapular initiation applies — depress before pulling. Squeeze hard at the bottom. 3-second return.',
+  },
+  cableRow: {
+    n:'Seated Cable Row',
+    d:'4 × 10–12 (75s)',
+    s:'4 × 6–8 (2 min)',
+    i:'Sit upright with a slight forward lean at the start — this stretches the lats and rhomboids before each rep, increasing ROM and muscle activation. Drive the elbows back close to the torso — not flared outward. Squeeze the shoulder blades together hard at full contraction and hold for 1 second. Return with control, allowing the torso to hinge slightly forward to increase the lat stretch. Do not use body momentum — all power should come from the back, not a hip hinge. Use a neutral-grip V-bar for maximum range, or a wide bar to increase outer lat involvement. This is the primary horizontal pull for mid-back thickness.',
+  },
+  wideRow: {
+    n:'Wide-Grip Cable Row',
+    d:'3 × 12 (75s)',
+    s:'3 × 8 (90s)',
+    i:'Attach a wide straight bar to the low cable. Sit upright, grip the bar with a wide overhand grip. Pull the bar to your lower chest/upper abdomen, flaring the elbows out to about 45°. This wide-grip position shifts emphasis from the mid-back and rhomboids to the outer lats and teres major — creating more lat width rather than thickness. At full contraction, the elbows should be behind the plane of the torso. Return slowly. The wide row pairs well with close-grip rows in longer back sessions to hit different portions of the lat.',
+  },
+  straightPull: {
+    n:'Straight-Arm Pulldown',
+    d:'3 × 15 (45s)',
+    s:'3 × 12 (60s)',
+    i:'Stand facing the cable stack, lat bar or rope attached at the top. Arms extended in front of you with a fixed soft elbow bend — this bend does not change during the movement. Pull the bar down in a wide arc from in front of your face to your hips, using only the lats. The elbow does not flex. This is pure lat isolation with no bicep involvement whatsoever, making it excellent for building the lat-to-arm connection — learning to feel the lat working independently. Feel a deep stretch at the top and a hard contraction at the bottom. Core braced throughout. Great warm-up movement or burnout finisher.',
+  },
+  singleArmRow: {
+    n:'Single-Arm Cable Row',
+    d:'3 × 12 each (60s)',
+    s:'3 × 8 each (90s)',
+    i:'Stand or sit facing the low cable, single handle attachment. Row with one arm at a time, which allows the torso to rotate slightly — this increases the range of motion of the lat and allows you to load each side independently. Drive the elbow back past the hip at full contraction. The single-arm variation exposes and corrects left-right strength imbalances that bilateral rows can mask. At the end position, the shoulder of the working arm should be pulled back fully. Hold 1 second. Slow return with full stretch. Do all reps on one side before switching.',
+  },
+  underhandPulldown: {
+    n:'Underhand Lat Pulldown',
+    d:'3 × 12 (60s)',
+    s:'3 × 6–8 (90s)',
+    i:'Same as the standard lat pulldown but with a supinated (underhand) grip at shoulder-width. The supinated grip places the biceps in a stronger mechanical position, allowing you to pull more weight and achieve a greater peak contraction. It also shifts some emphasis to the lower portion of the lats. Initiate with scapular depression, pull to upper chest, squeeze hard. This is essentially a weighted chin-up movement pattern and is excellent for building the lat-bicep connection. Use it as a secondary pulldown on high-volume back days.',
+  },
+  ropeRow: {
+    n:'Rope Cable Row',
+    d:'3 × 15 (45s)',
+    s:'3 × 12 (60s)',
+    i:'Attach a rope to the low cable. Row with a neutral grip, and as you reach full contraction, pull the rope ends apart — this external rotation at the finish position engages the rear delts and external rotators in addition to the mid-back. The rope also allows a more natural wrist path than a fixed bar. This movement is excellent for the rhomboids and the connection between mid-back and rear delt. Pull to the lower ribcage, elbows close to the body. Hold the apart position for 1 second. Return slowly.',
+  },
+  facePull: {
+    n:'Face Pull',
+    d:'3 × 20 (45s)',
+    s:'3 × 15 (60s)',
+    i:'Set the cable to face height, rope attachment. Pull toward your face — specifically toward your forehead — separating the rope ends as you go. At the end position, externally rotate both shoulders so your hands end up beside your ears. Elbows stay high throughout, parallel to the floor. This movement targets the posterior deltoid, infraspinatus, and teres minor — muscles that are critically undertrained in most programs that emphasize pressing. Weak posterior delts and external rotators are the primary cause of shoulder injuries in pressing athletes. Do these every single session. High reps are appropriate because these muscles respond to volume.',
+  },
 
-  const mainKeys = [];
-  groups.forEach(g => {
-    const pool = POOL[g] || [];
-    // Compound first (index 0-1), then isolation
-    const picks = pool.slice(0, exPerGroup);
-    picks.forEach(k => { if (!mainKeys.includes(k)) mainKeys.push(k); });
-  });
+  // ═══════════════════════════════════════════════════════
+  // TRICEPS — 9 modules
+  // Primary heads: long (largest, overhead stretch),
+  // lateral (horseshoe shape), medial (deep, all angles)
+  // Science: long head requires overhead stretch; all 3 heads
+  // activated by full elbow extension under load
+  // ═══════════════════════════════════════════════════════
 
-  // Abs (always included)
-  const abTime = t <= 15 ? 5 : t <= 45 ? 10 : t <= 90 ? 12 : 15;
-  const absKeys = t <= 15
-    ? ['cableCrunch']
-    : t <= 30
-    ? ['cableCrunch','hangLegRaise']
-    : ['cableCrunch','hangLegRaise','abWheel','obliqueCrunch'].slice(0, Math.floor(abTime / 3));
+  triPushdown: {
+    n:'Tricep Rope Pushdown',
+    d:'4 × 12–15 (60s)',
+    s:'4 × 8–10 (90s)',
+    i:'Stand close to the cable stack. Elbows pinned firmly to your sides throughout — if they drift forward or flare, the movement becomes a shoulder exercise. Use the rope attachment. Push down to full elbow extension, and at the bottom, flare the rope ends apart — this spreads the load across all three tricep heads simultaneously and maximizes the squeeze. Lock out fully at the bottom. Return over 2 seconds — do not let the rope snap back. The pushdown is the most complete tricep isolation movement for volume work because it keeps constant cable tension through the entire ROM and is joint-friendly for high rep sets.',
+  },
+  barPushdown: {
+    n:'Straight Bar Pushdown',
+    d:'3 × 12–15 (60s)',
+    s:'4 × 8–10 (90s)',
+    i:'Same cable setup as the rope pushdown but using a straight or EZ bar attachment. The bar locks the hands in a fixed position, which increases the demand on the medial and lateral heads specifically. Elbows pinned to sides. Push to full lockout. The bar allows more weight than the rope typically, making it better for heavier strength-focused sets. Overhand grip is standard. An underhand (reverse) grip shifts emphasis to the long head and is a useful variation on subsequent sessions.',
+  },
+  skullCrusher: {
+    n:'Skull Crushers',
+    d:'4 × 10–12 (60s)',
+    s:'4 × 5–6 (2.5 min)',
+    i:'Lie flat on a bench. Use an EZ-bar or dumbbells — the EZ-bar is easier on the wrists. Hold the weight above your chest with a narrow grip. Lower by hinging ONLY at the elbow — the upper arm stays fixed, vertical, and does not move during the rep. Lower the bar toward your forehead or, for greater long head stretch, slightly behind the head. Extend back to start. The long head of the tricep gets its maximum stretch when the arm is overhead or slightly behind the head, making skull crushers superior to pushdowns for long head hypertrophy. This is a foundational strength movement for the tricep. Control the descent — do not let gravity drop the bar.',
+  },
+  dipsTri: {
+    n:'Tricep Dips',
+    d:'3 × 12–15 (60s)',
+    s:'4 × 6–8 (2 min)',
+    i:'Grip the dip bars with hands close together. Stay upright — do not lean forward (that shifts the load to chest). Elbows track straight back, close to the body, throughout the entire rep. Lower until elbows reach 90° — going deeper than 90° adds shoulder impingement risk without meaningfully increasing tricep stretch. Drive through the heels of the palms back to full extension. At the top, lock out the elbow and squeeze the tricep hard. Add weight via dip belt once 15 bodyweight reps become easy. Dips are one of the only tricep compound movements and are excellent for overall mass.',
+  },
+  ohTricep: {
+    n:'Overhead Tricep Extension',
+    d:'3 × 12 (75s)',
+    s:'3 × 8–10 (90s)',
+    i:'Seated or standing. Hold one heavy dumbbell with both hands overhead, or attach a rope to a low cable and press overhead. Lower the weight behind the head by hinging at the elbow — upper arms stay fixed, pointing straight at the ceiling throughout. Extend back to full lockout overhead. The overhead position is the ONLY position where the long head of the tricep is fully lengthened. The long head is the largest of the three heads and makes up most of the tricep mass visible from the back and side. Research confirms that overhead tricep exercises produce significantly greater long head hypertrophy than pushdowns or kickbacks. This movement should be in every tricep session.',
+  },
+  cableOHTricep: {
+    n:'Cable Overhead Extension',
+    d:'3 × 12–15 (60s)',
+    s:'3 × 10 (90s)',
+    i:'Attach a rope to a low cable. Face away from the stack. Hold rope overhead with both hands, elbows pointing forward. Extend the elbows to straighten the arms overhead. The cable provides constant tension even at the stretched position — unlike a dumbbell where tension drops off. This gives the cable overhead extension an advantage over the dumbbell version for hypertrophy. Keep the upper arms stationary. Squeeze at the top of each rep. Return slowly to full stretch. This is an excellent alternative when a heavy dumbbell overhead extension becomes uncomfortable on the wrists.',
+  },
+  closeGripSmith: {
+    n:'Close-Grip Smith Press',
+    d:'3 × 10–12 (75s)',
+    s:'4 × 5–6 (2.5 min)',
+    i:'Lie on a flat bench under the Smith machine. Use a shoulder-width or slightly narrower grip. The narrow grip shifts almost all of the pressing load from the pec to the tricep. Lower the bar to your lower chest, elbows tucked close to the body. Press to full extension. The Smith machine removes the need to balance the bar with a narrow grip, making it safer than a free barbell close-grip bench. This is the heaviest tricep compound movement available on your equipment and should lead strength-focused tricep sessions. It builds mass across all three heads.',
+  },
+  singleArmPushdown: {
+    n:'Single-Arm Pushdown',
+    d:'3 × 12 each (45s)',
+    s:'3 × 10 each (75s)',
+    i:'Attach a single D-handle to the high cable. Grip with one hand, elbow pinned to your side. Push to full lockout, hold 1 second squeeze, return over 2 seconds. The single-arm variation trains each tricep independently, exposing and correcting imbalances between sides. It also allows a greater peak contraction because the torso can turn very slightly at full extension. Do all reps on one side before switching. Good finishing movement to ensure symmetry.',
+  },
+  diamondPushup: {
+    n:'Diamond Push-Up',
+    d:'3 × max (60s)',
+    s:'3 × max weighted (90s)',
+    i:'Form a diamond shape with your hands (thumbs and index fingers touching) directly under your sternum. Lower your chest toward the diamond, keeping elbows tracking back and close to the body — not flaring out. Push to full arm extension. This bodyweight movement provides a strong medial and lateral tricep contraction through a full range of motion. It requires no equipment and can be loaded by placing a weight plate on your upper back. Excellent as a finisher when the cable is occupied or as a burnout set at the end of a tricep session.',
+  },
 
-  // Notes
-  const defNotes = [
-    'Progressive overload is the only driver of visible change — log every weight.',
-    'Rest periods are prescribed for a reason. Cutting rest short blunts the stimulus.',
-    'Definition comes from the kitchen as much as the gym — total caloric deficit is the variable.',
-  ];
-  const strNotes = [
-    'Strength gains require adequate recovery — minimum 7–8 hours sleep.',
-    'On heavy compound days, warm-up sets are not optional. Build to your working weight over 3–4 sets.',
-    'Do not sacrifice form for weight. A rep that breaks form does not count.',
-  ];
+  // ═══════════════════════════════════════════════════════
+  // BICEPS — 9 modules
+  // Primary heads: long (outer, creates the peak),
+  // short (inner, creates width), brachialis (pushes bicep up)
+  // Science: supinated = more bicep; neutral = more brachialis;
+  // arm position changes head emphasis
+  // ═══════════════════════════════════════════════════════
 
-  return {
-    warmup: warmup,
-    main: mainKeys.map(k => EX[k]),
-    abs: absKeys.map(k => EX[k]),
-    notes: isStr ? strNotes.slice(0,2) : defNotes.slice(0,2),
-  };
-}
+  barbellCurl: {
+    n:'Barbell Curl',
+    d:'4 × 8–12 (75s)',
+    s:'4 × 5–6 (2 min)',
+    i:'Use an EZ-bar or straight bar. Shoulder-width supinated grip. Start from complete elbow extension — a full dead hang at the bottom. Curl by flexing the elbow only: no body swing, no shoulder raising, no elbows drifting forward past the neutral position. At the top, squeeze hard. Lower over 3 seconds — the slow negative is where most of the hypertrophy stimulus occurs. The barbell curl allows the highest load of any bicep movement, making it the primary overload exercise. Research by Schoenfeld (2014) confirms that the curl performed to full elbow extension produces significantly greater bicep hypertrophy than partial ROM curls. Never cheat the bottom.',
+  },
+  inclineCurl: {
+    n:'Incline Dumbbell Curl',
+    d:'3 × 10–12 (60s)',
+    s:'3 × 8 (90s)',
+    i:'Set a bench to 45–60° incline. Sit back with arms hanging straight down — this creates a stretched start position that no standing curl can match. Curl from the fully extended hang, supinating the wrist as you go. The incline position places the long head of the bicep on stretch at the start, generating a greater stretch-mediated hypertrophy stimulus. Do not swing the arms forward to initiate — the upper arm must stay pinned behind the body throughout. This is the best exercise for bicep peak development because it loads the long head in its lengthened position. Control the descent fully.',
+  },
+  preacherCurl: {
+    n:'Preacher Curl',
+    d:'3 × 10–12 (60s)',
+    s:'3 × 6–8 (90s)',
+    i:'Drape the upper arm over the preacher pad so the pad contacts just above the elbow. This position eliminates all momentum and locks the upper arm in a fixed position. Lower to near-full extension — not past 170° of elbow extension as hyperextension under load injures the distal bicep tendon. Curl hard. The preacher pad creates maximum tension at the bottom of the movement where standard curls are mechanically weakest, making it one of the best exercises for lower bicep development. Use an EZ-bar to reduce wrist strain or a straight bar for maximum supination. Great for producing the bicep fullness near the elbow.',
+  },
+  hammerCurl: {
+    n:'Hammer Curl',
+    d:'3 × 12 (60s)',
+    s:'3 × 8–10 (90s)',
+    i:'Hold dumbbells in a neutral (thumb-up) grip throughout. Elbows fixed to sides. Curl to shoulder height, 1-second hold, lower over 3 seconds. The neutral grip shifts primary emphasis to the brachialis — a muscle that sits under the bicep and pushes it upward when developed, creating the appearance of greater bicep height even without additional bicep growth. The brachioradialis also receives significant stimulus. Hammer curls are non-negotiable for complete arm development. Do not rotate the wrist during the rep — keep it neutral from start to finish.',
+  },
+  machineCurl: {
+    n:'Machine Curl',
+    d:'3 × 15 (45s)',
+    s:'3 × 10 (75s)',
+    i:'Adjust the seat so your elbows align exactly with the machine pivot point — this is critical. Misalignment changes the strength curve and puts stress on the elbow joint. Curl through the full range. At the top, hold for a 1-second peak contraction — the machine maintains resistance at the top where free weights go slack. Return over 3 seconds. The machine curl is excellent for drop sets: hit your target reps, immediately reduce by 20% and go to failure, reduce again. This extended set technique maximizes metabolic stress for definition. Use it as a finisher.',
+  },
+  cableCurl: {
+    n:'Cable Bicep Curl',
+    d:'3 × 12–15 (60s)',
+    s:'3 × 10 (75s)',
+    i:'Stand facing a low cable, straight bar or EZ-bar attachment. The cable provides constant tension through the entire range of motion — unlike dumbbells or a barbell, where tension drops off at the top. Curl from full extension to full contraction. Elbows stay fixed. The cable curl is particularly effective for the top half of the movement where dumbbells become easy. Squeeze hard at the top and lower slowly. You can also use a rope attachment with a supinating wrist motion for variety. Great finisher after heavy barbell curls.',
+  },
+  concentrationCurl: {
+    n:'Concentration Curl',
+    d:'3 × 12 each (45s)',
+    s:'3 × 8–10 each (75s)',
+    i:'Sit on a bench, lean forward, and brace the back of the upper arm against your inner thigh. This locks the upper arm in a fixed, slightly forward position — which biases the short head (inner bicep) and creates maximum peak contraction at the top. Curl the dumbbell from full extension to your shoulder, squeezing at the top with a full supination of the wrist. No momentum possible. Lower over 3 seconds. Arnold Schwarzenegger popularized this movement for peak development, and EMG research confirms it produces the highest bicep peak contraction of any curl variation. Do all reps on one side.',
+  },
+  spiderCurl: {
+    n:'Spider Curl',
+    d:'3 × 12 (60s)',
+    s:'3 × 8 (90s)',
+    i:'Set an incline bench to 45–60°. Lie face-down with your chest against the pad and arms hanging straight down. Curl the dumbbells or EZ-bar from full hang to full contraction. Because the arms hang forward of the body, the short head of the bicep is preferentially recruited — producing a wide, full look to the bicep when viewed from the front. This is the opposite of the incline curl which targets the long head. Together they cover both heads optimally. The face-down position also completely eliminates any body momentum. Control every rep.',
+  },
+  reverseCurl: {
+    n:'Reverse Curl',
+    d:'3 × 12 (60s)',
+    s:'3 × 10 (75s)',
+    i:'Hold a barbell or EZ-bar with a pronated (overhand) grip. Curl from full extension to full contraction. The pronated grip nearly eliminates bicep involvement and places the load on the brachioradialis and brachialis — the muscles of the forearm and upper arm that sit beside and under the bicep. Developing these muscles adds visible thickness to the arm when viewed from the front, and builds the "tie-in" between the forearm and upper arm that defines aesthetically developed arms. Keep elbows fixed to sides. Lower slowly. An often-skipped movement that experienced lifters use to build the complete arm.',
+  },
 
-// ─── PICKER ──────────────────────────────────────────────────
-function buildPickerHTML() {
-  return `
-    <div class="picker-wrap">
-      <div class="picker-fade-top"></div>
-      <div class="picker-fade-bot"></div>
-      <div class="picker-sel-line"></div>
-      <div class="picker-scroll" id="ps">
-        ${SLOTS.map((s,i)=>`<div class="picker-item ${i===st.tidx?'sel':''}" data-i="${i}">${s.l}</div>`).join('')}
-      </div>
-    </div>`;
-}
+  // ═══════════════════════════════════════════════════════
+  // SHOULDERS — 5 modules (unchanged, already solid)
+  // ═══════════════════════════════════════════════════════
 
-function initPicker() {
-  const ps = document.getElementById('ps');
-  if (!ps) return;
-  ps.scrollTop = st.tidx * 40;
-  let raf = false;
-  ps.addEventListener('scroll', () => {
-    if (!raf) { raf = true; requestAnimationFrame(() => {
-      const i = Math.max(0, Math.min(SLOTS.length-1, Math.round(ps.scrollTop/40)));
-      if (i !== st.tidx) { st.tidx = i; highlightPicker(); }
-      raf = false;
-    }); }
-  });
-  ps.querySelectorAll('.picker-item').forEach(el => {
-    el.addEventListener('click', () => {
-      st.tidx = parseInt(el.dataset.i);
-      ps.scrollTo({top: st.tidx*40, behavior:'smooth'});
-      highlightPicker();
-    });
-  });
-}
+  ohpDB: {
+    n:'Dumbbell Overhead Press',
+    d:'4 × 10–12 (75s)',
+    s:'5 × 4–6 (3 min)',
+    i:'Seated or standing. Start with dumbbells at ear level, elbows about 30° in front of the coronal plane — not directly out to the sides, which causes shoulder impingement. Press straight up, allowing the dumbbells to converge slightly at the top. Lock out overhead without arching the lower back. Lower under full control back to ear height. The dumbbell overhead press is the primary compound shoulder movement — it trains the anterior and medial delt under high load. Dumbbells allow greater freedom of movement than a barbell and train each side independently.',
+  },
+  shoulderPress: {
+    n:'Shoulder Press Machine',
+    d:'3 × 12–15 (60s)',
+    s:'4 × 8 (90s)',
+    i:'Adjust the seat so handles start at ear level. Press straight up without shrugging the traps at the top — keep the shoulder down and packed. Upper back pressed firmly into the pad throughout. The machine removes stabilization demands, allowing complete focus on the deltoid contraction. Use it to push higher volume after the dumbbell press, or when fatigued and form on free weights is compromised. Full lockout at the top, full return to ear height at the bottom.',
+  },
+  lateralRaise: {
+    n:'Cable Lateral Raise',
+    d:'4 × 15–20 (45s)',
+    s:'3 × 12 (60s)',
+    i:'Stand perpendicular to the low cable. Slight forward lean from the hip, fixed soft elbow bend maintained throughout. Raise the arm to just above shoulder height — stopping at or just past 90°. The trap takes over above 90° and lateral delt stimulus drops. Lead with the elbow, not the hand — think of pouring water out of a jug. Slow 3-second descent. The cable maintains tension at the bottom of the arc unlike dumbbells, which makes it superior for lateral raises. This is the primary medial delt isolation movement — the medial delt is responsible for shoulder width and is only hit effectively with lateral raises.',
+  },
+  facePull: {
+    n:'Face Pull',
+    d:'3 × 20 (45s)',
+    s:'3 × 15 (60s)',
+    i:'Rope attachment at face height. Pull toward your forehead, separating the rope ends as you go. At the end, externally rotate so hands end up beside the ears. Elbows stay high throughout, parallel to the floor or above. This builds the posterior delt, infraspinatus, and teres minor — chronically undertrained external rotators that prevent shoulder injury. Weak posterior delts in pressing athletes cause anterior shoulder capsule stress and are the root cause of most rotator cuff injuries. Include in every session. High reps are appropriate.',
+  },
+  dbLateral: {
+    n:'Dumbbell Lateral Raise',
+    d:'3 × 15–20 (45s)',
+    s:'3 × 12 (60s)',
+    i:'Stand upright, dumbbells at sides. Slight forward lean. Raise both arms simultaneously to shoulder height — elbows soft and fixed. Lead with elbows. The dumbbell lateral raise is less effective than the cable version because tension is near zero at the bottom, but it allows bilateral movement and is useful when cables are occupied. Consider a slight internal rotation (thumbs slightly down, like pouring a drink) to better isolate the medial delt. Return slowly. High rep ranges are more effective than low for the medial delt.',
+  },
 
-function highlightPicker() {
-  document.querySelectorAll('.picker-item').forEach((el,i) => el.classList.toggle('sel', i===st.tidx));
-}
+  // ═══════════════════════════════════════════════════════
+  // LEGS — 7 modules (unchanged)
+  // ═══════════════════════════════════════════════════════
 
-// ─── RENDER CONFIG ────────────────────────────────────────────
-function renderConfig() {
-  const el = document.getElementById('scr-cfg');
-  const t = THEMES[mode];
-  const has = st.groups.length > 0;
+  smithSquat: {
+    n:'Smith Machine Squat',
+    d:'4 × 10–12 (90s)',
+    s:'5 × 4–6 (3 min)',
+    i:'Bar across the upper traps, not the neck. Feet placed slightly in front of the bar — 6–12 inches — which accommodates the vertical bar path. Shoulder-width or slightly wider. Sit back and down simultaneously — do not just let the knees drive forward. Knees track over toes throughout. Break parallel if mobility allows. Drive through the heels on the ascent and squeeze the glutes at lockout. The Smith machine guides the path, eliminating the need to balance the bar and allowing more aggressive loading. Safety hooks can be set to catch the bar — enabling true failure sets safely.',
+  },
+  legPress: {
+    n:'Leg Press',
+    d:'4 × 12–15 (75s)',
+    s:'5 × 5–6 (3 min)',
+    i:'Feet shoulder-width, mid-height on the platform. Lower the platform until knees are at 90° — do not allow the lower back to round off the pad at any point, as this creates disc compression risk. Press through the heels. Do not lock out the knees completely at the top — keep a slight bend to maintain quad tension. Higher foot placement shifts emphasis to glutes and hamstrings. Lower foot placement increases quad load. Toes slightly outward to allow natural knee tracking. The leg press allows more total load than any squat variation and is excellent for high-volume quad hypertrophy.',
+  },
+  legCurl: {
+    n:'Leg Curl',
+    d:'4 × 12 (60s)',
+    s:'4 × 8 (90s)',
+    i:'Lie prone. Adjust the roller so it contacts the leg just above the heel, not the Achilles. Curl through the full range — try to bring heels to glutes. 1-second squeeze at peak contraction. Return over 3 seconds. Hips must stay pressed into the pad throughout — if they lift, reduce the weight. The leg curl is the primary hamstring isolation movement. Research confirms that the hamstring responds well to stretch-mediated loading — so full range of motion is essential, not optional.',
+  },
+  legExt: {
+    n:'Leg Extension',
+    d:'3 × 15 (45s)',
+    s:'3 × 12 (75s)',
+    i:'Adjust so the pad sits just above the ankle bone. Extend to full lockout and hold 1 second — the isometric squeeze at peak is critical for quad definition. Return over 3 seconds. Do not use momentum. Full quad isolation. Because the leg extension places stress on the knee in the extended position, use controlled weights and avoid ballistic reps. Use as a finisher after compound leg movements when the quads are pre-fatigued.',
+  },
+  calfRaise: {
+    n:'Calf Raise',
+    d:'4 × 20 (30s)',
+    s:'5 × 15 (60s)',
+    i:'Stand on the edge of a platform or step with heels off the edge. Lower to a full stretch — do not bounce out of the stretched position, which uses elastic energy rather than muscle force. Rise as high as possible. Hold 2 seconds at peak contraction. Return over 3 seconds. Calves are a high-endurance muscle group with a high proportion of slow-twitch fibers — they require high volume and full range of motion to adapt. Vary foot position between sets: neutral (both heads), toes-in (lateral head), toes-out (medial head).',
+  },
+  hipAbduct: {
+    n:'Hip Abductor Machine',
+    d:'3 × 15 (45s)',
+    s:'3 × 12 (60s)',
+    i:'Back fully pressed against the pad throughout. Push outward against the pads through the full range. Hold at maximum abduction for 1 second. Return slowly. Targets the glute medius and minimus — muscles critical for hip stability, athletic performance, and the outer glute appearance. These muscles are chronically undertrained in programs that focus only on squats and presses. Include in every leg session.',
+  },
+  hipAdduct: {
+    n:'Hip Adductor Machine',
+    d:'3 × 15 (45s)',
+    s:'3 × 12 (60s)',
+    i:'Pads contact the inner thighs, not the knees. Squeeze inward through the full range. Do not use momentum — the adductors are a small muscle group that should be worked with controlled resistance. Hold at maximum adduction for 1 second. Return slowly. Targets the hip adductors and inner thigh. Pair with the abductor machine for complete hip and glute development.',
+  },
 
-  el.innerHTML = `
-    <div style="margin-bottom:1.75rem;">
-      <div style="font-size:0.57rem;letter-spacing:0.22em;text-transform:uppercase;color:var(--accent);margin-bottom:0.75rem;display:flex;align-items:center;gap:0.5rem;transition:color 0.55s ease;">
-        Session Duration<div style="flex:1;height:1px;background:var(--border);transition:background 0.55s ease;"></div>
-      </div>
-      ${buildPickerHTML()}
-    </div>
+  // ═══════════════════════════════════════════════════════
+  // ABS — 6 modules (your system, unchanged)
+  // ═══════════════════════════════════════════════════════
 
-    <div style="margin-bottom:1.75rem;">
-      <div style="font-size:0.57rem;letter-spacing:0.22em;text-transform:uppercase;color:var(--accent);margin-bottom:0.75rem;display:flex;align-items:center;gap:0.5rem;transition:color 0.55s ease;">
-        Target Muscles<div style="flex:1;height:1px;background:var(--border);transition:background 0.55s ease;"></div>
-      </div>
-      <div style="display:flex;flex-wrap:wrap;gap:0.45rem;">
-        ${MUSCLES.map(g=>`<div class="chip ${st.groups.includes(g.id)?'on':''}" data-g="${g.id}" onclick="toggleGrp('${g.id}')">${g.l}</div>`).join('')}
-      </div>
-    </div>
+  cableCrunch: {
+    n:'Cable Crunches',
+    d:'4 × 12–15 (60s)',
+    s:'4 × 8–10 heavy (75s)',
+    i:'Kneel facing the cable stack, rope attachment at top. Hold rope ends at either side of your face — do not pull with your arms. The movement comes entirely from spinal flexion: crunch DOWN by rounding the spine, trying to bring elbows toward knees. This is not a hip hinge. At full contraction, hold 1 second. Return slowly. Add weight every single session — this is your primary ab overload movement. The rectus abdominis responds to progressive overload like any other muscle. Track the weight stack position and move it up weekly.',
+  },
+  hangLegRaise: {
+    n:'Hanging Leg Raises',
+    d:'3 × 12 (60s)',
+    s:'4 × 10 + ankle weight (75s)',
+    i:'Dead hang from the pull-up bar. Eliminate all swing before starting each rep. Initiate by tilting the pelvis posteriorly — you should feel the lower abs engage before the legs move at all. If the hip flexors initiate, the lower abs are not doing the work. Raise legs to at least 90°, ideally higher. Lower over 3 seconds. Add ankle weights when 12 clean reps become easy. Research confirms hanging leg raises produce significantly higher lower rectus abdominis EMG activation than floor-based alternatives when performed with correct pelvic control.',
+  },
+  declineSitUp: {
+    n:'Decline Weighted Sit-Up',
+    d:'3 × 15 (45s)',
+    s:'4 × 10–12 (75s)',
+    i:'Set decline bench to 30–45°. Hold a weight plate at your chest. Lower until your back is nearly parallel to the bench. Rise using spinal flexion only — do not yank through the hip flexors. The decline creates a greater range of motion than flat sit-ups, maximizing the stretch on the rectus abdominis under load. The added weight ensures progressive overload. Slow and controlled throughout — 2 seconds down, 2 seconds up.',
+  },
+  abWheel: {
+    n:'Ab Wheel Rollout',
+    d:'3 × 10 (60s)',
+    s:'4 × 10 (75s)',
+    i:'Kneel on a pad with the wheel directly below your shoulders. Roll forward maintaining a rigid line from knee to shoulder — do not let the hips sag or the lower back hyperextend, both of which create spinal compression risk. Roll as far as your core can control — ideally until body is nearly parallel to the floor. Pull back by contracting the abs hard, not by pulling with the arms. The ab wheel produces some of the highest rectus abdominis EMG activation of any exercise. Shorten the range until strength allows full extension.',
+  },
+  obliqueCrunch: {
+    n:'Oblique Cable Crunch',
+    d:'3 × 12 each (45s)',
+    s:'3 × 10 heavy each (60s)',
+    i:'Same setup as cable crunches but crunch diagonally — pulling the elbow toward the opposite knee. The obliques run diagonally and are activated by rotation and lateral flexion of the spine. They create the visual side cuts that are visible at low body fat. Keep resistance heavy enough that 12 reps is genuinely challenging. Do each side completely before switching. Do not rush — feel the oblique contracting and releasing on every rep.',
+  },
+  pallofPress: {
+    n:'Pallof Press',
+    d:'3 × 12 each (45s)',
+    s:'3 × 12 each (60s)',
+    i:'Stand perpendicular to the cable at chest height. Hold the handle at your sternum. Step away from the stack until there is significant tension. Press directly forward, hold 2 seconds at full extension, return slowly. Your entire task is to resist the cable rotating your torso. This anti-rotation movement strengthens the transverse abdominis, internal oblique, and multifidus — muscles that no crunch variation trains. These deep stabilizers are the foundation of core strength and spinal health. Treat it as a serious strength movement, not a cooldown.',
+  },
+};"""
 
-    <div style="margin-bottom:1.5rem;padding:0.65rem 1rem;background:var(--surface);border-left:3px solid var(--accent);display:flex;align-items:center;justify-content:space-between;transition:background 0.55s ease,border-color 0.55s ease;">
-      <span style="font-size:0.58rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--fog);transition:color 0.55s ease;">Mode Active</span>
-      <span style="font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:0.1em;color:var(--accent);transition:color 0.55s ease;">${t.name}</span>
-    </div>
+html = html.replace(OLD_EX, NEW_EX)
 
-    <button class="btn-cta" ${!has?'disabled':''} onclick="compile()">
-      <span>Compile Session</span>
-      <span style="font-family:'Courier Prime',monospace;font-size:1rem;font-weight:700;">${has?'→':'—'}</span>
-    </button>
-    ${!has?`<div style="text-align:center;font-size:0.54rem;letter-spacing:0.12em;color:var(--border);margin-top:0.5rem;transition:color 0.55s ease;">// select at least one muscle group</div>`:''}
-  `;
-  initPicker();
-}
+with open('/mnt/user-data/outputs/CoAt.html', 'w') as f:
+    f.write(html)
 
-function toggleGrp(id) {
-  st.groups = st.groups.includes(id) ? st.groups.filter(x=>x!==id) : [...st.groups, id];
-  document.querySelectorAll('.chip[data-g]').forEach(c => c.classList.toggle('on', st.groups.includes(c.dataset.g)));
-  const btn = document.querySelector('.btn-cta');
-  if (btn) {
-    btn.disabled = st.groups.length === 0;
-    btn.querySelector('span:last-child').textContent = st.groups.length > 0 ? '→' : '—';
-  }
-}
-
-// ─── COMPILE ─────────────────────────────────────────────────
-function compile() {
-  if (!st.groups.length) return;
-  document.getElementById('loader').style.display = 'flex';
-  // Small delay for loading feel
-  setTimeout(() => {
-    st.workout = getRoutine(st.groups, mode, st.tidx);
-    document.getElementById('loader').style.display = 'none';
-    showScreen('res');
-  }, 600);
-}
-
-// ─── RENDER RESULT ────────────────────────────────────────────
-let openInfo = null;
-
-function renderResult() {
-  openInfo = null;
-  const el = document.getElementById('scr-res');
-  const w = st.workout;
-  if (!w) return;
-  const mLabel = st.groups.join(' + ').toUpperCase();
-  const slot = SLOTS[st.tidx].l;
-  const mName = THEMES[mode].name.toUpperCase();
-
-  el.innerHTML = `
-    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1.5rem;padding-bottom:1.25rem;border-bottom:1px solid var(--border);transition:border-color 0.55s ease;">
-      <div>
-        <div style="font-size:0.54rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--accent);margin-bottom:0.2rem;transition:color 0.55s ease;">// session compiled</div>
-        <div style="font-family:'Bebas Neue',sans-serif;font-size:1.75rem;letter-spacing:0.04em;color:var(--text);line-height:1;transition:color 0.55s ease;">${mLabel}</div>
-      </div>
-      <div style="text-align:right;font-family:'Courier Prime',monospace;font-size:0.63rem;line-height:1.9;">
-        <div style="color:var(--accent);transition:color 0.55s ease;">${slot}</div>
-        <div style="color:var(--fog);transition:color 0.55s ease;">${mName}</div>
-      </div>
-    </div>
-
-    ${renderWBlock('🌿 Warmup', w.warmup, 'var(--mid)', 0)}
-    ${renderMBlock('⚡ Main Session', w.main, 'var(--accent)', 1)}
-    ${renderMBlock('🎯 Core Block', w.abs, 'var(--accent)', 2)}
-
-    <div class="w-block blk-in" style="border-left-color:var(--rust);padding:0.875rem 1rem;animation-delay:0.21s;transition:background 0.55s ease,border-color 0.55s ease;">
-      <div style="font-family:'Bebas Neue',sans-serif;font-size:0.85rem;letter-spacing:0.12em;color:var(--rust);margin-bottom:0.5rem;transition:color 0.55s ease;">Field Notes</div>
-      ${w.notes.map(n=>`<div style="font-size:0.71rem;color:var(--fog);font-style:italic;line-height:1.7;margin-bottom:0.2rem;transition:color 0.55s ease;">— ${n}</div>`).join('')}
-    </div>
-
-    <div style="display:flex;gap:0.6rem;margin-top:1.5rem;">
-      <button class="btn-sec" onclick="showScreen('cfg')">← New</button>
-      <button class="btn-alt" onclick="compile()">Recompile ↺</button>
-    </div>
-  `;
-}
-
-function renderWBlock(title, items, color, di) {
-  if (!items || !items.length) return '';
-  return `
-    <div class="w-block blk-in" style="border-left-color:${color};animation-delay:${di*0.07}s;transition:background 0.55s ease,border-color 0.55s ease;">
-      <div style="padding:0.75rem 1rem 0.6rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;transition:border-color 0.55s ease;">
-        <div style="font-family:'Bebas Neue',sans-serif;font-size:0.88rem;letter-spacing:0.12em;color:${color};transition:color 0.55s ease;">${title}</div>
-        <div style="font-size:0.5rem;letter-spacing:0.15em;text-transform:uppercase;color:${color};border:1px solid ${color};padding:0.15rem 0.35rem;opacity:0.55;transition:color 0.55s ease,border-color 0.55s ease;">warmup</div>
-      </div>
-      ${items.map((ex,i)=>`
-        <div class="ex-row" onclick="toggleInfo('w-${i}','${escStr(ex.i)}')">
-          <div style="padding:0.6rem 1rem;display:flex;justify-content:space-between;align-items:center;">
-            <span style="font-size:0.84rem;color:var(--text);transition:color 0.55s ease;">${ex.n}</span>
-            <div style="display:flex;align-items:center;gap:0.45rem;flex-shrink:0;">
-              <span style="font-family:'Bebas Neue',sans-serif;font-size:0.88rem;color:${color};letter-spacing:0.05em;transition:color 0.55s ease;">${ex.sets}</span>
-              <span class="chev" id="chv-w-${i}" style="font-size:0.6rem;color:var(--fog);transition:color 0.55s ease;">▾</span>
-            </div>
-          </div>
-          <div class="info-card" id="inf-w-${i}">
-            <div style="padding:0.875rem 1rem;font-size:0.71rem;color:var(--fog);line-height:1.75;font-style:italic;transition:color 0.55s ease,background 0.55s ease;">${ex.i}</div>
-          </div>
-        </div>
-      `).join('')}
-    </div>`;
-}
-
-function renderMBlock(title, items, color, di) {
-  if (!items || !items.length) return '';
-  const tag = title.includes('Core') ? 'core' : 'main';
-  return `
-    <div class="w-block blk-in" style="border-left-color:${color};animation-delay:${di*0.07}s;transition:background 0.55s ease,border-color 0.55s ease;">
-      <div style="padding:0.75rem 1rem 0.6rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;transition:border-color 0.55s ease;">
-        <div style="font-family:'Bebas Neue',sans-serif;font-size:0.88rem;letter-spacing:0.12em;color:${color};transition:color 0.55s ease;">${title}</div>
-        <div style="font-size:0.5rem;letter-spacing:0.15em;text-transform:uppercase;color:${color};border:1px solid ${color};padding:0.15rem 0.35rem;opacity:0.55;transition:color 0.55s ease,border-color 0.55s ease;">${tag}</div>
-      </div>
-      ${items.map((ex,i)=>{
-        const sets = mode === 'str' ? (ex.s||ex.d) : ex.d;
-        const uid = `${tag}-${i}`;
-        return `
-          <div class="ex-row" onclick="toggleInfo('${uid}','${escStr(ex.i)}')">
-            <div style="padding:0.6rem 1rem;display:flex;justify-content:space-between;align-items:center;">
-              <span style="font-size:0.84rem;color:var(--text);transition:color 0.55s ease;">${ex.n}</span>
-              <div style="display:flex;align-items:center;gap:0.45rem;flex-shrink:0;">
-                <span style="font-family:'Bebas Neue',sans-serif;font-size:0.88rem;color:${color};letter-spacing:0.05em;transition:color 0.55s ease;">${sets}</span>
-                <span class="chev" id="chv-${uid}" style="font-size:0.6rem;color:var(--fog);transition:color 0.55s ease;">▾</span>
-              </div>
-            </div>
-            <div class="info-card" id="inf-${uid}">
-              <div style="padding:0.875rem 1rem;font-size:0.71rem;color:var(--fog);line-height:1.75;font-style:italic;transition:color 0.55s ease,background 0.55s ease;">${ex.i}</div>
-            </div>
-          </div>`;
-      }).join('')}
-    </div>`;
-}
-
-function escStr(s) { return (s||'').replace(/'/g,'&#39;').replace(/"/g,'&quot;'); }
-
-function toggleInfo(uid) {
-  const card = document.getElementById(`inf-${uid}`);
-  const chev = document.getElementById(`chv-${uid}`);
-  if (!card) return;
-  const wasOpen = card.classList.contains('open');
-  // Close all
-  document.querySelectorAll('.info-card.open').forEach(c => c.classList.remove('open'));
-  document.querySelectorAll('.chev.open').forEach(c => c.classList.remove('open'));
-  if (!wasOpen) {
-    card.classList.add('open');
-    chev && chev.classList.add('open');
-    // Scroll into view after animation
-    setTimeout(() => card.scrollIntoView({ behavior:'smooth', block:'nearest' }), 100);
-  }
-}
-
-// ─── SCREEN SWITCH ────────────────────────────────────────────
-function showScreen(name) {
-  const cfg = document.getElementById('scr-cfg');
-  const res = document.getElementById('scr-res');
-  cfg.style.display = name === 'cfg' ? '' : 'none';
-  res.style.display = name === 'res' ? '' : 'none';
-  document.getElementById('scroll-area').scrollTop = 0;
-  [cfg,res].forEach(el => { el.classList.remove('screen'); void el.offsetWidth; el.classList.add('screen'); });
-  if (name === 'cfg') renderConfig();
-  if (name === 'res') renderResult();
-}
-
-// ─── SW ───────────────────────────────────────────────────────
-if ('serviceWorker' in navigator)
-  window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(()=>{}));
-
-// ─── INIT ─────────────────────────────────────────────────────
-applyTheme('def');
-showScreen('cfg');
-</script>
-</body>
-</html>
+print("Done. Lines:", html.count('\n'), "Size:", len(html)//1024, "KB")
+print("EX modules:")
+import re
+keys = re.findall(r'^  (\w+): \{$', NEW_EX, re.MULTILINE)
+print(f"  Total: {len(keys)}")
+for k in keys:
+    print(f"    {k}")
+PYEOF
