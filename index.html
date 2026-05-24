@@ -345,11 +345,433 @@ const MUSCLES = [
 // Shoulders: 5 modules | Legs: 7 modules | Abs: 6 modules
 const EX = {
 
-// ═══════════════════════════════════════════════════════
-// UPDATED LIBRARY INSERTED SUCCESSFULLY
-// (Full replacement based on provided modification script)
-// ═══════════════════════════════════════════════════════
+  // ═══════════════════════════════════════════════════════
+  // CHEST — 11 modules
+  // Primary drivers: pec major (sternal + clavicular heads)
+  // Science: horizontal press = primary mass builder; incline = upper pec;
+  // cable/machine = constant tension isolation for definition
+  // ═══════════════════════════════════════════════════════
 
+  benchPress: {
+    n:'Barbell Bench Press',
+    d:'4 × 8–12 (75s)',
+    s:'5 × 3–5 (3 min)',
+    i:'The foundational horizontal push. Grip just outside shoulder-width — too wide reduces ROM, too narrow shifts load to triceps. Retract and depress the scapula hard into the bench before unracking, and maintain that retraction throughout every rep. This is not optional — losing scapular position is how shoulders get hurt. Bar path is a slight diagonal: touch mid-to-lower chest, press in a shallow arc back to start. On the descent, control over 2 seconds. Drive feet aggressively into the floor and think about spreading the bar apart as you press. At full extension, do not hyperextend elbows — stop just short of lockout to keep pec tension. The bench press is the single highest-load chest exercise available and should always be performed first when energy is highest.',
+  },
+  inclineDB: {
+    n:'Incline Dumbbell Press',
+    d:'3 × 10–12 (60s)',
+    s:'4 × 6–8 (2 min)',
+    i:'Set the bench to 30–45°. Beyond 45° the anterior deltoid takes over from the clavicular pec head — keep it at or below 45°. Start with dumbbells at chest level, elbows at 45° from torso (not flared to 90°, not tucked to 0°). Press up and very slightly in — dumbbells converge fractionally at the top. The incline specifically targets the upper pec, which is the portion that creates the aesthetic "shelf" look when developed. Control the descent over 2 seconds. Dumbbells allow greater ROM than a barbell and also train each side independently, exposing and correcting strength imbalances over time.',
+  },
+  declineBench: {
+    n:'Decline Bench Press',
+    d:'3 × 10–12 (75s)',
+    s:'4 × 4–6 (2.5 min)',
+    i:'Set bench to 15–30° decline. This angle specifically recruits the sternal (lower) head of the pectoralis major — the portion that creates lower chest density. Grip is the same as flat bench: just outside shoulder-width. Bar travels to lower chest. Because the decline angle puts your shoulder joint in a safer position than flat or incline, many lifters can handle more weight here. Retract scapula, control the descent, drive through heels of palms. Spot is recommended at heavy weights due to the head-down position. Use a Smith machine if training alone.',
+  },
+  dipsChest: {
+    n:'Chest Dips',
+    d:'3 × 10–12 (60s)',
+    s:'4 × 6–8 (2 min)',
+    i:'Grip the dip bars and lean your torso forward 20–30° throughout the entire movement — this is what differentiates a chest dip from a tricep dip. If you stay upright, you shift loading to the triceps. Lower until elbows reach 90° or until you feel a stretch across the chest — do not push into shoulder impingement territory. Drive through the heels of the palms to return. At the top, squeeze the chest by thinking about pushing the handles toward each other. When bodyweight becomes easy for 12+ reps, add weight via a dip belt. EMG data confirms dips produce comparable pec activation to the bench press with greater lower pec emphasis.',
+  },
+  cableFly: {
+    n:'Cable Crossover',
+    d:'3 × 12–15 (60s)',
+    s:'3 × 10–12 (75s)',
+    i:'Set cables at shoulder height (mid-chest variation) or above (lower pec emphasis) or below (upper pec emphasis). Step forward so cables form a Y shape behind you — you should feel a stretch in the chest at the start of every rep. Slight forward lean from the hips. Maintain a fixed, soft elbow bend throughout — changing elbow angle mid-rep turns this into a pressing movement. Lead with the elbow, not the hand. Think "hugging a barrel." At the center, cross one hand over the other and squeeze for a full 1-second peak contraction — this full adduction is unique to cable and fly movements. Return with complete 3-second control. The cable maintains tension through the entire arc, unlike dumbbells which go slack at the bottom.',
+  },
+  lowCableFly: {
+    n:'Low-to-High Cable Fly',
+    d:'3 × 12–15 (60s)',
+    s:'3 × 10 (75s)',
+    i:'Set both cables at the lowest position. Stand centered, cables between your legs at the start. Bring both handles up and together in an arc — ending above chest height. This specifically targets the clavicular (upper) pec head, the same head as incline pressing. The constant upward pull of the cable creates a unique loading angle that no press movement can replicate. Keep elbows soft and fixed. Squeeze hard at the top. Return slowly. Particularly effective as a finisher after incline pressing when the upper pec is already fatigued and primed for isolation work.',
+  },
+  pecFly: {
+    n:'Pec Fly Machine',
+    d:'3 × 15 (45s)',
+    s:'3 × 10 (90s)',
+    i:'Adjust the seat height so the handles align exactly with mid-chest when you grip them — an inch up or down changes the loading angle significantly. Set the start position to where you feel a genuine stretch, not pain. From there, squeeze the pecs to bring the handles together — stop just before they touch to maintain continuous tension on the muscle. At the end position, hold for a full 1-second contraction. Return slowly over 3 seconds. The fly machine is excellent for definition work because the strength curve is similar to a cable fly — constant tension throughout. Drop sets are highly effective here: hit your reps to near-failure, immediately reduce weight by 20%, go to failure again.',
+  },
+  chestPress: {
+    n:'Chest Press Machine',
+    d:'3 × 12–15 (60s)',
+    s:'4 × 8 (90s)',
+    i:'Adjust the seat so handles are at mid-chest height. The machine removes the stabilization demand of free weights, allowing you to isolate the pec contraction more effectively — which is its primary advantage. Push through the heels of your palms, not your fingers. At full extension, stop just short of lockout — a small elbow bend maintains pec tension. Squeeze at the extended position for 1 second before returning. The chest press machine is best used later in a session after free-weight pressing, or on high-rep definition finisher sets. It is also safer for solo training at near-failure intensities.',
+  },
+  smithBench: {
+    n:'Smith Machine Bench Press',
+    d:'3 × 10–12 (75s)',
+    s:'4 × 5–6 (2.5 min)',
+    i:'Position the bench so the bar descends to your mid-chest at the bottom of the movement. The guided path of the Smith machine eliminates stabilizer demand — this is both its advantage and its limitation. Use it to push heavier loads safely, particularly when training alone without a spotter. Grip just outside shoulder-width. Retract scapula. Bar travels straight down, not in the natural arc of a free barbell — adjust grip width accordingly to avoid shoulder discomfort. Excellent for drop sets, pause reps (hold 2 seconds at the chest), and negatives because the bar can be locked at any point.',
+  },
+  inclineSmith: {
+    n:'Incline Smith Press',
+    d:'3 × 10–12 (75s)',
+    s:'4 × 5–6 (2.5 min)',
+    i:'Set the bench to 30–45° under the Smith machine. Position yourself so the bar descends to the upper chest. Same scapular retraction as any press — do not let the shoulder round forward. The Smith machine allows more aggressive loading on the incline than a free barbell because you do not need to control the path. This is useful for upper pec strength work. Control the descent over 2 seconds. Full extension at the top without locking the elbow. A great option when a barbell incline bench is occupied or when training solo.',
+  },
+  dbFly: {
+    n:'Dumbbell Flat Fly',
+    d:'3 × 12–15 (60s)',
+    s:'3 × 10 (75s)',
+    i:'Lie flat on a bench, dumbbells held above chest with a slight elbow bend locked in place. Lower the dumbbells in a wide arc — elbows descend toward the floor, going as deep as you feel a stretch without shoulder discomfort. The pec should be on a full stretch at the bottom. Squeeze the pecs to bring the dumbbells back together in the same arc. Do not change the elbow angle mid-rep — this is a fly, not a press. The dumbbell fly is the original chest stretch movement; its limitation is that tension drops off significantly at the top. Use it early-to-mid session for stretch-focused pec work, before cables.',
+  },
+
+  // ═══════════════════════════════════════════════════════
+  // BACK — 10 modules
+  // Primary drivers: latissimus dorsi, rhomboids, mid-trap,
+  // teres major, rear delt, erector spinae
+  // Science: vertical pulls = lat width; horizontal pulls = thickness;
+  // both required for complete back development
+  // ═══════════════════════════════════════════════════════
+
+  pullUp: {
+    n:'Pull-Ups',
+    d:'3 × max (90s)',
+    s:'5 × 4–6 (3 min)',
+    i:'The foundational vertical pull. Dead hang at the start of every rep — no kipping, no partial ROM. Initiate the movement by depressing the scapula first, before the elbow bends at all. Think "shoulder blades into your back pockets." Pull elbows down and back toward your hips — not out to the sides. Chin clears the bar at the top. Lower under full control over 3 seconds — the eccentric is where significant strength and mass gains occur. A 3-second negative pull-up builds back thickness faster than a fast-rep set. Add weight via dip belt once you can complete 10+ reps with perfect form. Grip options: pronated (wider, more lat), supinated (chin-up, more bicep involvement), neutral (easiest on wrists).',
+  },
+  latPulldown: {
+    n:'Lat Pulldown',
+    d:'4 × 10–12 (75s)',
+    s:'4 × 6–8 (2 min)',
+    i:'Grip the bar slightly wider than shoulder-width, overhand. Sit with thighs locked under the pad. Lean back very slightly — about 10–15° — before you begin pulling. The scapula must depress and retract before the elbows bend: this is the most commonly skipped step and the reason most people do not feel this in their lats. Pull the bar to your upper chest, driving elbows down and back toward your hips. At the bottom, hold 1 second and squeeze the lats hard. Return over 3 seconds — let the lats fully stretch at the top. Never use momentum. The lat pulldown directly mimics the pull-up movement pattern and is the primary lat isolation movement available.',
+  },
+  closeGripPulldown: {
+    n:'Close-Grip Pulldown',
+    d:'3 × 12 (60s)',
+    s:'3 × 8 (90s)',
+    i:'Use a narrow neutral-grip attachment (V-bar or parallel handles). This grip brings the elbows closer to the body during the pull, increasing the range of motion at the shoulder joint and creating a deeper lat stretch at the top. Pull the handles to your sternum, elbows driving down into your sides. The close grip also increases bicep involvement, making this a good bridge movement on arm-plus-back days. Same scapular initiation applies — depress before pulling. Squeeze hard at the bottom. 3-second return.',
+  },
+  cableRow: {
+    n:'Seated Cable Row',
+    d:'4 × 10–12 (75s)',
+    s:'4 × 6–8 (2 min)',
+    i:'Sit upright with a slight forward lean at the start — this stretches the lats and rhomboids before each rep, increasing ROM and muscle activation. Drive the elbows back close to the torso — not flared outward. Squeeze the shoulder blades together hard at full contraction and hold for 1 second. Return with control, allowing the torso to hinge slightly forward to increase the lat stretch. Do not use body momentum — all power should come from the back, not a hip hinge. Use a neutral-grip V-bar for maximum range, or a wide bar to increase outer lat involvement. This is the primary horizontal pull for mid-back thickness.',
+  },
+  wideRow: {
+    n:'Wide-Grip Cable Row',
+    d:'3 × 12 (75s)',
+    s:'3 × 8 (90s)',
+    i:'Attach a wide straight bar to the low cable. Sit upright, grip the bar with a wide overhand grip. Pull the bar to your lower chest/upper abdomen, flaring the elbows out to about 45°. This wide-grip position shifts emphasis from the mid-back and rhomboids to the outer lats and teres major — creating more lat width rather than thickness. At full contraction, the elbows should be behind the plane of the torso. Return slowly. The wide row pairs well with close-grip rows in longer back sessions to hit different portions of the lat.',
+  },
+  straightPull: {
+    n:'Straight-Arm Pulldown',
+    d:'3 × 15 (45s)',
+    s:'3 × 12 (60s)',
+    i:'Stand facing the cable stack, lat bar or rope attached at the top. Arms extended in front of you with a fixed soft elbow bend — this bend does not change during the movement. Pull the bar down in a wide arc from in front of your face to your hips, using only the lats. The elbow does not flex. This is pure lat isolation with no bicep involvement whatsoever, making it excellent for building the lat-to-arm connection — learning to feel the lat working independently. Feel a deep stretch at the top and a hard contraction at the bottom. Core braced throughout. Great warm-up movement or burnout finisher.',
+  },
+  singleArmRow: {
+    n:'Single-Arm Cable Row',
+    d:'3 × 12 each (60s)',
+    s:'3 × 8 each (90s)',
+    i:'Stand or sit facing the low cable, single handle attachment. Row with one arm at a time, which allows the torso to rotate slightly — this increases the range of motion of the lat and allows you to load each side independently. Drive the elbow back past the hip at full contraction. The single-arm variation exposes and corrects left-right strength imbalances that bilateral rows can mask. At the end position, the shoulder of the working arm should be pulled back fully. Hold 1 second. Slow return with full stretch. Do all reps on one side before switching.',
+  },
+  underhandPulldown: {
+    n:'Underhand Lat Pulldown',
+    d:'3 × 12 (60s)',
+    s:'3 × 6–8 (90s)',
+    i:'Same as the standard lat pulldown but with a supinated (underhand) grip at shoulder-width. The supinated grip places the biceps in a stronger mechanical position, allowing you to pull more weight and achieve a greater peak contraction. It also shifts some emphasis to the lower portion of the lats. Initiate with scapular depression, pull to upper chest, squeeze hard. This is essentially a weighted chin-up movement pattern and is excellent for building the lat-bicep connection. Use it as a secondary pulldown on high-volume back days.',
+  },
+  ropeRow: {
+    n:'Rope Cable Row',
+    d:'3 × 15 (45s)',
+    s:'3 × 12 (60s)',
+    i:'Attach a rope to the low cable. Row with a neutral grip, and as you reach full contraction, pull the rope ends apart — this external rotation at the finish position engages the rear delts and external rotators in addition to the mid-back. The rope also allows a more natural wrist path than a fixed bar. This movement is excellent for the rhomboids and the connection between mid-back and rear delt. Pull to the lower ribcage, elbows close to the body. Hold the apart position for 1 second. Return slowly.',
+  },
+  facePull: {
+    n:'Face Pull',
+    d:'3 × 20 (45s)',
+    s:'3 × 15 (60s)',
+    i:'Set the cable to face height, rope attachment. Pull toward your face — specifically toward your forehead — separating the rope ends as you go. At the end position, externally rotate both shoulders so your hands end up beside your ears. Elbows stay high throughout, parallel to the floor. This movement targets the posterior deltoid, infraspinatus, and teres minor — muscles that are critically undertrained in most programs that emphasize pressing. Weak posterior delts and external rotators are the primary cause of shoulder injuries in pressing athletes. Do these every single session. High reps are appropriate because these muscles respond to volume.',
+  },
+
+  // ═══════════════════════════════════════════════════════
+  // TRICEPS — 9 modules
+  // Primary heads: long (largest, overhead stretch),
+  // lateral (horseshoe shape), medial (deep, all angles)
+  // Science: long head requires overhead stretch; all 3 heads
+  // activated by full elbow extension under load
+  // ═══════════════════════════════════════════════════════
+
+  triPushdown: {
+    n:'Tricep Rope Pushdown',
+    d:'4 × 12–15 (60s)',
+    s:'4 × 8–10 (90s)',
+    i:'Stand close to the cable stack. Elbows pinned firmly to your sides throughout — if they drift forward or flare, the movement becomes a shoulder exercise. Use the rope attachment. Push down to full elbow extension, and at the bottom, flare the rope ends apart — this spreads the load across all three tricep heads simultaneously and maximizes the squeeze. Lock out fully at the bottom. Return over 2 seconds — do not let the rope snap back. The pushdown is the most complete tricep isolation movement for volume work because it keeps constant cable tension through the entire ROM and is joint-friendly for high rep sets.',
+  },
+  barPushdown: {
+    n:'Straight Bar Pushdown',
+    d:'3 × 12–15 (60s)',
+    s:'4 × 8–10 (90s)',
+    i:'Same cable setup as the rope pushdown but using a straight or EZ bar attachment. The bar locks the hands in a fixed position, which increases the demand on the medial and lateral heads specifically. Elbows pinned to sides. Push to full lockout. The bar allows more weight than the rope typically, making it better for heavier strength-focused sets. Overhand grip is standard. An underhand (reverse) grip shifts emphasis to the long head and is a useful variation on subsequent sessions.',
+  },
+  skullCrusher: {
+    n:'Skull Crushers',
+    d:'4 × 10–12 (60s)',
+    s:'4 × 5–6 (2.5 min)',
+    i:'Lie flat on a bench. Use an EZ-bar or dumbbells — the EZ-bar is easier on the wrists. Hold the weight above your chest with a narrow grip. Lower by hinging ONLY at the elbow — the upper arm stays fixed, vertical, and does not move during the rep. Lower the bar toward your forehead or, for greater long head stretch, slightly behind the head. Extend back to start. The long head of the tricep gets its maximum stretch when the arm is overhead or slightly behind the head, making skull crushers superior to pushdowns for long head hypertrophy. This is a foundational strength movement for the tricep. Control the descent — do not let gravity drop the bar.',
+  },
+  dipsTri: {
+    n:'Tricep Dips',
+    d:'3 × 12–15 (60s)',
+    s:'4 × 6–8 (2 min)',
+    i:'Grip the dip bars with hands close together. Stay upright — do not lean forward (that shifts the load to chest). Elbows track straight back, close to the body, throughout the entire rep. Lower until elbows reach 90° — going deeper than 90° adds shoulder impingement risk without meaningfully increasing tricep stretch. Drive through the heels of the palms back to full extension. At the top, lock out the elbow and squeeze the tricep hard. Add weight via dip belt once 15 bodyweight reps become easy. Dips are one of the only tricep compound movements and are excellent for overall mass.',
+  },
+  ohTricep: {
+    n:'Overhead Tricep Extension',
+    d:'3 × 12 (75s)',
+    s:'3 × 8–10 (90s)',
+    i:'Seated or standing. Hold one heavy dumbbell with both hands overhead, or attach a rope to a low cable and press overhead. Lower the weight behind the head by hinging at the elbow — upper arms stay fixed, pointing straight at the ceiling throughout. Extend back to full lockout overhead. The overhead position is the ONLY position where the long head of the tricep is fully lengthened. The long head is the largest of the three heads and makes up most of the tricep mass visible from the back and side. Research confirms that overhead tricep exercises produce significantly greater long head hypertrophy than pushdowns or kickbacks. This movement should be in every tricep session.',
+  },
+  cableOHTricep: {
+    n:'Cable Overhead Extension',
+    d:'3 × 12–15 (60s)',
+    s:'3 × 10 (90s)',
+    i:'Attach a rope to a low cable. Face away from the stack. Hold rope overhead with both hands, elbows pointing forward. Extend the elbows to straighten the arms overhead. The cable provides constant tension even at the stretched position — unlike a dumbbell where tension drops off. This gives the cable overhead extension an advantage over the dumbbell version for hypertrophy. Keep the upper arms stationary. Squeeze at the top of each rep. Return slowly to full stretch. This is an excellent alternative when a heavy dumbbell overhead extension becomes uncomfortable on the wrists.',
+  },
+  closeGripSmith: {
+    n:'Close-Grip Smith Press',
+    d:'3 × 10–12 (75s)',
+    s:'4 × 5–6 (2.5 min)',
+    i:'Lie on a flat bench under the Smith machine. Use a shoulder-width or slightly narrower grip. The narrow grip shifts almost all of the pressing load from the pec to the tricep. Lower the bar to your lower chest, elbows tucked close to the body. Press to full extension. The Smith machine removes the need to balance the bar with a narrow grip, making it safer than a free barbell close-grip bench. This is the heaviest tricep compound movement available on your equipment and should lead strength-focused tricep sessions. It builds mass across all three heads.',
+  },
+  singleArmPushdown: {
+    n:'Single-Arm Pushdown',
+    d:'3 × 12 each (45s)',
+    s:'3 × 10 each (75s)',
+    i:'Attach a single D-handle to the high cable. Grip with one hand, elbow pinned to your side. Push to full lockout, hold 1 second squeeze, return over 2 seconds. The single-arm variation trains each tricep independently, exposing and correcting imbalances between sides. It also allows a greater peak contraction because the torso can turn very slightly at full extension. Do all reps on one side before switching. Good finishing movement to ensure symmetry.',
+  },
+  diamondPushup: {
+    n:'Diamond Push-Up',
+    d:'3 × max (60s)',
+    s:'3 × max weighted (90s)',
+    i:'Form a diamond shape with your hands (thumbs and index fingers touching) directly under your sternum. Lower your chest toward the diamond, keeping elbows tracking back and close to the body — not flaring out. Push to full arm extension. This bodyweight movement provides a strong medial and lateral tricep contraction through a full range of motion. It requires no equipment and can be loaded by placing a weight plate on your upper back. Excellent as a finisher when the cable is occupied or as a burnout set at the end of a tricep session.',
+  },
+
+  // ═══════════════════════════════════════════════════════
+  // BICEPS — 9 modules
+  // Primary heads: long (outer, creates the peak),
+  // short (inner, creates width), brachialis (pushes bicep up)
+  // Science: supinated = more bicep; neutral = more brachialis;
+  // arm position changes head emphasis
+  // ═══════════════════════════════════════════════════════
+
+  barbellCurl: {
+    n:'Barbell Curl',
+    d:'4 × 8–12 (75s)',
+    s:'4 × 5–6 (2 min)',
+    i:'Use an EZ-bar or straight bar. Shoulder-width supinated grip. Start from complete elbow extension — a full dead hang at the bottom. Curl by flexing the elbow only: no body swing, no shoulder raising, no elbows drifting forward past the neutral position. At the top, squeeze hard. Lower over 3 seconds — the slow negative is where most of the hypertrophy stimulus occurs. The barbell curl allows the highest load of any bicep movement, making it the primary overload exercise. Research by Schoenfeld (2014) confirms that the curl performed to full elbow extension produces significantly greater bicep hypertrophy than partial ROM curls. Never cheat the bottom.',
+  },
+  inclineCurl: {
+    n:'Incline Dumbbell Curl',
+    d:'3 × 10–12 (60s)',
+    s:'3 × 8 (90s)',
+    i:'Set a bench to 45–60° incline. Sit back with arms hanging straight down — this creates a stretched start position that no standing curl can match. Curl from the fully extended hang, supinating the wrist as you go. The incline position places the long head of the bicep on stretch at the start, generating a greater stretch-mediated hypertrophy stimulus. Do not swing the arms forward to initiate — the upper arm must stay pinned behind the body throughout. This is the best exercise for bicep peak development because it loads the long head in its lengthened position. Control the descent fully.',
+  },
+  preacherCurl: {
+    n:'Preacher Curl',
+    d:'3 × 10–12 (60s)',
+    s:'3 × 6–8 (90s)',
+    i:'Drape the upper arm over the preacher pad so the pad contacts just above the elbow. This position eliminates all momentum and locks the upper arm in a fixed position. Lower to near-full extension — not past 170° of elbow extension as hyperextension under load injures the distal bicep tendon. Curl hard. The preacher pad creates maximum tension at the bottom of the movement where standard curls are mechanically weakest, making it one of the best exercises for lower bicep development. Use an EZ-bar to reduce wrist strain or a straight bar for maximum supination. Great for producing the bicep fullness near the elbow.',
+  },
+  hammerCurl: {
+    n:'Hammer Curl',
+    d:'3 × 12 (60s)',
+    s:'3 × 8–10 (90s)',
+    i:'Hold dumbbells in a neutral (thumb-up) grip throughout. Elbows fixed to sides. Curl to shoulder height, 1-second hold, lower over 3 seconds. The neutral grip shifts primary emphasis to the brachialis — a muscle that sits under the bicep and pushes it upward when developed, creating the appearance of greater bicep height even without additional bicep growth. The brachioradialis also receives significant stimulus. Hammer curls are non-negotiable for complete arm development. Do not rotate the wrist during the rep — keep it neutral from start to finish.',
+  },
+  machineCurl: {
+    n:'Machine Curl',
+    d:'3 × 15 (45s)',
+    s:'3 × 10 (75s)',
+    i:'Adjust the seat so your elbows align exactly with the machine pivot point — this is critical. Misalignment changes the strength curve and puts stress on the elbow joint. Curl through the full range. At the top, hold for a 1-second peak contraction — the machine maintains resistance at the top where free weights go slack. Return over 3 seconds. The machine curl is excellent for drop sets: hit your target reps, immediately reduce by 20% and go to failure, reduce again. This extended set technique maximizes metabolic stress for definition. Use it as a finisher.',
+  },
+  cableCurl: {
+    n:'Cable Bicep Curl',
+    d:'3 × 12–15 (60s)',
+    s:'3 × 10 (75s)',
+    i:'Stand facing a low cable, straight bar or EZ-bar attachment. The cable provides constant tension through the entire range of motion — unlike dumbbells or a barbell, where tension drops off at the top. Curl from full extension to full contraction. Elbows stay fixed. The cable curl is particularly effective for the top half of the movement where dumbbells become easy. Squeeze hard at the top and lower slowly. You can also use a rope attachment with a supinating wrist motion for variety. Great finisher after heavy barbell curls.',
+  },
+  concentrationCurl: {
+    n:'Concentration Curl',
+    d:'3 × 12 each (45s)',
+    s:'3 × 8–10 each (75s)',
+    i:'Sit on a bench, lean forward, and brace the back of the upper arm against your inner thigh. This locks the upper arm in a fixed, slightly forward position — which biases the short head (inner bicep) and creates maximum peak contraction at the top. Curl the dumbbell from full extension to your shoulder, squeezing at the top with a full supination of the wrist. No momentum possible. Lower over 3 seconds. Arnold Schwarzenegger popularized this movement for peak development, and EMG research confirms it produces the highest bicep peak contraction of any curl variation. Do all reps on one side.',
+  },
+  spiderCurl: {
+    n:'Spider Curl',
+    d:'3 × 12 (60s)',
+    s:'3 × 8 (90s)',
+    i:'Set an incline bench to 45–60°. Lie face-down with your chest against the pad and arms hanging straight down. Curl the dumbbells or EZ-bar from full hang to full contraction. Because the arms hang forward of the body, the short head of the bicep is preferentially recruited — producing a wide, full look to the bicep when viewed from the front. This is the opposite of the incline curl which targets the long head. Together they cover both heads optimally. The face-down position also completely eliminates any body momentum. Control every rep.',
+  },
+  reverseCurl: {
+    n:'Reverse Curl',
+    d:'3 × 12 (60s)',
+    s:'3 × 10 (75s)',
+    i:'Hold a barbell or EZ-bar with a pronated (overhand) grip. Curl from full extension to full contraction. The pronated grip nearly eliminates bicep involvement and places the load on the brachioradialis and brachialis — the muscles of the forearm and upper arm that sit beside and under the bicep. Developing these muscles adds visible thickness to the arm when viewed from the front, and builds the "tie-in" between the forearm and upper arm that defines aesthetically developed arms. Keep elbows fixed to sides. Lower slowly. An often-skipped movement that experienced lifters use to build the complete arm.',
+  },
+
+  // ═══════════════════════════════════════════════════════
+  // SHOULDERS — 5 modules (unchanged, already solid)
+  // ═══════════════════════════════════════════════════════
+
+  ohpDB: {
+    n:'Dumbbell Overhead Press',
+    d:'4 × 10–12 (75s)',
+    s:'5 × 4–6 (3 min)',
+    i:'Seated or standing. Start with dumbbells at ear level, elbows about 30° in front of the coronal plane — not directly out to the sides, which causes shoulder impingement. Press straight up, allowing the dumbbells to converge slightly at the top. Lock out overhead without arching the lower back. Lower under full control back to ear height. The dumbbell overhead press is the primary compound shoulder movement — it trains the anterior and medial delt under high load. Dumbbells allow greater freedom of movement than a barbell and train each side independently.',
+  },
+  shoulderPress: {
+    n:'Shoulder Press Machine',
+    d:'3 × 12–15 (60s)',
+    s:'4 × 8 (90s)',
+    i:'Adjust the seat so handles start at ear level. Press straight up without shrugging the traps at the top — keep the shoulder down and packed. Upper back pressed firmly into the pad throughout. The machine removes stabilization demands, allowing complete focus on the deltoid contraction. Use it to push higher volume after the dumbbell press, or when fatigued and form on free weights is compromised. Full lockout at the top, full return to ear height at the bottom.',
+  },
+  lateralRaise: {
+    n:'Cable Lateral Raise',
+    d:'4 × 15–20 (45s)',
+    s:'3 × 12 (60s)',
+    i:'Stand perpendicular to the low cable. Slight forward lean from the hip, fixed soft elbow bend maintained throughout. Raise the arm to just above shoulder height — stopping at or just past 90°. The trap takes over above 90° and lateral delt stimulus drops. Lead with the elbow, not the hand — think of pouring water out of a jug. Slow 3-second descent. The cable maintains tension at the bottom of the arc unlike dumbbells, which makes it superior for lateral raises. This is the primary medial delt isolation movement — the medial delt is responsible for shoulder width and is only hit effectively with lateral raises.',
+  },
+  facePull: {
+    n:'Face Pull',
+    d:'3 × 20 (45s)',
+    s:'3 × 15 (60s)',
+    i:'Rope attachment at face height. Pull toward your forehead, separating the rope ends as you go. At the end, externally rotate so hands end up beside the ears. Elbows stay high throughout, parallel to the floor or above. This builds the posterior delt, infraspinatus, and teres minor — chronically undertrained external rotators that prevent shoulder injury. Weak posterior delts in pressing athletes cause anterior shoulder capsule stress and are the root cause of most rotator cuff injuries. Include in every session. High reps are appropriate.',
+  },
+  dbLateral: {
+    n:'Dumbbell Lateral Raise',
+    d:'3 × 15–20 (45s)',
+    s:'3 × 12 (60s)',
+    i:'Stand upright, dumbbells at sides. Slight forward lean. Raise both arms simultaneously to shoulder height — elbows soft and fixed. Lead with elbows. The dumbbell lateral raise is less effective than the cable version because tension is near zero at the bottom, but it allows bilateral movement and is useful when cables are occupied. Consider a slight internal rotation (thumbs slightly down, like pouring a drink) to better isolate the medial delt. Return slowly. High rep ranges are more effective than low for the medial delt.',
+  },
+
+  // ═══════════════════════════════════════════════════════
+  // LEGS — 7 modules (unchanged)
+  // ═══════════════════════════════════════════════════════
+
+  smithSquat: {
+    n:'Smith Machine Squat',
+    d:'4 × 10–12 (90s)',
+    s:'5 × 4–6 (3 min)',
+    i:'Bar across the upper traps, not the neck. Feet placed slightly in front of the bar — 6–12 inches — which accommodates the vertical bar path. Shoulder-width or slightly wider. Sit back and down simultaneously — do not just let the knees drive forward. Knees track over toes throughout. Break parallel if mobility allows. Drive through the heels on the ascent and squeeze the glutes at lockout. The Smith machine guides the path, eliminating the need to balance the bar and allowing more aggressive loading. Safety hooks can be set to catch the bar — enabling true failure sets safely.',
+  },
+  legPress: {
+    n:'Leg Press',
+    d:'4 × 12–15 (75s)',
+    s:'5 × 5–6 (3 min)',
+    i:'Feet shoulder-width, mid-height on the platform. Lower the platform until knees are at 90° — do not allow the lower back to round off the pad at any point, as this creates disc compression risk. Press through the heels. Do not lock out the knees completely at the top — keep a slight bend to maintain quad tension. Higher foot placement shifts emphasis to glutes and hamstrings. Lower foot placement increases quad load. Toes slightly outward to allow natural knee tracking. The leg press allows more total load than any squat variation and is excellent for high-volume quad hypertrophy.',
+  },
+  legCurl: {
+    n:'Leg Curl',
+    d:'4 × 12 (60s)',
+    s:'4 × 8 (90s)',
+    i:'Lie prone. Adjust the roller so it contacts the leg just above the heel, not the Achilles. Curl through the full range — try to bring heels to glutes. 1-second squeeze at peak contraction. Return over 3 seconds. Hips must stay pressed into the pad throughout — if they lift, reduce the weight. The leg curl is the primary hamstring isolation movement. Research confirms that the hamstring responds well to stretch-mediated loading — so full range of motion is essential, not optional.',
+  },
+  legExt: {
+    n:'Leg Extension',
+    d:'3 × 15 (45s)',
+    s:'3 × 12 (75s)',
+    i:'Adjust so the pad sits just above the ankle bone. Extend to full lockout and hold 1 second — the isometric squeeze at peak is critical for quad definition. Return over 3 seconds. Do not use momentum. Full quad isolation. Because the leg extension places stress on the knee in the extended position, use controlled weights and avoid ballistic reps. Use as a finisher after compound leg movements when the quads are pre-fatigued.',
+  },
+  calfRaise: {
+    n:'Calf Raise',
+    d:'4 × 20 (30s)',
+    s:'5 × 15 (60s)',
+    i:'Stand on the edge of a platform or step with heels off the edge. Lower to a full stretch — do not bounce out of the stretched position, which uses elastic energy rather than muscle force. Rise as high as possible. Hold 2 seconds at peak contraction. Return over 3 seconds. Calves are a high-endurance muscle group with a high proportion of slow-twitch fibers — they require high volume and full range of motion to adapt. Vary foot position between sets: neutral (both heads), toes-in (lateral head), toes-out (medial head).',
+  },
+  hipAbduct: {
+    n:'Hip Abductor Machine',
+    d:'3 × 15 (45s)',
+    s:'3 × 12 (60s)',
+    i:'Back fully pressed against the pad throughout. Push outward against the pads through the full range. Hold at maximum abduction for 1 second. Return slowly. Targets the glute medius and minimus — muscles critical for hip stability, athletic performance, and the outer glute appearance. These muscles are chronically undertrained in programs that focus only on squats and presses. Include in every leg session.',
+  },
+  hipAdduct: {
+    n:'Hip Adductor Machine',
+    d:'3 × 15 (45s)',
+    s:'3 × 12 (60s)',
+    i:'Pads contact the inner thighs, not the knees. Squeeze inward through the full range. Do not use momentum — the adductors are a small muscle group that should be worked with controlled resistance. Hold at maximum adduction for 1 second. Return slowly. Targets the hip adductors and inner thigh. Pair with the abductor machine for complete hip and glute development.',
+  },
+
+  // ═══════════════════════════════════════════════════════
+  // ═══════════════════════════════════════════════════════
+  // ABS — 11 modules
+  // Profile: 5'10 / 149lb / already lean
+  // Goal: blocky 6-pack, thick rectus, obliques framing waist
+  // Equipment: dumbbells, plates (25/35/45lb), weight balls. NO machines.
+  // BANNED: hanging leg raises, hanging knee raises, reverse crunches, cat-cow
+  // Session structure always: overload → builder → finisher
+  // ═══════════════════════════════════════════════════════
+
+  weightedCrunch: {
+    n: 'Weighted Crunch',
+    d: '4 × 10–15 (20s rest)',
+    s: '4 × 10–12 heavy (25s rest)',
+    i: 'Ribs to pelvis — shoulder blades lift only, lower back stays down. Plate held at chest or extended overhead. Controlled negative, 2 sec down. Drop weight mid-set rather than flopping if form breaks.',
+  },
+  weightedSitUp: {
+    n: 'Weighted Sit-Up',
+    d: '4 × 12–15 (20s rest)',
+    s: '4 × 10–12 (25s rest)',
+    i: 'Segment by segment on the way up — no hip flexor yank. Plate at chest (25–45lb). Full extension at bottom, full crunch at top. If lower back peels off the floor aggressively, reduce load.',
+  },
+  russianTwist: {
+    n: 'Plate Russian Twist',
+    d: '3 × 20 each side (20s rest)',
+    s: '3 × 15 each side heavy (25s rest)',
+    i: 'Shoulders rotate — not just your hands moving side to side. Heels off floor, torso at 45°. Plate or weight ball. Touch floor beside each hip. Keep chest open throughout.',
+  },
+  straightLegRaise: {
+    n: 'Straight Leg Raise',
+    d: '3 × 15–20 (20s rest)',
+    s: '3 × 12–15 + ankle weight (25s rest)',
+    i: 'Lie flat, hands under lower back. Raise legs to 90°, lower under full control — stop 2 inches from the floor, not touching. Lower back stays in contact with floor the entire set. No swinging.',
+  },
+  toeTouchCrunch: {
+    n: 'Toe Touch Crunch',
+    d: '3 × 15–20 (15s rest)',
+    s: '3 × 15 + plate (20s rest)',
+    i: 'Legs straight up, reach both hands toward toes. Upper abs only — lift shoulder blades, not lower back. Reach high each rep. Controlled descent. Add a plate for load once bodyweight is easy.',
+  },
+  slowTempoCrunch: {
+    n: 'Slow Tempo Crunch',
+    d: '3 × 15 (3-0-3 tempo) (15s rest)',
+    s: '3 × 12 (3-0-3 + plate) (20s rest)',
+    i: '3 seconds up, hold 1 second at top, 3 seconds down. Maximum time under tension. No momentum — if you cannot hold the tempo, the weight is too heavy. Shoulder blades only leave the floor.',
+  },
+  abWheelRollout: {
+    n: 'Ab Wheel Rollout',
+    d: '3 × 10–12 (25s rest)',
+    s: '3 × 12–15 (25s rest)',
+    i: 'Rigid line from knee to shoulder — lower back must not hyperextend. Roll as far as you can fully control. Pull back using abs, not arms. Shorten the range before form breaks — do not flop.',
+  },
+  hollowBodyHold: {
+    n: 'Hollow Body Hold',
+    d: '3 × 30–45 sec (20s rest)',
+    s: '3 × 45–60 sec (20s rest)',
+    i: 'Lower back flat on floor — this is the only rule. Arms overhead, legs extended low. Not weighted. If lower back arches, raise legs higher until it flattens. Hold active tension throughout, not passive endurance.',
+  },
+  plank: {
+    n: 'Plank (Active Tension)',
+    d: '3 × 40–60 sec (15s rest)',
+    s: '3 × 60 sec (15s rest)',
+    i: 'Active tension — squeeze glutes, abs, and quads simultaneously. Do not just survive it. Elbows under shoulders, body rigid. If you are passive-holding, you are wasting time. Reset with intent each set.',
+  },
+  sidePlank: {
+    n: 'Side Plank',
+    d: '3 × 30–40 sec each (15s rest)',
+    s: '3 × 45 sec each (15s rest)',
+    i: 'Hip stacked, elbow under shoulder. Drive hip up — do not let it sag. Obliques are actively contracting, not passively holding. Squeeze the working side deliberately each second.',
+  },
+  plankShoulderTap: {
+    n: 'Plank Shoulder Taps',
+    d: '3 × 20 taps each side (15s rest)',
+    s: '3 × 25 taps each side (15s rest)',
+    i: 'High plank, feet hip-width. Tap opposite shoulder while hips stay square — minimal rotation is the goal. Core fights the rotation on every tap. Slow and controlled beats fast and sloppy.',
+  },
 };
 
 // ─── HIIT EXERCISE LIBRARY ────────────────────────────────────────────────────
@@ -362,8 +784,9 @@ const HIIT_EX = [
   {id:'sprintInt', n:'Sprint Intervals',  work:30,rest:30, i:'Treadmill or open floor. Absolute maximum effort — 9 or 10 RPE. This should be uncomfortable. Full recovery during rest. Quality over quantity.'},
   {id:'battleRope',n:'Battle Ropes',      work:30,rest:30, i:'Alternate wave pattern: drive one arm down hard as the other rises. Hips slightly hinged, core tight. The power comes from the core and hips, not just the arms. Maintain the wave amplitude throughout.'},
   {id:'thruster',  n:'Dumbbell Thrusters',work:35,rest:25, i:'Hold dumbbells at shoulders. Squat to parallel, then drive upward and press the dumbbells overhead in one fluid movement. The legs power the press. Lower the dumbbells as you descend into the next squat.'},
-  {id:'cableCrunchHIIT',n:'Cable Crunches',work:40,rest:20,i:'Rope attachment at top. Kneel and crunch the spine downward — elbows to knees. Use a moderate weight you can move quickly. This bridges your core training into HIIT conditioning.'},
-  {id:'hangRaiseHIIT',  n:'Hanging Raises (HIIT)',work:35,rest:25,i:'Hang from bar, explosively drive knees to chest or legs to horizontal. Each rep controlled at the top, but transition quickly. High volume, moderate pace.'},
+  {id:'weightedCrunchHIIT',n:'Weighted Crunch (HIIT)',work:40,rest:20,i:'Plate at chest. Ribs to pelvis, shoulder blades only. Fast tempo but controlled negative. Do not flop — if form breaks, set the plate down and go bodyweight.'},
+  {id:'straightLegHIIT',   n:'Straight Leg Raise (HIIT)',work:35,rest:20,i:'Lie flat, raise legs to 90° and lower under control — 2 inches from floor, not touching. Lower back stays down the entire set. No swinging.'},
+  {id:'russianTwistHIIT',  n:'Russian Twist (HIIT)',work:35,rest:20,i:'Plate or weight ball. Shoulders rotate — not just hands. Heels off floor. Touch floor beside each hip. Fast but deliberate.'},
 ];
 
 // ─── STATE ────────────────────────────────────────────────────────────────────
@@ -409,132 +832,205 @@ let st = {
 
 function slotBucket(slotIdx) { return slotIdx; }
 
-// ── DEFINITION POOLS (ordered: compound → isolation, optimized for hypertrophy) ──
-// Each entry: [exKey, sets, reps, rest]
+// ── DEFINITION POOLS ──────────────────────────────────────────────────────────
+// Ordered: compound → isolation. Science basis: Schoenfeld 2017 meta-analysis.
+// 8–15 rep range @ 60–75% 1RM, 60–90s rest, 10–20 sets/muscle/week.
+// 10 entries per group = 10 distinct exercises available for 150-min sessions.
+// The routine builder slices this list by exPerGroup for each time slot.
 const DEF_POOL = {
+
+  // CHEST — 10 exercises
+  // Order: flat compound → incline → decline → dip → isolation fly/machine
   chest: [
-    // Compound first — horizontal press is the primary hypertrophy driver for chest
-    ['benchPress', '4', '8–12', '75s'],
-    ['inclineDB',  '3', '10–12', '60s'],
-    ['dipsChest',  '3', '10–12', '60s'],
-    // Isolation — cable/machine for constant tension and peak contraction
-    ['cableFly',   '3', '12–15', '60s'],
-    ['pecFly',     '3', '15',    '45s'],
-    ['chestPress', '3', '12–15', '60s'],
+    ['benchPress',  '4', '8–12',  '75s'],   // 1 — primary horizontal overload
+    ['inclineDB',   '3', '10–12', '60s'],   // 2 — upper pec, clavicular head
+    ['dipsChest',   '3', '10–12', '60s'],   // 3 — lower pec compound
+    ['cableFly',    '3', '12–15', '60s'],   // 4 — constant tension mid-pec
+    ['pecFly',      '3', '15',    '45s'],   // 5 — machine isolation, peak squeeze
+    ['declineBench','3', '10–12', '75s'],   // 6 — lower pec density
+    ['lowCableFly', '3', '12–15', '60s'],   // 7 — upper pec from below
+    ['chestPress',  '3', '12–15', '60s'],   // 8 — machine volume finisher
+    ['dbFly',       '3', '12–15', '60s'],   // 9 — stretch-focused fly
+    ['smithBench',  '3', '10–12', '75s'],   // 10 — guided press, drop sets
   ],
+
+  // BACK — 10 exercises
+  // Order: vertical pull → horizontal pull → isolation
   back: [
-    // Vertical pull first — lats are the primary back hypertrophy target
-    ['latPulldown',  '4', '10–12', '75s'],
-    ['pullUp',       '3', 'max',   '90s'],
-    // Horizontal pull — mid-back thickness
-    ['cableRow',     '4', '10–12', '75s'],
-    // Isolation — lat stretch and squeeze
-    ['straightPull', '3', '12–15', '60s'],
+    ['latPulldown',       '4', '10–12', '75s'],  // 1 — primary vertical pull
+    ['pullUp',            '3', 'max',   '90s'],  // 2 — bodyweight vertical pull
+    ['cableRow',          '4', '10–12', '75s'],  // 3 — primary horizontal pull
+    ['closeGripPulldown', '3', '12',    '60s'],  // 4 — deeper lat stretch
+    ['straightPull',      '3', '15',    '45s'],  // 5 — pure lat isolation
+    ['wideRow',           '3', '12',    '75s'],  // 6 — outer lat / teres major
+    ['singleArmRow',      '3', '12',    '60s'],  // 7 — unilateral, ROM + balance
+    ['underhandPulldown', '3', '12',    '60s'],  // 8 — lower lat, bicep bridge
+    ['ropeRow',           '3', '15',    '45s'],  // 9 — rhomboids + rear delt
+    ['facePull',          '3', '20',    '45s'],  // 10 — posterior delt, health
   ],
+
+  // SHOULDERS — 5 exercises (full pool)
   shoulders: [
-    // OHP first — anterior/medial delt compound driver
     ['ohpDB',        '4', '10–12', '75s'],
     ['shoulderPress','3', '12–15', '60s'],
-    // Lateral raises — medial delt isolation (most visible part of shoulder width)
     ['lateralRaise', '4', '15–20', '45s'],
-    // Face pulls — posterior delt + rotator cuff health (non-negotiable)
-    ['facePull',     '3', '15–20', '45s'],
+    ['facePull',     '3', '20',    '45s'],
+    ['dbLateral',    '3', '15–20', '45s'],
   ],
+
+  // BICEPS — 9 exercises
+  // Order: heaviest compound → peak isolation → brachialis → unique angle
   biceps: [
-    // Barbell curl — highest overload compound bicep movement
-    ['barbellCurl',  '4', '8–12',  '75s'],
-    // Preacher — isolates, eliminates momentum, peak contraction
-    ['preacherCurl', '3', '10–12', '60s'],
-    // Hammer — brachialis hits under-bicep, adds thickness
-    ['hammerCurl',   '3', '12',    '60s'],
-    // Machine — constant tension, great for drop sets finisher
-    ['machineCurl',  '3', '15',    '45s'],
+    ['barbellCurl',      '4', '8–12',  '75s'],  // 1 — primary overload
+    ['inclineCurl',      '3', '10–12', '60s'],  // 2 — long head stretch/peak
+    ['preacherCurl',     '3', '10–12', '60s'],  // 3 — bottom tension, fullness
+    ['hammerCurl',       '3', '12',    '60s'],  // 4 — brachialis, thickness
+    ['cableCurl',        '3', '12–15', '60s'],  // 5 — constant tension top half
+    ['concentrationCurl','3', '12',    '45s'],  // 6 — peak contraction, short head
+    ['machineCurl',      '3', '15',    '45s'],  // 7 — drop set finisher
+    ['spiderCurl',       '3', '12',    '60s'],  // 8 — front-facing, width
+    ['reverseCurl',      '3', '12',    '60s'],  // 9 — brachioradialis, forearm tie-in
   ],
+
+  // TRICEPS — 9 exercises
+  // Order: overhead stretch first (long head) → compound press → pushdown isolation
   triceps: [
-    // Pushdown first — safe, hits all 3 heads, high volume tolerance
-    ['triPushdown',  '4', '12–15', '60s'],
-    // Overhead extension — only movement that fully stretches long head
-    ['ohTricep',     '3', '10–12', '75s'],
-    // Skull crusher — heavy isolation, long head emphasis
-    ['skullCrusher', '3', '10–12', '60s'],
-    // Dips — bodyweight compound closer
-    ['dipsTri',      '3', '12–15', '60s'],
+    ['ohTricep',         '3', '12',    '75s'],  // 1 — long head stretch, non-negotiable
+    ['skullCrusher',     '4', '10–12', '60s'],  // 2 — heavy isolation, long head
+    ['dipsTri',          '3', '12–15', '60s'],  // 3 — compound bodyweight
+    ['triPushdown',      '4', '12–15', '60s'],  // 4 — all 3 heads, high volume
+    ['cableOHTricep',    '3', '12–15', '60s'],  // 5 — long head constant tension
+    ['barPushdown',      '3', '12–15', '60s'],  // 6 — medial/lateral isolation
+    ['closeGripSmith',   '3', '10–12', '75s'],  // 7 — compound press, all heads
+    ['singleArmPushdown','3', '12',    '45s'],  // 8 — unilateral balance
+    ['diamondPushup',    '3', 'max',   '60s'],  // 9 — bodyweight finisher
   ],
+
+  // LEGS — 7 exercises (full pool)
   legs: [
-    // Leg press — primary quad hypertrophy compound (Smith squat also included)
-    ['smithSquat',   '4', '8–12',  '90s'],
-    ['legPress',     '4', '10–12', '75s'],
-    // Hamstring isolation
-    ['legCurl',      '3', '10–12', '75s'],
-    // Quad isolation finisher
-    ['legExt',       '3', '15',    '60s'],
-    // Hip — glute med + adductors for complete leg development
-    ['hipAbduct',    '3', '15',    '45s'],
-    ['hipAdduct',    '3', '15',    '45s'],
-    // Calves — require high volume, full ROM
-    ['calfRaise',    '4', '20',    '30s'],
+    ['smithSquat',  '4', '8–12',  '90s'],
+    ['legPress',    '4', '10–12', '75s'],
+    ['legCurl',     '3', '10–12', '75s'],
+    ['legExt',      '3', '15',    '60s'],
+    ['hipAbduct',   '3', '15',    '45s'],
+    ['hipAdduct',   '3', '15',    '45s'],
+    ['calfRaise',   '4', '20',    '30s'],
   ],
 };
 
-// ── STRENGTH POOLS (ordered: heaviest compound first, lower reps, full rest) ──
+// ── STRENGTH POOLS ─────────────────────────────────────────────────────────────
+// Science basis: Rhea et al. 2003; Ralston et al. 2017; ACSM 2026.
+// 1–6 rep range @ 80–90%+ 1RM, 2–3 min rest, neural adaptation focus.
+// Compounds lead every session. Fewer exercises but heavier and more rest.
 const STR_POOL = {
+
+  // CHEST — 10 exercises (same pool, different prescriptions + order)
+  // Strength order: heaviest barbell compound → guided press → machine supplement
   chest: [
-    // Barbell bench is THE strength chest movement — powerlifting standard
-    ['benchPress', '5', '3–5',  '3min'],
-    ['inclineDB',  '4', '5–6',  '2min'],
-    ['dipsChest',  '4', '6–8',  '2min'],
-    // Machine work for supplementary volume after heavy compounds
-    ['chestPress', '3', '8',    '90s'],
-    ['pecFly',     '3', '10',   '90s'],
+    ['benchPress',  '5', '3–5',  '3 min'],  // 1 — powerlifting standard
+    ['smithBench',  '4', '4–6',  '2.5 min'],// 2 — guided heavy press, safe solo
+    ['inclineSmith','4', '5–6',  '2.5 min'],// 3 — upper pec strength
+    ['dipsChest',   '4', '5–6',  '2 min'],  // 4 — bodyweight compound loaded
+    ['declineBench','4', '4–6',  '2.5 min'],// 5 — lower pec strength
+    ['inclineDB',   '3', '6–8',  '2 min'],  // 6 — unilateral stability under load
+    ['closeGripSmith','3','6–8', '2 min'],  // 7 — tricep-heavy pressing strength
+    ['chestPress',  '3', '8',    '90s'],    // 8 — machine supplement volume
+    ['pecFly',      '3', '10',   '90s'],    // 9 — isolation supplement
+    ['cableFly',    '3', '10',   '75s'],    // 10 — constant tension finisher
   ],
+
+  // BACK — 10 exercises
+  // Strength order: weighted pull-up → heavy pulldown → heavy row → isolation
   back: [
-    // Weighted pull-up or heavy lat pulldown as primary strength pull
-    ['pullUp',       '5', '4–6',  '3min'],
-    ['latPulldown',  '4', '5–6',  '2min'],
-    // Heavy row for thickness and posterior chain strength
-    ['cableRow',     '4', '5–6',  '2min'],
-    ['straightPull', '3', '10',   '90s'],
+    ['pullUp',            '5', '4–6',  '3 min'],  // 1 — weighted pull-up leads
+    ['latPulldown',       '4', '5–6',  '2 min'],  // 2 — heavy vertical pull
+    ['cableRow',          '4', '5–6',  '2 min'],  // 3 — heavy horizontal pull
+    ['underhandPulldown', '3', '6–8',  '90s'],    // 4 — lower lat strength
+    ['wideRow',           '3', '6–8',  '90s'],    // 5 — outer lat heavy row
+    ['closeGripPulldown', '3', '6–8',  '90s'],    // 6 — ROM-focused strength
+    ['singleArmRow',      '3', '8',    '90s'],    // 7 — unilateral overload
+    ['ropeRow',           '3', '10',   '75s'],    // 8 — rhomboid + rear delt
+    ['straightPull',      '3', '10',   '75s'],    // 9 — lat isolation
+    ['facePull',          '3', '15',   '60s'],    // 10 — rotator cuff health
   ],
+
+  // SHOULDERS — 5 exercises
   shoulders: [
-    // Seated DB press is the primary strength overhead movement here (no barbell OHP machine)
-    ['ohpDB',        '5', '4–6',  '3min'],
-    ['shoulderPress','4', '6–8',  '2min'],
-    // Lateral raises still high rep — deltoid responds better to volume
+    ['ohpDB',        '5', '4–6',  '3 min'],
+    ['shoulderPress','4', '6–8',  '2 min'],
     ['lateralRaise', '4', '12',   '60s'],
     ['facePull',     '3', '15',   '60s'],
+    ['dbLateral',    '3', '12',   '60s'],
   ],
+
+  // BICEPS — 9 exercises
+  // Strength order: heaviest barbell → preacher (heavy) → incline (stretch) → isolation
   biceps: [
-    // Strength bias: heavier barbell curls, lower reps, longer rest
-    ['barbellCurl',  '5', '5–6',  '2min'],
-    ['preacherCurl', '4', '6–8',  '90s'],
-    ['hammerCurl',   '3', '8',    '90s'],
-    ['machineCurl',  '3', '10',   '75s'],
+    ['barbellCurl',      '5', '5–6',  '2 min'],  // 1 — max load compound
+    ['preacherCurl',     '4', '6–8',  '90s'],    // 2 — strict, heavy
+    ['inclineCurl',      '3', '8',    '90s'],    // 3 — stretch-mediated strength
+    ['hammerCurl',       '4', '6–8',  '90s'],    // 4 — brachialis strength
+    ['spiderCurl',       '3', '8',    '90s'],    // 5 — short head heavy
+    ['cableCurl',        '3', '10',   '75s'],    // 6 — top-half strength
+    ['concentrationCurl','3', '10',   '75s'],    // 7 — peak isolation
+    ['machineCurl',      '3', '10',   '75s'],    // 8 — controlled loading
+    ['reverseCurl',      '3', '10',   '75s'],    // 9 — brachioradialis
   ],
+
+  // TRICEPS — 9 exercises
+  // Strength order: heaviest compound first (close-grip press / skull crusher)
   triceps: [
-    // Skull crushers lead for strength — heavy, low rep
-    ['skullCrusher', '5', '4–6',  '3min'],
-    ['dipsTri',      '4', '6–8',  '2min'],
-    ['ohTricep',     '3', '8',    '90s'],
-    ['triPushdown',  '3', '10',   '90s'],
+    ['closeGripSmith',   '5', '4–6',  '3 min'],  // 1 — heaviest tricep compound
+    ['skullCrusher',     '5', '4–6',  '2.5 min'],// 2 — long head heavy isolation
+    ['dipsTri',          '4', '5–6',  '2 min'],  // 3 — loaded bodyweight compound
+    ['ohTricep',         '3', '8–10', '90s'],    // 4 — long head strength
+    ['cableOHTricep',    '3', '8–10', '90s'],    // 5 — constant tension long head
+    ['barPushdown',      '3', '8–10', '90s'],    // 6 — medial/lateral heavy
+    ['triPushdown',      '3', '10',   '75s'],    // 7 — all heads volume
+    ['singleArmPushdown','3', '10',   '75s'],    // 8 — unilateral balance
+    ['diamondPushup',    '3', 'max',  '60s'],    // 9 — bodyweight burnout
   ],
+
+  // LEGS — 7 exercises
   legs: [
-    // Smith squat leads — progressive overload primary
-    ['smithSquat',   '5', '4–6',  '3min'],
-    ['legPress',     '4', '6–8',  '2min'],
-    ['legCurl',      '4', '6–8',  '2min'],
-    ['legExt',       '3', '10',   '90s'],
-    ['hipAbduct',    '3', '12',   '60s'],
-    ['hipAdduct',    '3', '12',   '60s'],
-    ['calfRaise',    '5', '15',   '60s'],
+    ['smithSquat',  '5', '4–6',  '3 min'],
+    ['legPress',    '4', '5–6',  '2 min'],
+    ['legCurl',     '4', '6–8',  '2 min'],
+    ['legExt',      '3', '10',   '90s'],
+    ['hipAbduct',   '3', '12',   '60s'],
+    ['hipAdduct',   '3', '12',   '60s'],
+    ['calfRaise',   '5', '15',   '60s'],
   ],
 };
 
 // ── EXERCISE COUNT BY TIME SLOT ────────────────────────────────────────────────
-// How many exercises per muscle group, keyed by slot index
-// Science basis: ~4–6 sets/exercise, rest periods determine total time
-// Definition: shorter rest = more exercises fit; Strength: longer rest = fewer exercises
-const DEF_EX_COUNT = [1, 2, 2, 3, 3, 4, 4, 5, 5, 6]; // 15→150 min
-const STR_EX_COUNT = [1, 1, 2, 2, 3, 3, 4, 4, 5, 5];
+// Slots: 15 | 30 | 45 | 60 | 75 | 90 | 105 | 120 | 135 | 150 min
+//
+// Definition: 60–90s rest per set, ~3–4 sets per exercise
+//   15 min  → 1 ex   (1 compound, ab block only)
+//   30 min  → 2 ex   (1 compound + 1 isolation)
+//   45 min  → 3 ex   (2 compound + 1 isolation)
+//   60 min  → 4 ex   (2 compound + 2 isolation)
+//   75 min  → 5 ex   (2 compound + 3 isolation)
+//   90 min  → 6 ex   (3 compound + 3 isolation)
+//   105 min → 7 ex   (3 compound + 4 isolation)
+//   120 min → 8 ex   (4 compound + 4 isolation)
+//   135 min → 9 ex   (4 compound + 5 isolation)
+//   150 min → 10 ex  (full pool — all 10 exercises)
+//
+// Strength: 2–3 min rest per set, ~4–5 sets per exercise
+//   15 min  → 1 ex   (1 heavy compound only)
+//   30 min  → 1 ex   (1 heavy compound, full sets)
+//   45 min  → 2 ex   (2 compounds)
+//   60 min  → 2 ex   (2 compounds with full rest)
+//   75 min  → 3 ex   (2 compound + 1 accessory)
+//   90 min  → 4 ex   (3 compound + 1 accessory)
+//   105 min → 5 ex   (3 compound + 2 accessory)
+//   120 min → 6 ex   (4 compound + 2 accessory)
+//   135 min → 7 ex   (4 compound + 3 accessory)
+//   150 min → 8 ex   (5 compound + 3 accessory)
+const DEF_EX_COUNT = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+const STR_EX_COUNT = [1, 1, 2, 2, 3, 4, 5, 6, 7,  8];
 
 // ── WARMUP BANK ───────────────────────────────────────────────────────────────
 const WARMUPS = {
@@ -552,43 +1048,92 @@ const WARMUPS = {
 // Your ab system: overload first, progressive resistance, banned movements excluded
 // Definition: higher reps, more volume; Strength: heavier weight, lower reps
 
-const ABS_DEF = {
-  // Slot 0–1 (15–30 min): 1–2 movements, quick and heavy
-  short:  [
-    {n:'Cable Crunches', sets:'4 × 12–15 (60s)', i:'Primary overload movement. Rope attachment at top of cable stack. Kneel, hold rope at either side of your face. Crunch DOWN by rounding the spine — elbows driving toward knees. This is spinal flexion, not a hip hinge. Add weight every session without exception. 4 sets of 12–15 is the minimum effective dose for ab hypertrophy (Schoenfeld, 2014).'},
-  ],
-  // Slot 2–3 (45–60 min): 2–3 movements
-  medium: [
-    {n:'Cable Crunches', sets:'4 × 12–15 (60s)', i:'Primary overload movement. Rope attachment at top of cable stack. Kneel, hold rope at either side of your face. Crunch DOWN by rounding the spine — elbows driving toward knees. This is spinal flexion, not a hip hinge. Add weight every session without exception.'},
-    {n:'Hanging Leg Raises', sets:'3 × 12 (60s)', i:'Dead hang from pull-up bar. Eliminate all swing before each rep. Initiate by tilting the pelvis posteriorly — lower abs engage before legs move. Raise legs to at least 90°, ideally higher. 3-second descent. Add ankle weights when 12 clean reps become easy. Research confirms hanging leg raises produce significantly higher lower rectus abdominis activation than floor-based alternatives.'},
-    {n:'Ab Wheel Rollout', sets:'3 × 10 (60s)', i:'Kneel on a pad. Roll forward until body is nearly parallel to the floor — maintain a rigid line from knee to shoulder. Do not let hips sag or lower back hyperextend. Roll back by contracting abs, not by pulling with the arms. The rollout creates extreme eccentric load on the rectus abdominis. Shorten range if form breaks.'},
-  ],
-  // Slot 4–9 (75–150 min): Full suite
-  full: [
-    {n:'Cable Crunches', sets:'4 × 15 (60s)', i:'Primary overload movement. Rope attachment at top. Kneel, rope held at face level. Crunch DOWN — spinal flexion only. Add weight each session. At higher time slots, push to true failure on the last set. The rectus abdominis responds to progressive overload like any other muscle — treat it accordingly.'},
-    {n:'Hanging Leg Raises', sets:'3 × 12–15 (60s)', i:'Dead hang, eliminate swing. Posterior pelvic tilt initiates the rep. Raise to 90°+ with control. 3-second descent. Add ankle weights when bodyweight becomes easy. Lower ab emphasis — the hip flexors are minimized when the pelvis tilts correctly.'},
-    {n:'Ab Wheel Rollout', sets:'3 × 12 (60s)', i:'Full extension rollout, rigid core throughout. Do not hyperextend lumbar. Pull back using abs. The ab wheel produces some of the highest rectus abdominis EMG activation of any exercise (Escamilla et al., 2010).'},
-    {n:'Oblique Cable Crunch', sets:'3 × 12 each side (45s)', i:'Same setup as cable crunches but crunch diagonally toward the opposite knee. The obliques create the visual side cuts — they are a separate muscle that needs direct overload. Keep weight heavy. Do each side fully before switching. Do not rush.'},
-    {n:'Pallof Press', sets:'3 × 12 each side (45s)', i:'Stand perpendicular to cable at chest height. Hold cable handle at sternum, step out to create tension. Press directly forward, hold 2 seconds, return slowly. Your only task is resisting rotation. Anti-rotation training strengthens the transverse abdominis and obliques under stabilization load — a function no crunch variation replicates.'},
-  ],
-};
+// ── ABS BANK ─────────────────────────────────────────────────────────────────
+// Personal profile: 5'10 / 149lb / lean / goal = blocky 6-pack + oblique cuts
+// Equipment: dumbbells, plates (25/35/45lb), weight balls — NO machines
+// BANNED: hanging leg raises, hanging knee raises, reverse crunches, cat-cow
+//
+// Session structure (always): 1. Overload → 2. Builder → 3. Finisher
+// Definition: 10–20 rep range, 15–30s rest, time under tension focus
+// Strength: 10–12 heavy reps, 20–25s rest, max load with controlled form
+//
+// 3 sessions per week. At least one true overload move per session.
+// Definition comes from muscle thickness + low body fat — not rep volume.
+//
+// Rotates across 5 distinct sessions so every 5 sessions = full variety.
+// Session selected by: (slotIdx + sessionRotation) % 5
+// sessionRotation increments each compile so sessions don't repeat back-to-back.
 
-const ABS_STR = {
-  short: [
-    {n:'Cable Crunches', sets:'4 × 8–10 heavy (75s)', i:'Primary strength ab movement. Load heavier than definition sessions — you should reach true failure by rep 8–10. The same progressive overload principles that apply to any muscle apply here. Track the weight and add resistance weekly.'},
-  ],
-  medium: [
-    {n:'Cable Crunches', sets:'4 × 8–10 heavy (75s)', i:'Load heavier than definition sessions. True failure by rep 8–10. Track weight and add resistance weekly. Strength-oriented ab training builds the thickness and density that shows through at low body fat.'},
-    {n:'Hanging Leg Raises', sets:'4 × 10 + ankle weight (75s)', i:'Add ankle weights — start at 2.5–5kg. Posterior pelvic tilt, full range, controlled descent. The additional load on the hip flexors also strengthens the iliopsoas which contributes to athletic performance.'},
-  ],
-  full: [
-    {n:'Cable Crunches', sets:'5 × 8–10 heavy (90s)', i:'Heaviest load you can complete with full spinal flexion. No form breakdown. Add weight every session. On strength days the abs should be trained just like the bench press — low reps, high load, full rest.'},
-    {n:'Hanging Leg Raises', sets:'4 × 10 + ankle weight (75s)', i:'Weighted ankle raises. Posterior pelvic tilt initiates each rep. Full ROM. 3-second descent. Ankle weights should be heavy enough that 10 reps is a genuine challenge.'},
-    {n:'Decline Weighted Sit-Up', sets:'4 × 10–12 (75s)', i:'Set bench 30–45°. Hold a plate at chest. Lower fully to bench, rise using spinal flexion only. The decline creates a longer range of motion than flat sit-ups, maximizing stretch on the rectus abdominis under load.'},
-    {n:'Oblique Cable Crunch', sets:'3 × 10 heavy each side (60s)', i:'Heavy oblique isolation. The obliques are a primary trunk strength muscle — not just an aesthetic one. Heavy weighted oblique work contributes to rotational force output in athletic movements.'},
-    {n:'Pallof Press', sets:'3 × 12 each side (60s)', i:'Anti-rotation core stability. Essential for transferring strength from the lower to upper body. Treat it as a serious strength movement, not a cooldown.'},
-  ],
-};
+// Each session: [overload, builder, finisher]
+// All exercises use EX module keys — n/d/s/i all pulled from EX library above.
+
+const ABS_SESSIONS = [
+  // Session A — Plate heavy + rollout finisher
+  {
+    label: 'Heavy Plate Day',
+    exercises: [
+      { key: 'weightedCrunch',   role: 'overload'  },
+      { key: 'russianTwist',     role: 'builder'   },
+      { key: 'abWheelRollout',   role: 'finisher'  },
+    ],
+  },
+  // Session B — Sit-up primary + straight leg + hollow hold
+  {
+    label: 'Rectus Builder',
+    exercises: [
+      { key: 'weightedSitUp',    role: 'overload'  },
+      { key: 'straightLegRaise', role: 'builder'   },
+      { key: 'hollowBodyHold',   role: 'finisher'  },
+    ],
+  },
+  // Session C — Slow tempo crunch + toe touch + side plank
+  {
+    label: 'Time Under Tension',
+    exercises: [
+      { key: 'slowTempoCrunch',  role: 'overload'  },
+      { key: 'toeTouchCrunch',   role: 'builder'   },
+      { key: 'sidePlank',        role: 'finisher'  },
+    ],
+  },
+  // Session D — Weighted crunch + rollout + plank shoulder taps
+  {
+    label: 'Oblique + Core',
+    exercises: [
+      { key: 'weightedCrunch',   role: 'overload'  },
+      { key: 'abWheelRollout',   role: 'builder'   },
+      { key: 'plankShoulderTap', role: 'finisher'  },
+    ],
+  },
+  // Session E — Sit-up + Russian twist + active plank
+  {
+    label: 'Full Core Circuit',
+    exercises: [
+      { key: 'weightedSitUp',    role: 'overload'  },
+      { key: 'russianTwist',     role: 'builder'   },
+      { key: 'plank',            role: 'finisher'  },
+    ],
+  },
+];
+
+// Session rotation counter — increments each compile for variety
+if (typeof window !== 'undefined' && !window._absRotation) window._absRotation = 0;
+
+function getAbsSession(slotIdx) {
+  const rot = (typeof window !== 'undefined' ? (window._absRotation || 0) : 0);
+  const idx = (slotIdx + rot) % ABS_SESSIONS.length;
+  const session = ABS_SESSIONS[idx];
+  // Resolve exercise keys to full EX module objects
+  return session.exercises.map(e => ({
+    ...EX[e.key],
+    role: e.role,
+    label: session.label,
+  }));
+}
+
+// ABS_DEF kept as alias for backward compat with getRoutine
+// getRoutine now calls getAbsSession() instead
+const ABS_DEF = null;
+const ABS_STR = null;
 
 // ── NOTES BANK ────────────────────────────────────────────────────────────────
 const NOTES_DEF = [
@@ -607,53 +1152,83 @@ const NOTES_STR = [
 ];
 
 // ── MAIN ROUTINE BUILDER ──────────────────────────────────────────────────────
+//
+// TIME MODEL (how a real session works):
+//   Warmup:    5–10 min fixed (not scaled per exercise, just shown as guidance)
+//   Ab block:  always 3 fixed exercises ~12 min, always closes the session
+//   Main lift: fills the middle — exercise count scales with remaining time
+//
+// MULTI-GROUP LOGIC:
+//   Total exercise count from slot table is split across ALL selected groups.
+//   Example: 1h15m = 5 total exercises. Chest+Back = 2–3 each, not 5 each.
+//   This mirrors how real programming works — you don't triple the volume
+//   just because you train two groups in one session.
+//
+// PRESCRIPTION LOGIC (Bug 4 fix):
+//   DEF_POOL stores definition prescriptions [key, defSets, defReps, defRest]
+//   STR_POOL stores strength prescriptions [key, strSets, strReps, strRest]
+//   The routine builder reads from the correct pool based on mode.
+//   ex.d is set from DEF_POOL, ex.s is set from STR_POOL independently.
+//   Renderer then picks ex.d or ex.s based on current workMode.
+
 function getRoutine(groups, modeKey, slotIdx) {
   const t = SLOTS[slotIdx].v;
   const isStr = modeKey === 'str';
-  const pool = isStr ? STR_POOL : DEF_POOL;
-  const exCounts = isStr ? STR_EX_COUNT : DEF_EX_COUNT;
-  const exCount = exCounts[slotIdx];
 
-  // ── WARMUP: scales with time and mode ──
+  // ── WARMUP ──────────────────────────────────────────────────────────────────
+  // 15 min: just base cardio. 30+: add dynamic. 45+: add activation/ramp-up.
   const warmup = [WARMUPS.base];
   if (t >= 30) warmup.push(WARMUPS.dynamic);
   if (t >= 45) warmup.push(isStr ? WARMUPS.strWarmup : WARMUPS.activate);
 
-  // ── MAIN: build exercise list from groups ──
-  // For multi-group sessions, distribute exercise slots evenly
-  const main = [];
-  const exPerGroup = Math.max(1, Math.ceil(exCount / Math.max(1, groups.length)));
+  // ── MAIN EXERCISES ──────────────────────────────────────────────────────────
+  // Total exercises for the session (shared across all selected groups)
+  const totalEx = isStr ? STR_EX_COUNT[slotIdx] : DEF_EX_COUNT[slotIdx];
+  const numGroups = Math.max(1, groups.length);
 
-  groups.forEach(g => {
-    const groupPool = pool[g] || [];
-    // Always include the compound(s) first, then fill with isolation
-    const picks = groupPool.slice(0, exPerGroup);
-    picks.forEach(([key, sets, reps, rest]) => {
-      if (!main.find(e => e.key === key)) {
-        const base = EX[key];
-        if (base) main.push({
-          ...base,
-          key,
-          // Override sets/reps/rest with science-backed prescription for this mode
-          d: `${sets} × ${reps} (${rest})`,
-          s: `${sets} × ${reps} (${rest})`,
-        });
-      }
-    });
+  // Each group gets a fair share. Compound groups (chest, back) always get
+  // at least 1; compound-heavy sessions cap at pool depth.
+  const basePerGroup = Math.max(1, Math.floor(totalEx / numGroups));
+  const remainder    = totalEx - (basePerGroup * numGroups);
+
+  const main = [];
+  groups.forEach((g, gi) => {
+    const defPool = DEF_POOL[g] || [];
+    const strPool = STR_POOL[g] || [];
+    const count   = Math.min(
+      basePerGroup + (gi < remainder ? 1 : 0),
+      defPool.length  // never exceed what's in the pool
+    );
+
+    for (let i = 0; i < count; i++) {
+      const defEntry = defPool[i];
+      const strEntry = strPool[i] || defPool[i]; // fallback if str pool shorter
+      if (!defEntry) continue;
+      const [key, dSets, dReps, dRest] = defEntry;
+      const [,    sSets, sReps, sRest] = strEntry;
+      const base = EX[key];
+      if (!base || main.find(e => e.key === key)) continue;
+      main.push({
+        ...base,
+        key,
+        d: `${dSets} × ${dReps} (${dRest})`,  // definition prescription
+        s: `${sSets} × ${sReps} (${sRest})`,  // strength prescription
+      });
+    }
   });
 
-  // ── ABS: always included, scales with time and mode ──
-  const absBank = isStr ? ABS_STR : ABS_DEF;
-  let abs;
-  if (t <= 30)      abs = absBank.short;
-  else if (t <= 60) abs = absBank.medium;
-  else               abs = absBank.full;
+  // ── ABS ─────────────────────────────────────────────────────────────────────
+  // Always 3 fixed exercises. Never scales with time — this is a 12-min block.
+  // ABS_DEF uses {n, d, s, i} format so the renderer can apply mode correctly.
+  // Abs: structured 3-exercise session (overload → builder → finisher)
+  // Rotates across 5 preset sessions for variety. Never scaling with time.
+  const abs = getAbsSession(slotIdx);
+  if (typeof window !== 'undefined') window._absRotation = ((window._absRotation || 0) + 1) % 5;
 
-  // ── NOTES: pick 2 relevant notes ──
-  const noteBank = isStr ? NOTES_STR : NOTES_DEF;
-  // Rotate based on slot to keep it fresh across sessions
+  // ── NOTES ───────────────────────────────────────────────────────────────────
+  const noteBank  = isStr ? NOTES_STR : NOTES_DEF;
   const noteStart = slotIdx % (noteBank.length - 1);
-  const notes = [noteBank[noteStart], noteBank[noteStart + 1]];
+  const notes     = [noteBank[noteStart], noteBank[noteStart + 1]];
 
   return { warmup, main, abs, notes };
 }
@@ -835,14 +1410,18 @@ function renderCoreBlock(items) {
   return `<div class="w-block blk-in" style="border-left-color:${color};animation-delay:.14s;">
     <div style="padding:.85rem 1.1rem .7rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;transition:border-color .55s ease;">
       <div style="font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:.12em;color:${color};transition:color .55s ease;"><span style="display:inline-flex;align-items:center;gap:.4rem;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg> Core Block</span></div>
-      <div style="font-size:.52rem;letter-spacing:.15em;text-transform:uppercase;color:${color};border:1px solid ${color};padding:.18rem .4rem;opacity:.55;">core</div>
+      <div style="font-size:.5rem;letter-spacing:.12em;text-transform:uppercase;color:${color};border:1px solid ${color};padding:.18rem .4rem;opacity:.55;max-width:90px;text-align:right;line-height:1.3;">${items[0]&&items[0].label?items[0].label:'core'}</div>
     </div>
     ${items.map((ex,i)=>{
       const sets = workMode==='str' ? (ex.s||ex.d) : ex.d;
+      const roleColor = ex.role==='overload' ? 'var(--accent)' : ex.role==='builder' ? 'var(--mid)' : 'var(--fog)';
       return `<div class="ex-row" onclick="toggleInfo('core${i}')">
         <div class="ex-main">
-          <span class="ex-name">${ex.n}</span>
-          <div style="display:flex;align-items:center;">
+          <div style="display:flex;flex-direction:column;gap:.15rem;flex:1;min-width:0;">
+            <span style="font-size:.5rem;letter-spacing:.15em;text-transform:uppercase;color:${roleColor};font-family:'Courier Prime',monospace;transition:color .55s ease;">${ex.role||''}</span>
+            <span class="ex-name">${ex.n}</span>
+          </div>
+          <div style="display:flex;align-items:center;flex-shrink:0;">
             <span class="ex-sets" style="color:${color};">${sets}</span>
             <span class="chev" id="chv-core${i}" style="color:var(--fog);"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
           </div>
@@ -878,8 +1457,8 @@ function toggleInfo(uid) {
 function preConfigHIIT() {
   if (!st.workout||!st.workout.abs) return;
   // Map abs to HIIT ex IDs
-  const coreToHIIT = {cableCrunch:'cableCrunchHIIT',hangLegRaise:'hangRaiseHIIT'};
-  const hiitIds = ['cableCrunchHIIT','hangRaiseHIIT','mtnClimb','highKnee'];
+  // Pre-config uses only approved ab movements — no banned exercises
+  const hiitIds = ['weightedCrunchHIIT','straightLegHIIT','mtnClimb','highKnee'];
   st.hiitMode = 'queue';
   st.hiitWork = 40;
   st.hiitRest = 20;
